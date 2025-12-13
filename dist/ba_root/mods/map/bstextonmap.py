@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 import bascenev1 as bs
 from bascenev1 import _map
+import fire
 
 # Save original Map.__init__ to call it safely
 
@@ -93,6 +94,15 @@ def _map_custom_init(self, *args, **kwargs):
                                    'h_attach': 'right',
                                    'v_attach': 'bottom'})
 
+    # snow on map
+    def snowfall():
+        p = (-10+(random.random()*30),15,-10+(random.random()*30))
+        v = ((-5.0+random.random()*30.0) * (-1.0 if p[0] > 0 else 1.0), -50.0,(-5.0+random.random()*30.0) * (-1.0 if p[0] > 0 else 1.0))
+        bs.emitfx(position=p,velocity=v,count=int(5),scale=1+random.random(),spread=0,chunk_type='spark')
+        
+    #bs.Timer(20,bs.Call(snowfall),repeat = True) no more used. was used for 1.4
+    if fire.snow:
+        bs.timer(1, bs.CallPartial(snowfall),repeat = True)
 
 def enable_textonmap():
     """Enable text-on-map for all maps."""

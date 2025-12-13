@@ -18,6 +18,7 @@ from bascenev1 import _powerup
 from bascenev1._gameactivity import GameActivity
 import babase
 import _babase
+from config import powerup_config as pwp
 
 if TYPE_CHECKING:
     from typing import Any, Sequence
@@ -228,23 +229,33 @@ class NewPowerupBox(bs.Actor):
 
         if poweruptype == 'triple_bombs':
             tex = factory.tex_bomb
+            name = "TripleBombs"
         elif poweruptype == 'punch':
             tex = factory.tex_punch
+            name = "Punch"
         elif poweruptype == 'ice_bombs':
             tex = factory.tex_ice_bombs
+            name = "IceBombs"
         elif poweruptype == 'impact_bombs':
             tex = factory.tex_impact_bombs
+            name = "ImpactBombs"
         elif poweruptype == 'land_mines':
             tex = factory.tex_land_mines
+            name = "LandMines"
         elif poweruptype == 'sticky_bombs':
             tex = factory.tex_sticky_bombs
+            name = "StickyBombs"
         elif poweruptype == 'shield':
             tex = factory.tex_shield
+            name = "Shield"
         elif poweruptype == 'health':
             tex = factory.tex_health
+            name = "Health"
         elif poweruptype == 'curse':
             tex = factory.tex_curse
+            name = "Curse"
         else:
+            name = "INVALID"
             raise ValueError('invalid poweruptype: ' + str(poweruptype))
 
         if len(position) != 3:
@@ -265,9 +276,118 @@ class NewPowerupBox(bs.Actor):
                 'materials': (factory.powerup_material, shared.object_material),
             },
         )
+        
+        # global configs  --> port to mighty fire.py soon
+        
+        # text on powerup
+        if pwp.text:
+            text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.7, 0), 'operation': 'add'})        
+            self.node.connectattr('position', text, 'input2')
+            self.spazText = bs.newnode('text',
+                             owner=self.node,
+                             attrs={
+                                'text': str(name),
+                                'in_world': True,
+                                'color': (1,1,1),
+                                'shadow': 1.0,
+                                'flatness': 1.0,
+                                'scale': 0.012,
+                                'h_align': 'center',
+                             })
+            text.connectattr('output', self.spazText, 'position')
+            bs.animate(self.spazText, 'scale', {0:0, 0.2:0, 0.6:0.014, 0.8:0.010})
+            if pwp.light:
+                bs.animate_array(node=self.spazText, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+       
+        
+        
+        # shield on powerup
+        if pwp.shield:
+            self.shield = bs.newnode('shield',
+                                 owner=self.node,
+                                 attrs={
+                                     'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),
+                                     'radius': 1.2})
+            self.node.connectattr('position', self.shield, 'position')
+            if pwp.light:
+                bs.animate_array(node=self.shield, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+
+
+        # pwp expiration text
+        if pwp.expire_text:
+            if pwp.text:
+                # if pwp text on, go a bit higher
+                text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 1.15, 0), 'operation': 'add'})  
+            else:
+                # come down to pwp text lvl if pwp text is off
+                text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.7, 0), 'operation': 'add'})  
+            self.node.connectattr('position', text, 'input2')
+            self.spazText = bs.newnode('text',
+                             owner=self.node,
+                             attrs={
+                                'text': '',
+                                'in_world': True,
+                                'color': (1,1,1),
+                                'shadow': 1.0,
+                                'flatness': 1.0,
+                                'scale': 0.012,
+                                'h_align': 'center',
+                             })
+            text.connectattr('output', self.spazText, 'position')
+            bs.animate(self.spazText, 'scale', {0:0, 0.2:0, 0.6:0.014, 0.8:0.010})
+            # timer logic
+            self._pwp_time_left = int(DEFAULT_POWERUP_INTERVAL-1)
+            def _update_powerup_timer():
+                if not self.spazText or not self.spazText.exists():
+                     # Node might be gone (player died, powerup removed, etc)
+                    return 
+                    
+                if self._pwp_time_left <= 0:
+                    self.spazText.text = ''
+                    return
+                    
+                self.spazText.text = f'{self._pwp_time_left}'
+                self._pwp_time_left -= 1
+                
+            _update_powerup_timer()
+            bs.timer(1.0, _update_powerup_timer, repeat=True)
+        
+        # pwp gravity - raises pwp by a bit, for fun i guess
+        if pwp.grav:
+            self.node.gravity_scale = 0
+            
+        # pwp explosive start
+        if pwp.explo:        
+            velocity=(0, 0, 0)
+            explosion = bs.newnode("explosion", attrs={
+                'position': self.node.position,
+                'color': ((0+random.random()*1.0),(0+random.random()*1.0),(0+random.random()*1.0)),
+                'velocity': (velocity[0], max(-1.0, velocity[1]), velocity[2]),
+                'radius': (1.3)})
+
+        # extra pwp flash animation --> improved compared to 1.4
+        if pwp.flash:        
+            m = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.0, 0), 'operation': 'add'})
+            self.node.connectattr('position', m, 'input2')
+            self.flash = bs.newnode("flash",
+                        owner=self.node,
+                        attrs={'position':self.node.position,
+                               'size':0.7,
+                               'color':((0+random.random()*1.0),(0+random.random()*1.0),(0+random.random()*1.0))})
+            m.connectattr('output', self.flash, 'position') 
+            bs.animate_array(node=self.flash, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+            
+            def flash_timer():
+                if self.flash and self.flash.exists():
+                    self.flash.delete()
+                    # del after 7 sec
+            bs.timer(7, flash_timer)
 
         # Animate in.
-        curve = bs.animate(self.node, 'mesh_scale', {0: 0, 0.14: 1.6, 0.2: 1})
+        if pwp.flash: # make the box invisible only when flash enabled
+            curve = bs.animate(self.node, 'mesh_scale', {0: 0, 0.14: 0, 0.2: 0})
+        else:
+            curve = bs.animate(self.node, 'mesh_scale', {0: 0, 0.14: 1.6, 0.2: 1})
         bs.timer(0.2, curve.delete)
 
         if expire:
@@ -312,7 +432,10 @@ class NewPowerupBox(bs.Actor):
                 if msg.immediate:
                     self.node.delete()
                 else:
-                    bs.animate(self.node, 'mesh_scale', {0: 1, 0.1: 0})
+                    if pwp.flash: # dont even show a bit for flash on death
+                        bs.animate(self.node, 'mesh_scale', {0: 0, 0.1: 0})
+                    else:
+                        bs.animate(self.node, 'mesh_scale', {0: 0, 0.1: 0})
                     bs.timer(0.1, self.node.delete)
 
         elif isinstance(msg, bs.OutOfBoundsMessage):
@@ -330,7 +453,7 @@ def new_get_default_powerup_distribution():
     """Standard set of powerups."""
     return (
         ('triple_bombs', 3),
-        ('ice_bombs', 2322),
+        ('ice_bombs', 2),
         ('punch', 2),
         ('impact_bombs', 2),
         ('land_mines', 2),
