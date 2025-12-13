@@ -1,3 +1,15 @@
+
+1. apt update && apt upgrade - use sudo if needed
+
+2. apt install software-properties-common -y
+
+3. add-apt-repository ppa:deadsnakes/ppa
+
+4. apt install python3.13-dev
+
+5. ./bombsquad_server ---> if throwing perm issues (dont use sudo) ---> sudo chmod -R 777 <root_directory_name>
+
+
 To run this, simply cd into this directory and run ./bombsquad_server
 (on mac or linux) or launch_bombsquad_server.bat (on windows).
 You'll need to open a UDP port (43210 by default) so that the world can
