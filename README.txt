@@ -1,5 +1,5 @@
 
-1. apt update && apt upgrade - use sudo if needed
+1. apt update && apt upgrade - use sudo if needed   ----> 1.7.59 BS Version
 
 2. apt install software-properties-common -y
 
