@@ -893,7 +893,7 @@ class NewBomby(bs.Actor):
                     'sticky': sticky,
                     'owner': owner,
                     'reflection': rtype,
-                    'reflection_scale': [rscale],
+                    'reflection_scale': [rscale] if bomb_type != 'normal' else ((0+random.random()*20.0),(0+random.random()*20.0),(0+random.random()*20.0)),
                     'materials': materials,
                 },
             )
