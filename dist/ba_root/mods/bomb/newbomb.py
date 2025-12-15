@@ -17,6 +17,8 @@ from bascenev1lib.gameutils import SharedObjects
 from bascenev1lib.actor import bomb
 from bascenev1lib.actor.bomb import Bomb, ExplodeMessage, ArmMessage, WarnMessage, Blast, BombFactory, ExplodeHitMessage, ImpactMessage, SplatMessage
 
+from config import bomb_config as bmb
+
 bomb_types = [
     'ice', 'impact', 'landMine', 'normal', 'sticky', 'tnt']
 
@@ -905,6 +907,9 @@ class NewBomby(bs.Actor):
             )
             self.node.connectattr('position', sound, 'position')
             bs.animate(self.node, 'fuse_length', {0.0: 1.0, fuse_time: 0.0})
+            
+            bts = ['ice', 'impact', 'landMine', 'normal', 'sticky', 'tnt']
+
 
         # Light the fuse!!!
         if self.bomb_type not in ('land_mine', 'tnt'):
@@ -913,12 +918,124 @@ class NewBomby(bs.Actor):
                 fuse_time,
                 bs.WeakCallStrict(self.handlemessage, ExplodeMessage()),
             )
-
-        bs.animate(
-            self.node,
-            'mesh_scale',
-            {0: 0, 0.2: 1.3 * self.scale, 0.26: self.scale},
-        )
+            
+        BOMB_NAMES = { #custom bomb names, even for landmine
+            'normal': 'Normal',
+            'ice': 'Ice',
+            'sticky': 'Sticky',
+            'impact': 'Impact',
+            'land_mine': 'Mine'
+        }
+        bomb_name = BOMB_NAMES[bomb_type]
+            
+        if bmb.bomb_name:
+            text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.5, 0), 'operation': 'add'})        
+            self.node.connectattr('position', text, 'input2')
+            self.spazText = bs.newnode('text',
+                             owner=self.node,
+                             attrs={
+                                'text': bomb_name if bomb_name else bomb_type, #even if bomb_name dont exist, return bomb_type
+                                'in_world': True,
+                                'color': (1,1,1),
+                                'shadow': 1.0,
+                                'flatness': 1.0,
+                                'scale': 0.01,
+                                'h_align': 'center'})
+            text.connectattr('output', self.spazText, 'position')
+            if bmb.light:
+                bs.animate_array(node=self.spazText, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+        
+        if bmb.shield:        
+            self.shield = bs.newnode('shield',
+                                 owner=self.node,
+                                 attrs={
+                                     'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),    
+                                     'radius': 0.8})
+            self.node.connectattr('position', self.shield, 'position')
+            if bmb.light:
+                bs.animate_array(node=self.shield, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+            
+        if bmb.bomb_model:    
+            shieldy = bs.newnode('math', owner=self.node, attrs={'input1': (0, -0.03, 0), 'operation': 'add'}) 
+            self.node.connectattr('position', shieldy, 'input2')
+            self.shield = bs.newnode('shield',
+                                 owner=self.node,
+                                 attrs={
+                                     'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),    
+                                     'radius': 0.5125,
+                                     'position': (self.node.position[0],self.node.position[1],self.node.position[2] + 0.5)})
+            self.node.connectattr('position', self.shield, 'position')
+            shieldy.connectattr('output', self.shield, 'position')
+        
+        if bmb.spike_model:    
+            shieldy = bs.newnode('math', owner=self.node, attrs={'input1': (0, -0.03, 0), 'operation': 'add'}) 
+            self.node.connectattr('position', shieldy, 'input2')
+            self.shield = bs.newnode('shield',
+                                 owner=self.node,
+                                 attrs={
+                                     'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),    
+                                     'radius': 0.5125,
+                                     'position': (self.node.position[0],self.node.position[1],self.node.position[2] + 0.5)})
+            self.node.connectattr('position', self.shield, 'position')
+            shieldy.connectattr('output', self.shield, 'position')
+            #
+            m = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.0, 0), 'operation': 'add'})
+            self.node.connectattr('position', m, 'input2')
+            self.flash = bs.newnode("flash",
+                        owner=self.node,
+                        attrs={'position':self.node.position,
+                               'size':0.3,
+                               'color':((0+random.random()*1.0),(0+random.random()*1.0),(0+random.random()*1.0))})
+            m.connectattr('output', self.flash, 'position') 
+            bs.animate_array(node=self.flash, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+            
+        if bmb.bomb_expire:
+          bts = ['impact','land_mine','tnt']
+          if bomb_type not in bts:
+            if bmb.bomb_name:
+                # if bmb text on, go a bit higher
+                text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.95, 0), 'operation': 'add'})  
+            else:
+                # come down to bmb text lvl if bmb text is off
+                text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.5, 0), 'operation': 'add'})  
+            self.node.connectattr('position', text, 'input2')
+            self.spazText = bs.newnode('text',
+                             owner=self.node,
+                             attrs={
+                                'text': '',
+                                'in_world': True,
+                                'color': (1,1,1),
+                                'shadow': 1.0,
+                                'flatness': 1.0,
+                                'scale': 0.012,
+                                'h_align': 'center',
+                             })
+            text.connectattr('output', self.spazText, 'position')
+            bs.animate(self.spazText, 'scale', {0:0, 0.2:0, 0.6:0.014, 0.8:0.010})
+            # timer logic
+            DEFAULT_POWERUP_INTERVAL = 4
+            self._bmb_time_left = int(DEFAULT_POWERUP_INTERVAL-1)
+            def _update_bomb_timer():
+                if not self.spazText or not self.spazText.exists():
+                     # Node might be gone (player died, powerup removed, etc)
+                    return 
+                    
+                if self._bmb_time_left <= 0:
+                    self.spazText.text = ''
+                    return
+                    
+                self.spazText.text = f'{self._bmb_time_left}'
+                self._bmb_time_left -= 1
+                
+            _update_bomb_timer()
+            bs.timer(1.0, _update_bomb_timer, repeat=True)
+            
+        if bmb.bomb_model or bmb.spike_model:
+            bs.animate(self.node,'mesh_scale',
+                {0: 0, 0.2: 0, 0.26: 0})
+        else:
+            bs.animate(self.node,'mesh_scale',
+                {0: 0, 0.2: 1.3 * self.scale, 0.26: self.scale})
 
     def get_source_player[PlayerT: bs.Player](
         self, playertype: type[PlayerT]
