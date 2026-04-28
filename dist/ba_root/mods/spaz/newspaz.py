@@ -87,6 +87,7 @@ def newSpazInit(self, *args, **kwargs):
     self.random_characters = False #for rando chars
     self.fall_protect = False #for fall protection
     self.allow_powerup = True #config to allow players accept pwp
+    self.last_change_time = 0 #for afk checker
         
         
 def new_handlemessage(self, msg: Any) -> Any:
@@ -1706,6 +1707,30 @@ def new_on_pickup_press(self) -> None:
         self._turbo_filter_add_press('pickup')
 
 
+def new_on_move_up_down(self, value: float) -> None:
+        """
+        Called to set the up/down joystick amount on this spaz;
+        used for player or AI connections.
+        value will be between -32768 to 32767
+        WARNING: deprecated; use on_move instead.
+        """
+        if not self.node:
+            return
+        self.last_change_time = bs.time()
+        self.node.move_up_down = value
+        
+def new_on_move_left_right(self, value: float) -> None:
+        """
+        Called to set the left/right joystick amount on this spaz;
+        used for player or AI connections.
+        value will be between -32768 to 32767
+        WARNING: deprecated; use on_move instead.
+        """
+        if not self.node:
+            return
+        self.last_change_time = bs.time()
+        self.node.move_left_right = value
+
 def enable_spaz():
     Spaz.handlemessage = new_handlemessage
     Spaz.on_punch_press = new_on_punch_press
@@ -1721,3 +1746,5 @@ def enable_spaz():
     Spaz.set_boom_bomb_count = set_boom_bomb_count
     Spaz.set_headache_count = set_headache_count
     Spaz.__init__ = newSpazInit
+    Spaz.on_move_up_down = new_on_move_up_down
+    Spaz.on_move_left_right = new_on_move_left_right

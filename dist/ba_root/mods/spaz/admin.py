@@ -5,6 +5,7 @@ import random
 from spaz import member_id as mem
 from bascenev1lib.actor.playerspaz import PlayerSpaz
 from typing import Sequence
+from bascenev1lib.actor.popuptext import PopupText as pptx
 
 class SpazPlayer(PlayerSpaz):
     """
@@ -32,6 +33,12 @@ class SpazPlayer(PlayerSpaz):
         player_id = self.source_player.node.playerID #thanx to friedfighter
         acc = self._player._sessionplayer.get_v1_account_id()
         
+        player = self._player._sessionplayer
+        acc = player.get_v1_account_id()
+        print(acc)
+        
+        self.decorate(player)
+        
         if acc in mem.name:
             k = mem.name[acc]#stored value
             self._prefix_tag(pos=(0, 1.45, 0), scales=0.01, prefix=k)
@@ -55,6 +62,46 @@ class SpazPlayer(PlayerSpaz):
             
             if acc not in mem.name:
                 self._prefix_tag(pos=(0, 1.45, 0), scales=0.01, prefix='O|W|N|E|R')
+                
+    '''def decorate(self, player): #old logeek timer
+        p = player.get_account_id()
+        timeout = 60
+        def afk_checker(to):
+            import bascenev1 as bs
+            t = bs.time()
+            if self.is_alive() and t - self.last_change_time > to:
+                bs.broadcastmessage(f'Removing {player.getname()} for being AFK for more than {int(to / 1)} seconds')
+                player.remove_from_game() 
+        self.afk_timer = bs.Timer(timeout+1, babase.CallStrict(afk_checker, timeout), repeat=True)'''
+    
+    
+    def decorate(self, player):
+        import bascenev1 as bs
+        import babase
+
+        p = player.get_account_id()
+        timeout = 60
+        self.last_change_time = bs.time()
+        self._warned = set()
+
+        def afk_checker(to): #improved with PCModder
+            t = bs.time()
+            inactive = t - self.last_change_time
+
+            if self.is_alive():
+                for w in (30, 40, 50):
+                    if inactive >= w and w not in self._warned:
+                        self._warned.add(w)
+                        #bs.broadcastmessage(f"{player.getname()} is AFK ({int(inactive)}s)")
+                        pptx(f"AFK ({int(inactive)}s)",color=(1, 0, 0), scale=1.5,position=self.node.position,).autoretain()
+
+                if inactive >= to:
+                    bs.broadcastmessage(
+                        f"Removing {player.getname()} for being AFK for more than {to} seconds"
+                    )
+                    player.remove_from_game()
+
+        self.afk_timer = bs.Timer(1.0, babase.CallStrict(afk_checker, timeout), repeat=True)
 
     def _prefix_tag(self, pos=(1,1,1), scales=0.008, prefix='admin'):
         import bascenev1 as ba

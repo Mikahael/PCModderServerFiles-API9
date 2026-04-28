@@ -142,25 +142,24 @@
  "Fleet Zone Ping Last Flush Time": 1777191297,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 201.15274061624314,
-   "delhi.v4": 191.0117405319479,
-   "hong_kong.v4": 290.63871401982306,
-   "hyderabad.v4": 206.1562423566363,
-   "jakarta.v4": 353.0971001201815,
-   "kolkata.v4": 202.1386977873612,
-   "kuala_lampur.v4": 194.31845800141562,
-   "manila.v4": 311.1297974580566,
-   "mumbai.v4": 168.29505273124772,
-   "perth.v4": 215.12027000017042,
-   "seoul.v4": 309.6644820002439,
-   "singapore.v4": 135.5531157641799,
-   "taipei.v4": 217.79642227407203,
-   "tel_aviv.v4": 338.5658290003448,
-   "tokyo.v4": 304.8807149998538
+   "bangkok.v4": 237.97255588603758,
+   "delhi.v4": 250.43583505093102,
+   "hong_kong.v4": 231.46753331843473,
+   "hyderabad.v4": 117.79594880239398,
+   "jakarta.v4": 238.5486851638418,
+   "kolkata.v4": 193.86424944344267,
+   "kuala_lampur.v4": 230.67002950322586,
+   "manila.v4": 230.94150344981236,
+   "mumbai.v4": 179.14812011842278,
+   "perth.v4": 239.25913863244568,
+   "seoul.v4": 265.35887551998894,
+   "singapore.v4": 205.57259151812468,
+   "taipei.v4": 223.67934974000445,
+   "tel_aviv.v4": 245.07930149096939
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1777409951
+  "prod": 1777416461
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -432,7 +431,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 45,
+ "launchCount": 62,
  "lc14173": 1,
  "lc14292": 1
 }
