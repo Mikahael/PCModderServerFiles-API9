@@ -80,9 +80,12 @@ def _map_custom_init(self, *args, **kwargs):
                 time_thing = e.strftime("%A, %B %d, %Y") + '\n' + e.strftime("%I:%M:%S %p")
                 self.time_node.text = time_thing
     bs.timer(0.5, bs.CallPartial(update_time), repeat=True)
-        
-    #next_game = bs.get_foreground_host_session().get_next_game_description().evaluate()
-    next_game = 'NA'
+    
+    session = bs.get_foreground_host_session()
+    if isinstance(session, (bs.FreeForAllSession, bs.DualTeamSession)):
+        next_game = bs.get_foreground_host_session().get_next_game_description().evaluate() 
+    else:
+        next_game = 'NA'
     letext = f"NextGame: {next_game} +_+ PC||MODDER"
     self.text = bs.newnode('text',
                                attrs={
@@ -111,6 +114,7 @@ def _map_custom_init(self, *args, **kwargs):
             special_floater()
         else:
             floaty()
+
 
 def floaty():
     def path():

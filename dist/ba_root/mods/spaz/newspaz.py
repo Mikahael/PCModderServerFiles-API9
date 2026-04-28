@@ -81,6 +81,12 @@ def newSpazInit(self, *args, **kwargs):
     if spz.robot: pull_char(char='robot')
     if spz.pengu: pull_char(char='pengu')
     if spz.pixie: pull_char(char='pixie')
+    
+    self.random_bombs = False #for rando bombs
+    self.random_colors = False #for rando colors
+    self.random_characters = False #for rando chars
+    self.fall_protect = False #for fall protection
+    self.allow_powerup = True #config to allow players accept pwp
         
         
 def new_handlemessage(self, msg: Any) -> Any:
@@ -111,14 +117,39 @@ def new_handlemessage(self, msg: Any) -> Any:
         elif isinstance(msg, bs.PowerupMessage):
             if self._dead or not self.node:
                 return True
+            if self.allow_powerup == False:
+                # show message only once
+                if not hasattr(self, '_shown_msg'):
+                    self._shown_msg = True
+                    pptx('No PWP for U!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
+                return None
             if self.pick_up_powerup_callback is not None:
                 self.pick_up_powerup_callback(self)
             if spz.popuptext:
-                pptx(msg.poweruptype.upper() + "!",
-                     color=(1, 1, 1),
-                     scale=1.0,
-                     position=self.node.position,
-                ).autoretain()
+                if msg.poweruptype == 'headache':
+                    pptx("Random Bombs!",
+                        color=(1, 1, 1),
+                        scale=1.0,
+                        position=self.node.position,
+                    ).autoretain()      
+                elif msg.poweruptype == 'glowy':
+                    pptx("Press Punch!",
+                        color=(1, 1, 1),
+                        scale=1.0,
+                        position=self.node.position,
+                    ).autoretain()            
+                elif msg.poweruptype == 'rchar':
+                    pptx("Press Pickup!",
+                        color=(1, 1, 1),
+                        scale=1.0,
+                        position=self.node.position,
+                    ).autoretain()                       
+                else:
+                    pptx(msg.poweruptype.upper() + "!",
+                        color=(1, 1, 1),
+                        scale=1.0,
+                        position=self.node.position,
+                    ).autoretain()
             if spz.lightning:
                 self.light = bs.newnode('light', attrs={'position': self.node.position, 'color': (1.2, 1.2, 1.4), 'volume_intensity_scale': 2.35, 'intensity': 0.0})
                 bs.animate(self.light, 'intensity', {0.0: 0.0, 0.07: 0.5, 0.35: 0.0})
@@ -722,8 +753,17 @@ def new_handlemessage(self, msg: Any) -> Any:
             elif msg.poweruptype == 'shock_bomb':
                 self.set_shock_count(min(self.shock_count + 5, 5))
             elif msg.poweruptype == 'headache':
-                self.set_headache_count(min(self.headache_count + 3, 3))
-                
+                self.random_bombs = True #random bombs equipped
+                if not spz.popuptext:
+                    pptx('Random Bombs!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
+            elif msg.poweruptype == 'glowy':
+                self.random_colors = True #random colors at punch
+                if not spz.popuptext:
+                    pptx('Press Punch!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
+            elif msg.poweruptype == 'rchar':
+                self.random_characters = True #random characters at pickup
+                if not spz.popuptext:
+                    pptx('Press Pickup!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
             elif msg.poweruptype == 'weed':
                 def weed():
                     if self.is_alive():
@@ -1202,8 +1242,15 @@ def new_handlemessage(self, msg: Any) -> Any:
                     bs.timer(2.0, self.node.delete)
 
         elif isinstance(msg, bs.OutOfBoundsMessage):
-            # By default we just die here.
-            self.handlemessage(bs.DieMessage(how=bs.DeathType.FALL))
+            #
+            if self.fall_protect:
+                pos = self.activity.map.get_ffa_start_position(self.activity.players)
+                #self.node.position = pos #doesnt work with spaz node
+                self.node.handlemessage(bs.StandMessage(pos))
+                #bs.broadcastmessage('Saved by fall protection! - Logic')
+                pptx('Fall-Protection!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
+            else:
+                self.handlemessage(bs.DieMessage(how=bs.DeathType.FALL))
 
         elif isinstance(msg, bs.StandMessage):
             self._last_stand_pos = (
@@ -1411,7 +1458,13 @@ def new_drop_bomb(self) -> Bomb | None:
             bomb_type = 'headache'
         else:
             dropping_bomb = True
-            bomb_type = self.bomb_type
+            if self.random_bombs:
+                bomb_type = random.choice([
+                        'ice', 'impact', 'sticky', 'tnt','ice_impact',
+                        'sticky_ice','curse_mine','ice_mine','curse_impact','tele_impact',
+                        'shock_bomb','glue_bomb','weed_bomb','cursy_bomb','revenge_bomb'])
+            else:
+                bomb_type = self.bomb_type
 
         from bomb.newbomb import NewBomby
         bomb = NewBomby(
@@ -1585,6 +1638,9 @@ def new_on_punch_press(self) -> None:
             if spz.spaz_color:
                 self.node.color = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
                 self.node.highlight = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
+            elif self.random_colors: #for d pwp
+                self.node.color = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
+                self.node.highlight = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
             self.node.punch_pressed = True
             if not self.node.hold_node:
                 bs.timer(
@@ -1608,6 +1664,25 @@ def new_on_pickup_press(self) -> None:
         assert isinstance(t_ms, int)
         if t_ms - self.last_pickup_time_ms >= self._pickup_cooldown:
             if spz.spaz_char:
+                tex = bs.gettexture
+                get = bs.getmesh
+                char = random.choice(['frosty','wizard','santa','pixie','cyborg','ninja','agent','bear','ali'])                
+                self.node.head_mesh = get(char+'Head')
+                self.node.color_texture = tex(char+'Color')   
+                self.node.color_mask_texture = tex(char+'ColorMask')  
+                self.node.torso_mesh = get(char+'Torso')               
+                self.node.hand_mesh = get(char+'Hand')
+                self.node.upper_arm_mesh = get(char+'UpperArm')
+                self.node.lower_leg_mesh = get(char+'LowerLeg')
+                self.node.upper_leg_mesh = get(char+'UpperLeg')
+                self.node.forearm_mesh = get(char+'ForeArm')
+                self.node.toes_mesh = get(char+'Toes')
+                if char =='santa':
+                    self.node.pelvis_mesh = get('kronkPelvis')  
+                else:
+                    self.node.pelvis_mesh = get(char+'Pelvis')
+                self.node.style = char  
+            elif self.random_characters:
                 tex = bs.gettexture
                 get = bs.getmesh
                 char = random.choice(['frosty','wizard','santa','pixie','cyborg','ninja','agent','bear','ali'])                

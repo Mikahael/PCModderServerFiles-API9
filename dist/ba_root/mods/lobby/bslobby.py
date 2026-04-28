@@ -125,6 +125,7 @@ def new__init__(
                 name = i.getname()
         import bascenev1
         bascenev1.broadcastmessage(k+' ---> '+acc+' ---> '+str(r))
+        #get_players()
 
         # Set our initial name to '<choosing player>' in case anyone asks.
         self._sessionplayer.setname(
@@ -210,6 +211,24 @@ def new_reload_profiles(self) -> None:
         else:
             self._profileindex = 0
             self._profilename = self._profilenames[self._profileindex]
+            
+def get_players():
+    from bascenev1 import get_foreground_host_session
+    import bascenev1 as bs
+
+    session = get_foreground_host_session()
+
+    if session:
+        for p in session.sessionplayers:
+            try:
+                name = p.getname()
+                acc = p.get_v1_account_id()
+                client_id = p.inputdevice.client_id
+                account_name = p.inputdevice.get_v1_account_name(True)
+
+                print(f"{account_name} ---> {acc} ---> {client_id}")
+            except Exception:
+                pass
             
 def enable_lobby():
     Chooser.__init__ = new__init__

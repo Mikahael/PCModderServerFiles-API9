@@ -103,7 +103,7 @@
    "Complete": false
   },
   "Team Player": {
-   "Complete": false
+   "Complete": true
   },
   "The Great Wall": {
    "Complete": false
@@ -142,14 +142,25 @@
  "Fleet Zone Ping Last Flush Time": 1777191297,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 38.664686672612675,
-   "hyderabad.v4": 43.23631722124715,
-   "kolkata.v4": 118.36179783960588,
-   "mumbai.v4": 49.422140322983594
+   "bangkok.v4": 201.15274061624314,
+   "delhi.v4": 163.73281707228998,
+   "hong_kong.v4": 290.63871401982306,
+   "hyderabad.v4": 206.1562423566363,
+   "jakarta.v4": 353.0971001201815,
+   "kolkata.v4": 202.1386977873612,
+   "kuala_lampur.v4": 194.31845800141562,
+   "manila.v4": 311.1297974580566,
+   "mumbai.v4": 168.29505273124772,
+   "perth.v4": 244.81656237022162,
+   "seoul.v4": 319.33090125014496,
+   "singapore.v4": 160.8395881769602,
+   "taipei.v4": 217.79642227407203,
+   "tel_aviv.v4": 338.5658290003448,
+   "tokyo.v4": 306.6002779278997
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1777200422
+  "prod": 1777409983
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -179,10 +190,249 @@
  "Port": 43210,
  "Show Tutorial": false,
  "Signed In Last Session": false,
- "Team Tournament Playlists": {},
+ "Team Tournament Playlists": {
+  "\u041a\u043e\u043f\u0438\u044f \u0421\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u044b\u0439 \u043f\u043b\u0435\u0439-\u043b\u0438\u0441\u0442 \u0440\u0435\u0436\u0438\u043c\u0430 \u041a\u043e\u043c\u0430\u043d\u0434\u044b": [
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Flag Idle Return Time": 30,
+     "Flag Touch Return Time": 0,
+     "Respawn Times": 1.0,
+     "Score to Win": 3,
+     "Time Limit": 600,
+     "map": "Bridgit"
+    },
+    "type": "bsCaptureTheFlag.CTFGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Respawn Times": 1.0,
+     "Score to Win": 3,
+     "Time Limit": 600,
+     "map": "Step Right Up"
+    },
+    "type": "bsAssault.AssaultGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": false,
+     "Epic Mode": false,
+     "Lives Per Player": 3,
+     "Respawn Times": 1.0,
+     "Solo Mode": true,
+     "Time Limit": 600,
+     "map": "Rampage"
+    },
+    "type": "bsElimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Kills to Win Per Player": 5,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Roundabout"
+    },
+    "type": "bsDeathMatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Respawn Times": 1.0,
+     "Score to Win": 1,
+     "Time Limit": 600,
+     "map": "Hockey Stadium"
+    },
+    "type": "bsHockey.HockeyGame"
+   },
+   {
+    "settings": {
+     "Hold Time": 30,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Monkey Face"
+    },
+    "type": "bsKeepAway.KeepAwayGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": false,
+     "Epic Mode": true,
+     "Lives Per Player": 1,
+     "Respawn Times": 1.0,
+     "Solo Mode": false,
+     "Time Limit": 120,
+     "map": "Tip Top"
+    },
+    "type": "bsElimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Respawn Times": 1.0,
+     "Score to Win": 3,
+     "Time Limit": 300,
+     "map": "Crag Castle"
+    },
+    "type": "bsAssault.AssaultGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Kills to Win Per Player": 5,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Doom Shroom"
+    },
+    "type": "bsDeathMatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "map": "Rampage"
+    },
+    "type": "bsMeteorShower.MeteorShowerGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Flag Idle Return Time": 30,
+     "Flag Touch Return Time": 0,
+     "Respawn Times": 1.0,
+     "Score to Win": 2,
+     "Time Limit": 600,
+     "map": "Roundabout"
+    },
+    "type": "bsCaptureTheFlag.CTFGame"
+   },
+   {
+    "settings": {
+     "Respawn Times": 1.0,
+     "Score to Win": 21,
+     "Time Limit": 600,
+     "map": "Football Stadium"
+    },
+    "type": "bsFootball.FootballTeamGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Respawn Times": 0.25,
+     "Score to Win": 3,
+     "Time Limit": 120,
+     "map": "Bridgit"
+    },
+    "type": "bsAssault.AssaultGame"
+   },
+   {
+    "map": "Doom Shroom",
+    "settings": {
+     "Enable Impact Bombs": 1,
+     "Enable Triple Bombs": false,
+     "Target Count": 2,
+     "map": "Doom Shroom"
+    },
+    "type": "bsTargetPractice.TargetPracticeGame"
+   },
+   {
+    "settings": {
+     "Hold Time": 30,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Tip Top"
+    },
+    "type": "bsKingOfTheHill.KingOfTheHillGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Respawn Times": 1.0,
+     "Score to Win": 2,
+     "Time Limit": 300,
+     "map": "Zigzag"
+    },
+    "type": "bsAssault.AssaultGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Flag Idle Return Time": 30,
+     "Flag Touch Return Time": 0,
+     "Respawn Times": 1.0,
+     "Score to Win": 3,
+     "Time Limit": 300,
+     "map": "Happy Thoughts"
+    },
+    "type": "bsCaptureTheFlag.CTFGame"
+   },
+   {
+    "settings": {
+     "Bomb Spawning": 1000,
+     "Epic Mode": true,
+     "Laps": 1,
+     "Mine Spawning": 2000,
+     "Time Limit": 300,
+     "map": "Big G"
+    },
+    "type": "bsRace.RaceGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Kills to Win Per Player": 5,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Monkey Face"
+    },
+    "type": "bsDeathMatch.DeathMatchGame"
+   },
+   {
+    "settings": {
+     "Hold Time": 30,
+     "Respawn Times": 1.0,
+     "Time Limit": 300,
+     "map": "Lake Frigid"
+    },
+    "type": "bsKeepAway.KeepAwayGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": false,
+     "Flag Idle Return Time": 30,
+     "Flag Touch Return Time": 3,
+     "Respawn Times": 1.0,
+     "Score to Win": 2,
+     "Time Limit": 300,
+     "map": "Tip Top"
+    },
+    "type": "bsCaptureTheFlag.CTFGame"
+   },
+   {
+    "settings": {
+     "Balance Total Lives": false,
+     "Epic Mode": false,
+     "Lives Per Player": 3,
+     "Respawn Times": 1.0,
+     "Solo Mode": false,
+     "Time Limit": 300,
+     "map": "Crag Castle"
+    },
+    "type": "bsElimination.EliminationGame"
+   },
+   {
+    "settings": {
+     "Epic Mode": true,
+     "Respawn Times": 0.25,
+     "Time Limit": 120,
+     "map": "Zigzag"
+    },
+    "type": "bsConquest.ConquestGame"
+   }
+  ]
+ },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 11,
+ "launchCount": 45,
  "lc14173": 1,
  "lc14292": 1
 }

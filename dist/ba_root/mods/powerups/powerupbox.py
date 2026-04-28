@@ -125,6 +125,7 @@ class NewPowerupBoxFactory:
         self.tex_tnt = bs.gettexture('achievementTNT')
         self.tex_ice_impact = bs.gettexture('gameCircleIcon')
         self.tex_sticky_ice = bs.gettexture('eggTex2')
+        self.tex_rchar = bs.gettexture('logo')
         self.tex_glue_bomb = bs.gettexture('logo')
         self.tex_curse_mine = bs.gettexture('achievementInControl')
         self.tex_ice_mine = bs.gettexture('egg2')
@@ -132,6 +133,7 @@ class NewPowerupBoxFactory:
         self.tex_curse_impact = bs.gettexture('powerupCurse')
         self.tex_tele_impact = bs.gettexture('achievementOnslaught')
         self.tex_shock_bomb = bs.gettexture('heart')
+        self.tex_glowy = bs.gettexture('heart')
         self.tex_weed_bomb = bs.gettexture('levelIcon')
         self.tex_blast_bomb = bs.gettexture('crossOutMask')
         self.tex_boom_bomb = bs.gettexture('settingsIcon')
@@ -362,13 +364,19 @@ class NewPowerupBox(bs.Actor):
             name = 'Revenge'
         elif poweruptype == 'headache':
             tex = factory.tex_headhache
-            name = 'Headlock'
+            name = 'R-Bombs'
         elif poweruptype == 'flyer':
             tex = factory.tex_flyer
             name = 'Flyer'
         elif poweruptype == 'beachball':
             tex = factory.tex_beach_ball
             name = 'BotMod'
+        elif poweruptype == 'glowy':
+            tex = factory.tex_glowy
+            name = 'Glowy'
+        elif poweruptype == 'rchar':
+            tex = factory.tex_rchar
+            name = 'R-Char'
         else:
             name = "INVALID"
             raise ValueError('invalid poweruptype: ' + str(poweruptype))
@@ -619,7 +627,9 @@ def new_get_default_powerup_distribution():
         ('boom_bomb',2),
         ('cursy_bomb',2),
         ('revenge_bomb',2),
-        ('headache',0), #not working due to huge bug !
+        ('headache',2), #turned to random bombs
+        ('glowy',2),
+        ('rchar',2322),
     )
 
 def enable_pwps():

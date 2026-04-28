@@ -6,7 +6,7 @@ from powerups import powerupbox
 from bomb import newbomb
 from spaz import admin, newspaz
 from maps import bstextonmap
-from lobby import bslobby
+from lobby import bslobby, players
 
 # ba_meta export babase.Plugin
 
@@ -25,4 +25,5 @@ def run_mods():
     newbomb.enable_bomb()
     bstextonmap.enable_textonmap()
     bslobby.enable_lobby()
+    players.log_players()
     print('mods loaded and running!')
