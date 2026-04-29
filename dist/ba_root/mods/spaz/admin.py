@@ -6,6 +6,7 @@ from spaz import member_id as mem
 from bascenev1lib.actor.playerspaz import PlayerSpaz
 from typing import Sequence
 from bascenev1lib.actor.popuptext import PopupText as pptx
+from spaz import afk_checker as afk
 
 class SpazPlayer(PlayerSpaz):
     """
@@ -31,13 +32,12 @@ class SpazPlayer(PlayerSpaz):
         session_players=session.sessionplayers
         
         player_id = self.source_player.node.playerID #thanx to friedfighter
-        acc = self._player._sessionplayer.get_v1_account_id()
         
         player = self._player._sessionplayer
-        acc = player.get_v1_account_id()
-        print(acc)
+        acc = player.get_account_id()
         
-        self.decorate(player)
+        #self.decorate(player)
+        afk.afk_main(self, player) #entirely for afk related stuffs
         
         if acc in mem.name:
             k = mem.name[acc]#stored value
@@ -62,17 +62,6 @@ class SpazPlayer(PlayerSpaz):
             
             if acc not in mem.name:
                 self._prefix_tag(pos=(0, 1.45, 0), scales=0.01, prefix='O|W|N|E|R')
-                
-    '''def decorate(self, player): #old logeek timer
-        p = player.get_account_id()
-        timeout = 60
-        def afk_checker(to):
-            import bascenev1 as bs
-            t = bs.time()
-            if self.is_alive() and t - self.last_change_time > to:
-                bs.broadcastmessage(f'Removing {player.getname()} for being AFK for more than {int(to / 1)} seconds')
-                player.remove_from_game() 
-        self.afk_timer = bs.Timer(timeout+1, babase.CallStrict(afk_checker, timeout), repeat=True)'''
     
     
     def decorate(self, player):

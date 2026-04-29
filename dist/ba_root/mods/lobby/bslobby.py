@@ -18,6 +18,7 @@ import babase
 import _bascenev1
 from bascenev1._profile import get_player_profile_colors
 from bascenev1._gameutils import animate, animate_array
+from spaz import afk_checker as afk
 
 if TYPE_CHECKING:
     from typing import Any, Sequence
@@ -113,6 +114,7 @@ def new__init__(
         animate_array(self.icon, 'scale', 2, {0: (0, 0), 0.1: (45, 45)})
         
         from bascenev1 import get_foreground_host_session
+        import bascenev1 as bs
         session = get_foreground_host_session()
         session_players = session.sessionplayers
         k = self._sessionplayer.inputdevice.get_v1_account_name(True)
@@ -121,11 +123,14 @@ def new__init__(
         
         for i in session_players:
             if i.inputdevice.client_id==r:
-                acc = i.get_v1_account_id()
+                acc = i.get_account_id()
                 name = i.getname()
-        import bascenev1
-        bascenev1.broadcastmessage(k+' ---> '+acc+' ---> '+str(r))
-        #get_players()
+                
+        if acc in afk.AFK_REMOVED:
+            data = afk.AFK_REMOVED.pop(acc)
+            bs.broadcastmessage(f"You were removed for being AFK ({int(data['duration'])}s!)")
+        else:
+            bs.broadcastmessage(k+' ---> '+acc+' ---> '+str(r))
 
         # Set our initial name to '<choosing player>' in case anyone asks.
         self._sessionplayer.setname(
