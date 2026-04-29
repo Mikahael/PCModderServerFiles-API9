@@ -7,6 +7,7 @@ from bomb import newbomb
 from spaz import admin, newspaz
 from maps import bstextonmap
 from lobby import bslobby, players
+from config import stats_master as mystats
 
 # ba_meta export babase.Plugin
 
@@ -26,4 +27,5 @@ def run_mods():
     bstextonmap.enable_textonmap()
     bslobby.enable_lobby()
     players.log_players()
+    mystats.enable_stats()
     print('mods loaded and running!')
