@@ -11,7 +11,7 @@ from typing import Sequence
 from config import powerup_config as pwp
 from config import bomb_config as bmb
 from config import spaz_config as spz
-
+from chat import coin_system as coin
 
 class cheat_options(object):
     def __init__(self):
@@ -23,7 +23,7 @@ class cheat_options(object):
         session_players=session.sessionplayers
         for i in session_players:
             if i.inputdevice.client_id==client_id:
-                acc = i.get_v1_account_id(True)
+                acc = i.get_account_id()
             
         if acc in mem.admin or acc in mem.owner:
             ba.broadcastmessage('Command Accepted Sir!', clients=[client_id], transient=True)
@@ -37,7 +37,7 @@ class cheat_options(object):
         session_players=session.sessionplayers
         for i in session_players:
             if i.inputdevice.client_id==client_id:
-                acc = i.get_v1_account_id(True)
+                acc = i.get_account_id()
             
         if acc in mem.owner:
             ba.broadcastmessage('Command Accepted Owner Sir!', clients=[client_id], transient=True)
@@ -72,12 +72,14 @@ class cheat_options(object):
                     clID = int(a[0])
                     for i in session_players:
                         if i.inputdevice.client_id==clID:
-                            acc = i.get_v1_account_id()
+                            acc = i.get_account_id()
                             login = mem.times_joined.count(acc)
                             name = i.getname()
                     if int(a[0]) == clID:
                         try:
-                            ba.broadcastmessage(name+' ---> '+acc+' ---> '+str(session_players.index(i))+' --->  client_id ---> '+str(clID))
+                            coins = coin.getCoins(acc)
+                            #ba.broadcastmessage(name+' ---> '+acc+' ---> '+str(session_players.index(i))+' --->  client_id ---> '+str(clID))
+                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {coins}')
                             if acc in mem.admin:
                                 ba.broadcastmessage('Roles: Admin / Times Joined: '+str(login))
                             elif acc in mem.owner:

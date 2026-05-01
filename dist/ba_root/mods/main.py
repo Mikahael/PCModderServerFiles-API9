@@ -8,6 +8,7 @@ from spaz import admin, newspaz
 from maps import bstextonmap
 from lobby import bslobby, players
 from config import stats_master as mystats
+from chat import coin_system as coin
 
 # ba_meta export babase.Plugin
 
@@ -28,4 +29,5 @@ def run_mods():
     bslobby.enable_lobby()
     players.log_players()
     mystats.enable_stats()
+    coin.enable_coinsys()
     print('mods loaded and running!')

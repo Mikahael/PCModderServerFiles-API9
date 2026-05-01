@@ -36,24 +36,33 @@ def get_player_icon(sessionplayer: bascenev1.SessionPlayer) -> dict[str, Any]:
 
 def filter_chat_message(msg: str, client_id: int) -> str | None:
     """Intercept/filter chat messages."""
+    
     if not msg or not msg.strip():
         return None
 
     from chat import chat_filter
+    from chat import coin_system as coin
+    import fire
 
+    # ✅ Check if message is allowed
     allowed = chat_filter.check_message(cid=client_id, message=msg)
-
-    # ❌ Block chat
     if not allowed:
         return None
 
-    # ✅ Commands
+    # ✅ Handle commands
     if msg.startswith('/'):
         from chat import hooks
         hooks.cmnd(msg, client_id)
-        return None  # commands should not appear in chat
+        return None
 
-    # ✅ Normal chat allowed
+    # ✅ Coin system answer check
+    if fire.enableCoinSystem:
+        try:
+            coin.checkAnswer(msg, client_id)
+        except Exception as e:
+            print("Coin system error:", e)
+
+    # ✅ Let message pass to chat
     return msg
 
 
