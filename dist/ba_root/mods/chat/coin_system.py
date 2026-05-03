@@ -7,6 +7,7 @@ from random import randrange
 from datetime import datetime
 from fire import *
 from spaz import member_id as mid
+from chat import shop
 
 correctAnswer = None
 answeredBy = None
@@ -23,29 +24,63 @@ def run_in_context(func):
         with activity.context:
             func()
 
-def checkExpiredItems():
-    customers = gph.effectCustomers.copy()
+def save_to_py():
+    file_path = 'ba_root/mods/spaz/member_id.py'
+
+    with open(file_path, "r") as f:
+        content = f.read()
+
+    start = content.find("customers =")
+    if start == -1:
+        return  # not found, safety
+
+    # Find the first '{' after customers =
+    brace_start = content.find("{", start)
+
+    # Now find matching closing brace
+    brace_count = 0
+    end = brace_start
+
+    for i in range(brace_start, len(content)):
+        if content[i] == "{":
+            brace_count += 1
+        elif content[i] == "}":
+            brace_count -= 1
+            if brace_count == 0:
+                end = i
+                break
+
+    # Replace the whole block
+    new_block = "customers = " + json.dumps(mid.customers, indent=4)
+
+    new_content = content[:start] + new_block + content[end+1:]
+
+    with open(file_path, "w") as f:
+        f.write(new_content)
+        
+def clean_expired_effects():
+    customers = mid.customers
     updated = False
 
-    for key, value in list(customers.items()):
-        expiry = datetime.strptime(value['expiry'], '%d-%m-%Y %H:%M:%S')
-        if expiry < datetime.now():
-            print("Expired item found:", key)
-            customers.pop(key)
+    for acc_id, data in customers.items():
+        effects = data.get("effects", {})
+
+        # 🔹 FIX: convert old list → dict
+        if isinstance(effects, list):
+            effects = {e: datetime.now().strftime('%d-%m-%Y %H:%M:%S') for e in effects}
+            data["effects"] = effects
             updated = True
 
+        for effect, expiry_str in list(effects.items()):
+            expiry = datetime.strptime(expiry_str, '%d-%m-%Y %H:%M:%S')
+
+            if expiry < datetime.now():
+                del effects[effect]
+                updated = True
+
     if updated:
-        file_path = os.path.join(
-            babase.app.env.python_directory_user,
-            'getPermissionsHashes.py'
-        )
-        with open(file_path, 'r') as f:
-            lines = f.readlines()
-
-        lines[4] = f"effectCustomers = {customers}\n"
-
-        with open(file_path, 'w') as f:
-            f.writelines(lines)
+        bs.broadcastmessage('Item has been Expired!')
+        save_to_py()
 
 
 def askQuestion():
@@ -130,6 +165,33 @@ def addCoins(account_id, amount):
     print(coins)
 
 
+def deductCoins(account_id, amount):
+    if os.path.exists(bankfile):
+        with open(bankfile) as f:
+            bank = json.load(f)
+    else:
+        bank = {}
+
+    current = bank.get(account_id, 0)
+
+    # 🔴 prevent negative balance
+    if current < amount:
+        print("Not enough coins")
+        return False
+
+    bank[account_id] = current - amount
+
+    with open(bankfile, 'w') as f:
+        json.dump(bank, f)
+
+    run_in_context(lambda: bs.getsound('cashRegister').play())
+
+    print("Deduction successful")
+    coins = getCoins(account_id)
+    print(coins)
+
+    return True
+
 def getCoins(account_id):
     if os.path.exists(bankfile):
         with open(bankfile) as f:
@@ -150,6 +212,6 @@ def enable_coinsys():
             askQuestion,
             repeat=True
         )
-        print("Coin system loaded...")
+        print("✅ Coin system loaded")
     else:
         print("CoinSys turned off!")

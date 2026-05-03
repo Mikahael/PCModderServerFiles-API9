@@ -12,6 +12,7 @@ from config import powerup_config as pwp
 from config import bomb_config as bmb
 from config import spaz_config as spz
 from chat import coin_system as coin
+from chat import shop
 
 class cheat_options(object):
     def __init__(self):
@@ -81,8 +82,11 @@ class cheat_options(object):
           activity_players=activity.players
           roster = get_game_roster()
           with ba.get_foreground_host_activity().context:
-            if m == '/hi':
-                    ba.broadcastmessage('helloo!')
+            if m == '/shop':
+                if a == []:
+                    ba.broadcastmessage('Effects: /shop effects | Tags: /shop tags | Commands: /shop cmds')
+                else:
+                    shop.main_shop_function(msg, client_id)
             elif m == password+'me':
                 if a == []:
                     ba.broadcastmessage('Use /me client_id')
@@ -364,7 +368,7 @@ class cheat_options(object):
 
                 if len(a) < 2:
                     ba.broadcastmessage(
-                        'Use: /tag <ID> <TAG or remove>\n Dragon:\d Crown:\c Helmet:\h Skull:\s Ninja:n Fire:f ',
+                        'Use: /tag <ID> <TAG or remove>\n Dragon:d Crown:c Helmet:h Skull:s Ninja:n Fire:f ',
                         clients=[client_id],
                         transient=True
                     )
