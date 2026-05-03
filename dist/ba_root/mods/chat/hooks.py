@@ -18,6 +18,24 @@ class cheat_options(object):
         self.all = True # just in case
         self.tint = None # needs for /nv
         
+    def parse_icons(self, tag: str) -> str:
+        if '\\' not in tag:
+            return tag
+
+        replacements = {
+            '\\d': '\ue048',  # Dragon
+            '\\c': '\ue043',  # Crown
+            '\\h': '\ue049',  # Helmet
+            '\\s': '\ue046',  # Skull
+            '\\n': '\ue04b',  # Ninja star
+            '\\f': '\ue04f',  # Fireball
+        }
+
+        for k, v in replacements.items():
+            tag = tag.replace(k, v)
+
+        return tag
+        
     def checkAdmin(self,client_id):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
@@ -340,13 +358,13 @@ class cheat_options(object):
 
                 mem.admin = updated_admins
 
-            elif m == password + 'name':
-                if not self.checkOwner(nick):
+            elif m == password + 'tag':
+                if not self.checkAdmin(nick):
                     return
 
                 if len(a) < 2:
                     ba.broadcastmessage(
-                        'Use: /name <ID> <TAG | real>',
+                        'Use: /tag <ID> <TAG or remove>\n Dragon:\d Crown:\c Helmet:\h Skull:\s Ninja:n Fire:f ',
                         clients=[client_id],
                         transient=True
                     )
@@ -354,7 +372,13 @@ class cheat_options(object):
 
                 try:
                     clID = int(a[0])
-                    tag = a[1]
+                    #tag = a[1] # allowed for multi word
+                    #tag = " ".join(a[1:])
+                    if a[1].lower() == 'remove':
+                        tag = 'remove'
+                    else:
+                        tag = " ".join(a[1:])
+                        tag = self.parse_icons(tag)
                 except ValueError:
                     ba.broadcastmessage(
                         'Invalid client ID.',
@@ -377,11 +401,11 @@ class cheat_options(object):
                     )
                     return
 
-                pbid = target_player.get_v1_account_id(True)
+                pbid = target_player.get_account_id()
                 real_name = target_player.getname()
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
-                        actor = i.get_v1_account_id()
+                        actor = i.get_account_id()
                         
                 log_path = 'ba_root/mods/chat/logged_id.txt'
                 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -389,17 +413,17 @@ class cheat_options(object):
                 updated_names = dict(mem.name)  # COPY
 
                 # -------- RESET TO REAL NAME --------
-                if tag.lower() == 'real':
+                if tag.lower() == 'remove':
                     if pbid in updated_names:
                         del updated_names[pbid]
                         ba.broadcastmessage(
-                            real_name + '\'s name reset.',
+                            real_name + '\'s tag reset.',
                             transient=True
                         )
       
                         with open(log_path, 'a') as fi:
                             fi.write(
-                                f"[{time}] NAME REMOVED | "
+                                f"[{time}] TAG REMOVED | "
                                 #f"Role: {role} | "
                                 f"Name: {real_name} | "
                                 #f"PBID: {newadmin} | "
@@ -408,7 +432,7 @@ class cheat_options(object):
                         
                     else:
                         ba.broadcastmessage(
-                            real_name + ' has no custom name.',
+                            real_name + ' has no custom tag.',
                             clients=[client_id],
                             transient=True
                         )
@@ -418,13 +442,13 @@ class cheat_options(object):
                 else:
                     updated_names[pbid] = tag
                     ba.broadcastmessage(
-                        real_name + ' renamed to ' + tag,
+                        real_name + ' added tag : ' + tag,
                         transient=True
                     )
                     
                     with open(log_path, 'a') as fi:
                             fi.write(
-                                f"[{time}] NAME ADDED | "
+                                f"[{time}] TAG ADDED | "
                                 #f"Role: {role} | "
                                 f"Name: {tag} | "
                                 #f"PBID: {newadmin} | "

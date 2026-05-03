@@ -47,24 +47,10 @@ class SpazPlayer(PlayerSpaz):
         # port basic stuff to decorater
         # port these stuff later!
         
-        if acc in mem.name:
-            k = mem.name[acc]#stored value
-            self._prefix_tag(pos=(0, 1.45, 0), scales=0.01, prefix=k)
             
         if acc in mem.bomb_limit:
             k = mem.bomb_limit[acc]
             self.bomb_type = k
-
-        if acc in mem.owner:
-            k = self.node.name
-            self.node.name = u'\ue048'+k
-            self.node.color = (-10,-10,-10)
-            self.node.highlight = (-10,-10,-10)    
-            self._particles()
-            self._glow()
-            
-            if acc not in mem.name:
-                self._prefix_tag(pos=(0, 1.45, 0), scales=0.01, prefix='O|W|N|E|R')
         
 
 def enable_prefix():

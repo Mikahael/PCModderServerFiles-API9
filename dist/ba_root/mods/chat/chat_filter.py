@@ -54,7 +54,7 @@ def get_player_from_cid(client_id):
         try:
             if i.inputdevice and i.inputdevice.client_id == client_id:
                 name = i.getname()
-                account_id = i.get_v1_account_id(True)
+                account_id = i.get_account_id()
                 return i, name, account_id
         except Exception:
             pass

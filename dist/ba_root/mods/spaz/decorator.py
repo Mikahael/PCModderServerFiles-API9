@@ -16,14 +16,20 @@ def all_decorate(self, player):
     acc = player.get_account_id()
     
     if acc in mid.admin:
-        prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.45, 0))
+        if acc not in mid.name:#for tag
+            prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.45, 0))
         #glow_effect(self)
         #particle_effect(self)
         
     if acc in mid.owner:
-        prefix_tag(self, prefix='BOSS', animation=True, pos=(0, 1.45, 0))
+        if acc not in mid.name:
+            prefix_tag(self, prefix='BOSS', animation=True, pos=(0, 1.45, 0))
         glow_effect(self)
         particle_effect(self)
+        
+    if acc in mid.name:
+        tag = mid.name[acc]#stored value
+        prefix_tag(self, prefix=tag, animation=True, pos=(0, 1.45, 0))
         
     # rank tag comes here now!
     stats = mystats.rank_sys.data.get(acc)
