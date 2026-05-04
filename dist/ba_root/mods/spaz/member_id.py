@@ -2,8 +2,8 @@
 #
 # 'pb-IF4-UWkFXA=='
 #
-admin = ['pb-==','pb-IF4-UWkFXA==']
-owner = ['pb-IF4rU20MHQ==','pb-IF4KUBQFJA==']
+admin = ['pb-==','pb-IF4-==']
+owner = ['pb-IF4rU20MHQ==','pb-IF4KUBQFJA==','pb-IF4-UWkFXA==']
 muted = ['pb-==']
 banned = []
 name = {'red': 'normal', 'orange': 'ice', 'pb-IF4jVGQFVQ==': 'fdaj', 'pb-IF4XUG4HDg==': 'BUNNY!'}

@@ -28,6 +28,19 @@ def main_shop_function(msg, client_id):
     effects = ('glow', 'particles', 'fallpro')
     tags = ('neon', 'regular', 'cool')
     
+    avail_commands = {
+            '/spaz': 50, '/spaz all': 100, '/inv': 40, '/inv all': 80,
+            '/freeze': 600, '/freeze all': 1000, '/sleep': 400, '/sleep all': 800,
+            '/thaw': 500, '/thaw all': 700, '/kill': 800, '/kill all': 1500,
+            '/end': 250, '/curse': 550, '/curse all': 1000,
+            '/tint': 190, '/sm': 100,
+            '/heal': 150, '/heal all': 170,
+            '/shield': 150, '/shield all': 150, '/punch': 150, '/punch all': 150,
+            '/gm': 1200
+        }
+        
+    #chatmessage(avail_commands)
+    
     def effects_cash(effect_name):
         cash = {
             'glow': 20,
@@ -51,6 +64,7 @@ def main_shop_function(msg, client_id):
             
         elif isinstance(tag_name, (list, tuple)):
             return {e: cash.get(e) for e in tag_name}
+            
     
     
     def save_to_py():
@@ -129,6 +143,19 @@ def main_shop_function(msg, client_id):
         chatmessage(f'Available Effects: {effects_cash(effects)}')
     elif msg == '/shop tags':
         chatmessage(f'Available Tags: {tags_cash(tags)}')
+    elif msg == '/shop cmds':
+        lines = [f"{cmd:<15} {price}💰" for cmd, price in avail_commands.items()]
+
+        # pair into two columns
+        pairs = []
+        for i in range(0, len(lines), 2):
+            left = lines[i]
+            right = lines[i+1] if i+1 < len(lines) else ""
+            pairs.append(f"{left}   |   {right}")
+
+        # send 5 rows per message
+        for i in range(0, len(pairs), 5):
+            chatmessage("\n".join(pairs[i:i+5]))
     elif m == '/buy':
         if not a:
             chatmessage('use /shop')

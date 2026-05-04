@@ -18,7 +18,57 @@ class cheat_options(object):
     def __init__(self):
         self.all = True # just in case
         self.tint = None # needs for /nv
+        self.coin_command = False
         
+    def command_cash(self, command):
+        cmd = {
+            '/spaz': 50, 
+            '/spaz all': 100, 
+            '/inv': 40, 
+            '/inv all': 80, 
+            '/freeze': 600, 
+            '/freeze all': 1000, 
+            '/sleep': 400, 
+            '/sleep all': 800, 
+            '/thaw': 500, 
+            '/thaw all': 700, 
+            '/kill': 800, 
+            '/kill all': 1500, 
+            '/end': 250, 
+            '/curse': 550, 
+            '/curse all': 1000, 
+            '/tint': 190, 
+            '/sm': 100, 
+            '/heal': 150, 
+            '/heal all': 170, 
+            '/shield': 150,
+            '/shield all': 150,
+            '/punch': 150,
+            '/punch all': 150,
+            '/gm': 1200}
+            
+        if isinstance(command, str):
+            return cmd.get(command)
+            
+        elif isinstance(command, (list, tuple)):
+            return {e: cmd.get(e) for e in command}
+            
+    def admin_commands(self, command):
+        return [
+            '/admin',
+            '/quit',
+            '/kick',
+            '/gmno',
+            '/floor',
+            '/tag',
+            '/headless'
+            '/fly',
+            '/hug',
+            'celebrate',
+            'headless',
+            'icy'
+        ]
+            
     def parse_icons(self, tag: str) -> str:
         if '\\' not in tag:
             return tag
@@ -37,7 +87,7 @@ class cheat_options(object):
 
         return tag
         
-    def checkAdmin(self,client_id):
+    def checkAdmin(self,client_id,command):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
         for i in session_players:
@@ -46,12 +96,14 @@ class cheat_options(object):
             
         if acc in mem.admin or acc in mem.owner:
             ba.broadcastmessage('Command Accepted Sir!', clients=[client_id], transient=True)
+            self.coin_command = False
             return True
         else:
-            ba.broadcastmessage('Command Denied', clients=[client_id], transient=True)
-            return False
+            if command in self.admin_commands(command): 
+                ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
+                return False
         
-    def checkOwner(self,client_id):
+    def checkOwner(self,client_id,command):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
         for i in session_players:
@@ -62,8 +114,30 @@ class cheat_options(object):
             ba.broadcastmessage('Command Accepted Owner Sir!', clients=[client_id], transient=True)
             return True
         else:
-            ba.broadcastmessage('Command Denied', clients=[client_id], transient=True)
-            return False
+            if command in self.admin_commands(command): 
+                ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
+                return False
+            
+    def checkShopUser(self,client_id,command):#for shop
+        session = get_foreground_host_session()
+        session_players=session.sessionplayers
+        for i in session_players:
+            if i.inputdevice.client_id==client_id:
+                acc = i.get_account_id()
+     
+        #print(command)
+        
+        cost = self.command_cash(command) #price of each cmd
+        user_cash = coin.getCoins(acc)
+        if acc not in mem.owner or acc not in mem.admin:
+            if user_cash > cost:
+                ba.broadcastmessage(f'Purchased Command: {command}!')
+                coin.deductCoins(acc, cost)
+                return True
+            else:
+                ba.broadcastmessage(f'Insufficient Funds! Need {cost - user_cash} more!')
+        else:
+            self.coin_command = False
             
     def _now():
         return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -81,6 +155,7 @@ class cheat_options(object):
           activity = get_foreground_host_activity()
           activity_players=activity.players
           roster = get_game_roster()
+          #
           with ba.get_foreground_host_activity().context:
             if m == '/shop' or m == '/buy':
                 if a == []:
@@ -165,7 +240,7 @@ class cheat_options(object):
                     else:
                         try:
                             if a[0] == 'all': # not working?
-                                if self.checkAdmin(nick):
+                                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                                     try:
                                         activity_players[0].actor.node.hold_node = activity_players[1].actor.node
                                     except:
@@ -203,7 +278,7 @@ class cheat_options(object):
                         except:
                             pass
             elif m == password+'freeze':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /freeze all or number of list')
                     else:
@@ -220,7 +295,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'kick':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage("Using: /kick [name/ClientID]")
                     else:
@@ -237,11 +312,11 @@ class cheat_options(object):
                         except Exception:
                             ba.broadcastmessage('Player Not Found')                                
             elif m == password+'quit':#fixme
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     babase.quit()
             elif m == password + 'admin':
                 #
-                if not self.checkOwner(nick):
+                if not self.checkOwner(nick,m):
                     return
 
                 if len(a) < 2:
@@ -363,7 +438,7 @@ class cheat_options(object):
                 mem.admin = updated_admins
 
             elif m == password + 'tag':
-                if not self.checkAdmin(nick):
+                if not self.checkAdmin(nick,m):
                     return
 
                 if len(a) < 2:
@@ -473,7 +548,7 @@ class cheat_options(object):
                 mem.name = updated_names
 
             elif m == password+'bomb':
-                if self.checkOwner(nick):
+                if self.checkOwner(nick,m):
                     clID = int(a[0])
                     bomb = (a[1])
                     updated_admins=[]
@@ -498,7 +573,7 @@ class cheat_options(object):
                         ba.broadcastmessage('Available Bombtypes: normal, ice, sticky, impact')
                         
             elif m == password+'thaw':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /thaw all or number of list')
                     else:
@@ -515,7 +590,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'kill':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /kill all or number of list')
                     else:
@@ -532,7 +607,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'curse':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /curse all or number of list')
                     else:
@@ -549,7 +624,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'headless':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /headless all or number of list')
                     else:
@@ -568,7 +643,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'shield':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /shield all or number of list')
                     else:
@@ -585,7 +660,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'celebrate':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /celebrate all or number of list')
                     else:
@@ -602,7 +677,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'remove':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /remove all or number of list')
                     else:
@@ -618,13 +693,13 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'end':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     try:
                         activity.end_game()
                     except Exception:
                         pass
             elif m == password+'gm':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /gm all or number of list')
                     else:
@@ -645,7 +720,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'gmno':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /gm all or number of list')
                     else:
@@ -666,7 +741,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'tint':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /tint RBG or /tint r brightspeed')
                     else:
@@ -683,20 +758,20 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Error')
             elif m == password+'sm':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if activity.globalsnode.slow_motion == True:
                         activity.globalsnode.slow_motion=False
                     else:
                         activity.globalsnode.slow_motion=True
 
             elif m == password+'icy':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use your id, then targets')
                     else:
                         activity_players[int(a[0])].actor.node = activity_players[int(a[1])].actor.node
             elif m == password+'inv':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /celebrate all or number of list')
                     else:
@@ -733,10 +808,10 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'floor':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     activity.globalsnode.floor_reflection = activity.globalsnode.floor_reflection == False
             elif m == password+'ac':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /ac RBG or /ac r')
                     else:
@@ -753,7 +828,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Error!')
             elif m == password+'heal':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /heal all or number of list')
                     else:
@@ -770,7 +845,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'punch':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /punch all or number of list')
                     else:
@@ -787,7 +862,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'sleep':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /sleep all of number of list')
                     else:
@@ -803,7 +878,7 @@ class cheat_options(object):
                             except Exception:
                                 ba.broadcastmessage('Player not found!')
             elif m == password+'spaz':#fix
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /spaz all or number of list')
                     else:
@@ -829,7 +904,7 @@ class cheat_options(object):
                                 b = ( 'ninja','frosty','wizard','bones','zoe','santa')
                                 ba.broadcastmessage('Use these: '+str(a+b))
             elif m == password+'pwp2323':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if a == []:
                         ba.broadcastmessage('Use /pwp all (pwp) or /pwp number (pwp)')
                     else:
@@ -910,7 +985,7 @@ class cheat_options(object):
                 ba.broadcastmessage('All rights to PCMODDER!')
                 
             elif m == password+'powerupname':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.text == True:
                         pwp.text = False
                     else:
@@ -918,7 +993,7 @@ class cheat_options(object):
                     k = pwp.text
                     ba.broadcastmessage('Powerup name turned ---> '+str(k))    
             elif m == password+'poweruptimer':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.expire_text == True:
                         pwp.expire_text = False
                     else:
@@ -926,7 +1001,7 @@ class cheat_options(object):
                     k = pwp.expire_text
                     ba.broadcastmessage('Powerup timer turned ---> '+str(k))    
             elif m == password+'powerupshield':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.shield == True:
                         pwp.shield = False
                     else:
@@ -934,7 +1009,7 @@ class cheat_options(object):
                     k = pwp.shield
                     ba.broadcastmessage('Powerup shield turned ---> '+str(k))   
             elif m == password+'poweruplight':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.light == True:
                         pwp.light = False
                     else:
@@ -942,7 +1017,7 @@ class cheat_options(object):
                     k = pwp.light
                     ba.broadcastmessage('Powerup light turned ---> '+str(k))   
             elif m == password+'powerupflash':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.flash == True:
                         pwp.flash = False
                     else:
@@ -950,7 +1025,7 @@ class cheat_options(object):
                     k = pwp.flash
                     ba.broadcastmessage('Powerup flash turned ---> '+str(k))   
             elif m == password+'powerupbox':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if pwp.accept_powerup == True:
                         pwp.accept_powerup = False
                     else:
@@ -958,7 +1033,7 @@ class cheat_options(object):
                     k = pwp.accept_powerup
                     ba.broadcastmessage('Powerup box turned ---> '+str(k)) 
             elif m == password+'bombname':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.bomb_name == True:
                         bmb.bomb_name = False
                     else:
@@ -966,7 +1041,7 @@ class cheat_options(object):
                     k = bmb.bomb_name
                     ba.broadcastmessage('Bomb name turned ---> '+str(k)) 
             elif m == password+'bombshield':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.shield == True:
                         bmb.shield = False
                     else:
@@ -974,7 +1049,7 @@ class cheat_options(object):
                     k = bmb.shield
                     ba.broadcastmessage('Bomb shield turned ---> '+str(k)) 
             elif m == password+'bomblight':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.light == True:
                         bmb.light = False
                     else:
@@ -982,7 +1057,7 @@ class cheat_options(object):
                     k = bmb.light
                     ba.broadcastmessage('Bomb light turned ---> '+str(k)) 
             elif m == password+'bombmodel':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.bomb_model == True:
                         bmb.bomb_model = False
                     else:
@@ -990,7 +1065,7 @@ class cheat_options(object):
                     k = bmb.bomb_model
                     ba.broadcastmessage('Bomb model turned ---> '+str(k)) 
             elif m == password+'bombspike':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.spike_model == True:
                         bmb.spike_model = False
                     else:
@@ -998,7 +1073,7 @@ class cheat_options(object):
                     k = bmb.spike_model
                     ba.broadcastmessage('Bomb spike turned ---> '+str(k)) 
             elif m == password+'bombtimer':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if bmb.bomb_expire == True:
                         bmb.bomb_expire = False
                     else:
@@ -1007,7 +1082,7 @@ class cheat_options(object):
                     ba.broadcastmessage('Bomb timer turned ---> '+str(k))
 
             elif m == password+'spazglove':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if spz.gloves == True:
                         spz.gloves = False
                     else:
@@ -1015,7 +1090,7 @@ class cheat_options(object):
                     k = spz.gloves
                     ba.broadcastmessage('Spaz gloves turned ---> '+str(k))
             elif m == password+'spazshield':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if spz.shield == True:
                         spz.shield = False
                     else:
@@ -1023,7 +1098,7 @@ class cheat_options(object):
                     k = spz.shield
                     ba.broadcastmessage('Spaz shield turned ---> '+str(k))
             elif m == password+'spazcolor':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if spz.spaz_color == True:
                         spz.spaz_color = False
                     else:
@@ -1031,7 +1106,7 @@ class cheat_options(object):
                     k = spz.spaz_color
                     ba.broadcastmessage('Spaz color turned ---> '+str(k))
             elif m == password+'spazchar':
-                if self.checkAdmin(nick):
+                if self.checkAdmin(nick,m):
                     if spz.spaz_char == True:
                         spz.spaz_char = False
                     else:
@@ -1040,7 +1115,7 @@ class cheat_options(object):
                     ba.broadcastmessage('Spaz char turned ---> '+str(k))
             
             elif m == password + 'char':
-                if not self.checkAdmin(nick):
+                if not self.checkAdmin(nick,m):
                     return
 
                 if not a:
