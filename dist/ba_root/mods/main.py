@@ -43,6 +43,7 @@ def clean_expiry_customers():
     #
     def check_expiration():
         coin.clean_expired_effects()
+        coin.clean_expired_tags()
         print('✅ Checking Expiration!')
     check_expiration()
     if expiry_timer is None:

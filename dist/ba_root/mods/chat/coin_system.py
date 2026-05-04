@@ -81,6 +81,58 @@ def clean_expired_effects():
     if updated:
         bs.broadcastmessage('Item has been Expired!')
         save_to_py()
+        
+def clean_expired_tags():
+    customers = mid.customers
+    updated = False
+
+    for acc_id, data in customers.items():
+        tags = data.get("tags", {})
+
+        # 🔹 convert old list → dict
+        if isinstance(tags, list):
+            tags = {
+                e: {
+                    "name": e,
+                    "expiry": datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+                }
+                for e in tags
+            }
+            data["tags"] = tags
+            updated = True
+
+        for tag, val in list(tags.items()):
+            
+            # 🔹 handle OLD format (string)
+            if isinstance(val, str):
+                expiry_str = val
+
+                # convert to new format
+                tags[tag] = {
+                    "name": tag,
+                    "expiry": expiry_str
+                }
+                val = tags[tag]
+                updated = True
+
+            # 🔹 NEW format
+            expiry_str = val.get("expiry")
+
+            try:
+                expiry = datetime.strptime(expiry_str, '%d-%m-%Y %H:%M:%S')
+            except Exception:
+                # bad data → remove it
+                del tags[tag]
+                updated = True
+                continue
+
+            if expiry < datetime.now():
+                del tags[tag]
+                updated = True
+
+    if updated:
+        bs.broadcastmessage('Item has been Expired!')
+        save_to_py()
 
 
 def askQuestion():

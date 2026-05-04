@@ -82,7 +82,7 @@ class cheat_options(object):
           activity_players=activity.players
           roster = get_game_roster()
           with ba.get_foreground_host_activity().context:
-            if m == '/shop':
+            if m == '/shop' or m == '/buy':
                 if a == []:
                     ba.broadcastmessage('Effects: /shop effects | Tags: /shop tags | Commands: /shop cmds')
                 else:
