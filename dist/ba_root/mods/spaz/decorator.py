@@ -24,7 +24,8 @@ def all_decorate(self, player):
         
     if acc in mid.owner:
         if acc not in mid.name:
-            prefix_tag(self, prefix='BOSS', animation=True, pos=(0, 1.45, 0))
+            #prefix_tag(self, prefix='BOSS', animation=True, pos=(0, 1.45, 0))
+            animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=2)
         glow_effect(self)
         particle_effect(self)
         
@@ -81,6 +82,7 @@ def prefix_tag(self, pos=(1,1,1), scales=0.01, prefix='admin', animation=True):
         if animation:
             bs.animate_array(node=self._Text, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
 
+
 def ping_tag(self, player):
     if not self.node.exists():
         return
@@ -130,6 +132,229 @@ def ping_tag(self, player):
 
     _update_ping()
     bs.Timer(1.0, _update_ping, repeat=True)
+
+def animated_prefix_tag(self, prefix, col, anim_id):
+    char_spacing = 0.15
+    total_chars = len(prefix)
+    start_x = -((total_chars - 1) * char_spacing) / 2
+
+    for i, char in enumerate(prefix):
+        # Position each character
+        curr_x = start_x + (i * char_spacing)
+
+        m = bs.newnode(
+            'math',
+            owner=self.node,
+            attrs={
+                'input1': (curr_x, 1.5, 0),
+                'operation': 'add'
+            }
+        )
+        self.node.connectattr('torso_position', m, 'input2')
+
+        # Color handling
+        char_col = col
+        if anim_id == 6:
+            char_col = (
+                random.random(),
+                random.random(),
+                random.random()
+            )
+
+        # Create text node
+        t = bs.newnode(
+            'text',
+            owner=self.node,
+            attrs={
+                'text': char,
+                'in_world': True,
+                'shadow': 1.0,
+                'flatness': 1.0,
+                'color': tuple(char_col),
+                'scale': 0.01,
+                'h_align': 'center'
+            }
+        )
+
+        m.connectattr('output', t, 'position')
+
+        # Delay per character (wave effect)
+        delay = i * 0.15
+
+        # 🔥 ANIMATIONS (must be INSIDE loop)
+        if anim_id == 2:
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 0, 0),
+                    0.5: (1, 1, 0),
+                    1.0: (1, 0, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+            bs.animate_array(
+                m, 'input1', 3,
+                {
+                    0.0: (curr_x, 1.5, 0),
+                    0.5: (curr_x, 1.58, 0),
+                    1.0: (curr_x, 1.5, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 3:
+            bs.animate(
+                t, 'opacity',
+                {0.0: 0.3, 0.5: 1.0, 1.0: 0.3},
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 4:
+            bs.animate(
+                t, 'opacity',
+                {0.0: 1.0, 0.2: 0.0, 0.4: 1.0},
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 5:
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 0, 0),
+                    0.5: (0, 1, 0),
+                    1.0: (0, 0, 1),
+                    1.5: (1, 0, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 6:  # Rainbow Wave
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 0, 0),
+                    0.2: (0, 1, 0),
+                    0.4: (0, 0, 1),
+                    0.6: (1, 1, 0),
+                    0.8: (0, 1, 1),
+                    1.0: (1, 0, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 7:  # Golden Sweep
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 0.8, 0),
+                    0.2: (1, 1, 0.6),
+                    0.4: (1, 0.8, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 8:  # Neon Pulse
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: char_col,
+                    0.5: (1, 1, 1),
+                    1.0: char_col
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 9:  # Vertical Bounce
+            bs.animate_array(
+                m, 'input1', 3,
+                {
+                    0.0: (curr_x, 1.5, 0),
+                    0.5: (curr_x, 1.65, 0),
+                    1.0: (curr_x, 1.5, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 10:  # Indian Flag
+            idx_ratio = i / total_chars
+
+            if idx_ratio < 0.33:
+                base_color = (1.0, 0.5, 0.0)
+            elif idx_ratio < 0.66:
+                base_color = (1.0, 1.0, 1.0)
+            else:
+                base_color = (0.0, 0.5, 0.0)
+
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: base_color,
+                    0.5: (0.0, 0.0, 0.5),
+                    1.0: base_color
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 11:
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 0, 0),
+                    0.25: (1, 1, 1),
+                    0.5: (0, 0, 1),
+                    0.75: (0, 0.8, 1),
+                    1.0: (1, 0, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+            bs.animate_array(
+                m, 'input1', 3,
+                {
+                    0.0: (curr_x, 1.5, 0),
+                    0.5: (curr_x, 1.55, 0),
+                    1.0: (curr_x, 1.5, 0)
+                },
+                loop=True,
+                offset=delay
+            )
+
+        elif anim_id == 12:
+            bs.animate_array(
+                t, 'color', 3,
+                {
+                    0.0: (1, 1, 1),
+                    0.49: (1, 1, 1),
+                    0.5: (1, 1, 0),
+                    0.99: (1, 1, 0),
+                    1.0: (1, 1, 1)
+                },
+                loop=True,
+                offset=delay
+            )
+
+            bs.animate_array(
+                m, 'input1', 3,
+                {
+                    0.0: (curr_x, 1.5, 0),
+                    0.5: (curr_x, 1.55, 0),
+                    1.0: (curr_x, 1.5, 0)
+                },
+                loop=True,
+                offset=delay
+            )
 
 def glow_effect(self):
     if self.node.exists():
