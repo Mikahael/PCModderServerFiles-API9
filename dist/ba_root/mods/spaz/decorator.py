@@ -9,6 +9,7 @@ from bascenev1lib.actor.popuptext import PopupText as pptx
 from spaz import admin
 from config import stats_master as mystats
 import babase
+import fire
 
 STATS_FILE = 'ba_root/mods/config/player_data.json'
 
@@ -30,6 +31,12 @@ def all_decorate(self, player):
     if acc in mid.name:
         tag = mid.name[acc]#stored value
         prefix_tag(self, prefix=tag, animation=True, pos=(0, 1.45, 0))
+    
+
+    from _bascenev1 import get_client_ping as _get_ping
+    client = player.inputdevice.client_id
+    if fire.ping_tag:
+        ping_tag(self, player)
         
     # rank tag comes here now!
     stats = mystats.rank_sys.data.get(acc)
@@ -73,6 +80,56 @@ def prefix_tag(self, pos=(1,1,1), scales=0.01, prefix='admin', animation=True):
         m.connectattr('output', self._Text, 'position')
         if animation:
             bs.animate_array(node=self._Text, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
+
+def ping_tag(self, player):
+    if not self.node.exists():
+        return
+
+    m = bs.newnode('math', owner=self.node, attrs={
+        'input1': (0, -1.0, 0),
+        'operation': 'add'
+    })
+
+    self.node.connectattr('torso_position', m, 'input2')
+
+    self.txt = bs.newnode('text',
+                          owner=self.node,
+                          attrs={
+                              'text': '',
+                              'in_world': True,
+                              'shadow': 1.0,
+                              'flatness': 1.0,
+                              'scale': 0.009,
+                              'h_align': 'center'
+                          })
+
+    m.connectattr('output', self.txt, 'position')
+
+    client = player.inputdevice.client_id
+
+    # update ping
+    def _update_ping():
+        if not self.node.exists():
+            return
+
+        try:
+            ping = _get_ping(client) if client is not None else 0
+        except Exception:
+            ping = 0
+
+        # Color logic based on ping
+        if ping < 80:
+            col = (0, 1, 0)
+        elif ping < 150:
+            col = (1, 1, 0)
+        else:
+            col = (1, 0, 0)
+
+        self.txt.text = f"{ping} ms"
+        self.txt.color = col
+
+    _update_ping()
+    bs.Timer(1.0, _update_ping, repeat=True)
 
 def glow_effect(self):
     if self.node.exists():

@@ -37,8 +37,12 @@ class SpazPlayer(PlayerSpaz):
         
         player1 = self.source_player
         player = self._player._sessionplayer
+        
         acc = player.get_account_id()
         clid = player1.node.playerID #havent run this in afk or decorator yet!
+        
+        #client = player.inputdevice.client_id #for clientid using player instead of player1
+        #print(client)
         
         #self.decorate(player)
         afk.afk_main(self, player) #entirely for afk related stuffs
