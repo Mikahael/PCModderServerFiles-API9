@@ -6,7 +6,7 @@ admin = ['pb-==','pb-IF4-==']
 owner = ['pb-IF4rU20MHQ==','pb-IF4KUBQFJA==','pb-IF4-UWkFXA==']
 muted = ['pb-==']
 banned = []
-name = {'red': 'normal', 'orange': 'ice', 'pb-IF4jVGQFVQ==': 'fdaj', 'pb-IF4XUG4HDg==': 'BUNNY!'}
+name = {'red': 'normal', 'orange': 'ice', 'pb-IF4jVGQFVQ==': 'fdaj', 'pb-IF4XUG4HDg==': 'BUNNY!', 'pb-IF4-UWkFXA==': 'BOSS'}
 bomb_limit = {'red': 'normal', 'orange': 'ice', 'pb-IF4rU20MHQ==': 'normal'}
 test = []
 #

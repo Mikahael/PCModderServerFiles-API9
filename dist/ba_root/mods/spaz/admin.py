@@ -43,19 +43,110 @@ class SpazPlayer(PlayerSpaz):
         
         #client = player.inputdevice.client_id #for clientid using player instead of player1
         #print(client)
-        
-        #self.decorate(player)
+
+
+        self.active_effects = [] # for master timer system!
+        self.active_nodes = []
+
+        self._effect_timer = bs.Timer(
+            0.1,
+            babase.Call(self._effect_tick),
+            repeat=True
+        )
+
         afk.afk_main(self, player) #entirely for afk related stuffs
         decorator.all_decorate(self, player) #entire tag/effect related area
         
         # port basic stuff to decorater
         # port these stuff later!
         
-            
-        if acc in mem.bomb_limit:
-            k = mem.bomb_limit[acc]
-            self.bomb_type = k
+    def _effect_tick(self):
+
+        if (
+            self is None
+            or not self.is_alive()
+            or not hasattr(self, 'node')
+            or not self.node
+            or not self.node.exists()
+        ):
+            self.active_effects.clear()
+            self.clear_nodes()
+            return
+
+        current_time = bs.time()
+
+        for effect_data in self.active_effects[:]:
+
+            try:
+
+                if (
+                    current_time - effect_data["last_run"]
+                    >= effect_data["interval"]
+                ):
+
+                    effect_data["callback"]()
+
+                    effect_data["last_run"] = current_time
+
+            except Exception as e:
+                print(f'[Effect Error] {effect_data["name"]}: {e}')
+
+    # =========================================================
+    # EFFECT MANAGEMENT
+    # =========================================================
+
+    def add_effect(
+        self,
+        name,
+        callback,
+        interval=0.1
+    ):
+
+        # Prevent duplicates
+        for effect in self.active_effects:
+
+            if effect["name"] == name:
+                return
+
+        self.active_effects.append({
+            "name": name,
+            "callback": callback,
+            "interval": interval,
+            "last_run": 0
+        })
+
+    def remove_effect(self, name):
+
+        self.active_effects = [
+
+            effect
+            for effect in self.active_effects
+
+            if effect["name"] != name
+        ]
+
+    def has_effect(self, name):
+
+        return any(
+            effect["name"] == name
+            for effect in self.active_effects
+        )
         
+    def add_node(self, node):
+        self.active_nodes.append(node)
+
+    def clear_nodes(self):
+
+        for node in self.active_nodes[:]:
+
+            try:
+                if node.exists():
+                    node.delete()
+
+            except:
+                pass
+
+        self.active_nodes.clear()
 
 def enable_prefix():
     bascenev1lib.actor.playerspaz.PlayerSpaz = SpazPlayer

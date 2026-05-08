@@ -140,18 +140,18 @@
   "Client Input Device #2": "__account__"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1777623376,
+ "Fleet Zone Ping Last Flush Time": 1778205910,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 144.46261506811697,
-   "delhi.v4": 104.29693251089824,
-   "hyderabad.v4": 109.77091517944811,
-   "kolkata.v4": 82.33856271045089,
-   "mumbai.v4": 94.80144804647665
+   "bangkok.v4": 81.92173298073203,
+   "jakarta.v4": 76.36539674018202,
+   "kuala_lampur.v4": 58.34908746374181,
+   "manila.v4": 100.65067400000771,
+   "singapore.v4": 148.512109385764
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1778008701
+  "prod": 1778238997
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -423,7 +423,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 320,
+ "launchCount": 412,
  "lc14173": 1,
  "lc14292": 1
 }

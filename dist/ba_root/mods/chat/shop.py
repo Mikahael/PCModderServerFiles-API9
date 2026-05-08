@@ -25,8 +25,32 @@ def main_shop_function(msg, client_id):
     user_cash = coin.getCoins(acc)
     
     
-    effects = ('glow', 'particles', 'fallpro')
-    tags = ('neon', 'regular', 'cool')
+    effects = {
+            "spark": 300,
+            "sparkground": 350,
+            "sweat": 300,
+            "sweatground": 350,
+            "distortion": 300,
+            "rainbow": 300,
+            "ice": 300,
+            "iceground": 350,
+            "slime": 300,
+            "metal": 200,
+            "splinter": 200,
+            "fairydust": 300,
+            "star": 350,
+            "newrainbow": 350,
+            "footprint": 125,
+            "fire": 400,
+            "firespark": 450
+            }
+    
+    tags = ('tag1','tag2','tag3','tag4','tag5','tag6')
+    tags_description = (f'tag1 - Standard Color Tag - 25', 
+             'tag2 - Red and Yellow Tag - 45', 
+             'tag3 - Smooth Color Wave - 40',
+             'tag4 - Blink Letter Wave - 50',
+             'tag5 - Rainbow Tag - 60')
     
     avail_commands = {
             '/spaz': 50, '/spaz all': 100, '/inv': 40, '/inv all': 80,
@@ -36,16 +60,30 @@ def main_shop_function(msg, client_id):
             '/tint': 190, '/sm': 100,
             '/heal': 150, '/heal all': 170,
             '/shield': 150, '/shield all': 150, '/punch': 150, '/punch all': 150,
-            '/gm': 1200
+            '/gm': 900
         }
         
     #chatmessage(avail_commands)
     
     def effects_cash(effect_name):
         cash = {
-            'glow': 20,
-            'particles':20,
-            'fallpro': 20
+            "spark": 300,
+            "sparkground": 350,
+            "sweat": 300,
+            "sweatground": 350,
+            "distortion": 300,
+            "rainbow": 300,
+            "ice": 300,
+            "iceground": 350,
+            "slime": 300,
+            "metal": 200,
+            "splinter": 200,
+            "fairydust": 300,
+            "star": 350,
+            "newrainbow": 350,
+            "footprint": 125,
+            "fire": 400,
+            "firespark": 450
             }
         if isinstance(effect_name, str):
             return cash.get(effect_name)
@@ -53,11 +91,13 @@ def main_shop_function(msg, client_id):
         elif isinstance(effect_name, (list, tuple)):
             return {e: cash.get(e) for e in effect_name}
             
-    def tags_cash(tag_name):
+    def tags_cash(tag_name): # special thx to ashx for cool tags!
         cash = {
-            'neon': 20,
-            'regular':20,
-            'cool': 20
+            'tag1': 25, #Standard Color Tag - 25
+            'tag2':45, #Red & Yellow Wave - 45
+            'tag3': 40, #Smooth Color Wave - 40
+            'tag4':50, #Blink Letter Wave - 50
+            'tag5': 60, #Rainbow Tag - 60
             }
         if isinstance(tag_name, str):
             return cash.get(tag_name)
@@ -140,9 +180,22 @@ def main_shop_function(msg, client_id):
     c_tags = data["tags"]
     #start
     if msg == '/shop effects':
-        chatmessage(f'Available Effects: {effects_cash(effects)}')
+        lines = [f"{dec:<15} {price}💰" for dec, price in effects.items()]
+
+        # pair into two columns
+        pairs = []
+        for i in range(0, len(lines), 2):
+            left = lines[i]
+            right = lines[i+1] if i+1 < len(lines) else ""
+            pairs.append(f"{left}   |   {right}")
+
+        # send 5 rows per message
+        for i in range(0, len(pairs), 5):
+            chatmessage("\n".join(pairs[i:i+5]))
     elif msg == '/shop tags':
-        chatmessage(f'Available Tags: {tags_cash(tags)}')
+        for tag in tags_description:
+            name, desc, price = tag.split(' - ')
+            chatmessage(f"{name:<6} - {desc:<22} - {price}💰")
     elif msg == '/shop cmds':
         lines = [f"{cmd:<15} {price}💰" for cmd, price in avail_commands.items()]
 
@@ -185,6 +238,10 @@ def main_shop_function(msg, client_id):
             
             if user_tags: # only allow client to have one tag at a time or clashing will occur between tags
                 chatmessage('You already have a Tag!')
+                return
+                
+            if acc in mid.name:
+                chatmessage('You already have Custom tag!')
                 return
 
             price = tags_cash(item)
