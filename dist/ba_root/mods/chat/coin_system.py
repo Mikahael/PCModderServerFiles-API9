@@ -8,6 +8,7 @@ from datetime import datetime
 from fire import *
 from spaz import member_id as mid
 from chat import shop
+from bascenev1lib.actor.zoomtext import ZoomText
 
 correctAnswer = None
 answeredBy = None
@@ -154,8 +155,24 @@ def askQuestion():
         correctAnswer = str(a * b)
         question = f"What is {a} x {b}?"
 
-    chatmessage(question)
-    #print(question)
+    #chatmessage(question)
+    
+    activity = bs.get_foreground_host_activity()
+
+    with activity.context:
+        global current_question_text
+
+        current_question_text = ZoomText(
+            text=question,
+            position=(-250, 250),
+            shiftposition=(-250, 250),
+            shiftdelay=3.0,
+            lifespan=3.0,
+            flash=False,
+            trail=False,
+            scale = 0.30,
+            color = (1,1,1)
+            )
     answeredBy = None
 
     #checkExpiredItems()
