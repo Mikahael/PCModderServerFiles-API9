@@ -17,6 +17,7 @@ STATS_FILE = 'ba_root/mods/config/player_data.json'
 
 def all_decorate(self, player):
     acc = player.get_account_id()
+    enabled_effects = [] # needed
     
     
     EFFECTS = {
@@ -103,6 +104,7 @@ def all_decorate(self, player):
     }
     
     # add effects and tags to clients now
+    
     
     if acc in mid.customers:
         purchased_effects = list(mid.customers[acc]["effects"].keys())
@@ -216,54 +218,71 @@ def prefix_tag(self, pos=(1,1,1), scales=0.01, prefix='admin', animation=True):
 
 
 def ping_tag(self, player):
+
     if not self.node.exists():
         return
 
-    m = bs.newnode('math', owner=self.node, attrs={
-        'input1': (0, -1.0, 0),
-        'operation': 'add'
-    })
+    m = bs.newnode(
+        'math',
+        owner=self.node,
+        attrs={
+            'input1': (0, -1.0, 0),
+            'operation': 'add'
+        }
+    )
 
     self.node.connectattr('torso_position', m, 'input2')
 
-    self.txt = bs.newnode('text',
-                          owner=self.node,
-                          attrs={
-                              'text': '',
-                              'in_world': True,
-                              'shadow': 1.0,
-                              'flatness': 1.0,
-                              'scale': 0.009,
-                              'h_align': 'center'
-                          })
+    self.txt = bs.newnode(
+        'text',
+        owner=self.node,
+        attrs={
+            'text': '',
+            'in_world': True,
+            'shadow': 1.0,
+            'flatness': 1.0,
+            'scale': 0.009,
+            'h_align': 'center'
+        }
+    )
 
     m.connectattr('output', self.txt, 'position')
 
     client = player.inputdevice.client_id
 
-    # update ping
     def _update_ping():
+
         if not self.node.exists():
             return
 
-        try:
-            ping = _get_ping(client) if client is not None else 0
-        except Exception:
-            ping = 0
+        from _bascenev1 import get_client_ping as _get_ping
 
-        # Color logic based on ping
+        ping = _get_ping(client)
+
+        #print(f'{ping} ms')  # for debugging purposes!
+
+        # ping colors
         if ping < 80:
             col = (0, 1, 0)
+
         elif ping < 150:
             col = (1, 1, 0)
+
         else:
             col = (1, 0, 0)
 
-        self.txt.text = f"{ping} ms"
+        self.txt.text = f'{ping} ms'
         self.txt.color = col
 
+    # initial update
     _update_ping()
-    bs.Timer(1.0, _update_ping, repeat=True)
+
+    # IMPORTANT: store timer reference
+    self.ping_timer = bs.Timer(
+        1.0,
+        babase.CallStrict(_update_ping),
+        repeat=True
+    )
 
 def get_anim_id(tagtype):
     tag_map = {

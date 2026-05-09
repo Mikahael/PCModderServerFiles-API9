@@ -17,7 +17,9 @@ times_joined = ['pb-IF4rU20MHQ==', 'pb-IF4QUlARHQ==', 'pb-IF4wUEojJA==', 'pb-IF4
 customers = {
     "pb-IF4-UWkFXA==": {
         "tags": {},
-        "effects": {}
+        "effects": {
+            "footprint": "09-05-2026 13:28:31"
+        }
     }
 }
 #

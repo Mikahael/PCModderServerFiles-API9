@@ -50,7 +50,7 @@ class SpazPlayer(PlayerSpaz):
 
         self._effect_timer = bs.Timer(
             0.1,
-            babase.Call(self._effect_tick),
+            babase.CallStrict(self._effect_tick),
             repeat=True
         )
 
