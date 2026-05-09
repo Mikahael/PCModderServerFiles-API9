@@ -175,27 +175,40 @@ def all_decorate(self, player):
         
     # rank tag comes here now!
     stats = mystats.rank_sys.data.get(acc)
-    rank = stats["rank"]
-    score = stats["score"]
-    kills = stats["kills"]
-    deaths = stats["deaths"]
+
+    # no stats found
+    if not stats:
+        return
+
+    rank = stats.get("rank", 0)
+    score = stats.get("score", 0)
+    kills = stats.get("kills", 0)
+    deaths = stats.get("deaths", 0)
+
     if rank == 1:
-        icon = u'\ue043' #crown
-        #prefix_tag(self, prefix='#'+str(rank), animation=False, pos=(0,2,0))
+        icon = u'\ue043'  # crown
+
     elif rank == 2:
-        icon = u'\ue048' #dragon
+        icon = u'\ue048'  # dragon
+
     elif rank == 3:
         icon = u'\ue049'
+
     elif rank == 4:
         icon = u'\ue00c'
+
     else:
-        icon == u'\ue047'
-        
+        icon = u'\ue047'
+
     display = icon + '#' + str(rank) + icon
-    if rank:
-        prefix_tag(self, prefix=display, animation=False, pos=(0,2,0))
-    else:
-        pass
+
+    if rank > 0:
+        prefix_tag(
+            self,
+            prefix=display,
+            animation=False,
+            pos=(0, 2, 0)
+        )
     
     
 def prefix_tag(self, pos=(1,1,1), scales=0.01, prefix='admin', animation=True):
