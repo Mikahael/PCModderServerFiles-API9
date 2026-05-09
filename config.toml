@@ -5,12 +5,12 @@
 # Uncomment any of these values to override defaults.
 
 # Name of our server in the public parties list.
-#party_name = "FFA"
+party_name = "EPIC~DEST~1.9~TEST"
 
 # If true, your party will show up in the global public party list
 # Otherwise it will still be joinable via LAN or connecting by IP
 # address.
-#party_is_public = true
+party_is_public = true
 
 # If true, the master-server will provide your server with verified
 # account info for all connecting clients. Generally this should
@@ -22,7 +22,7 @@
 # that V1 ids do. You can use the following url to convert V1 ids to
 # V2 if you have an existing database of account ids for your
 # server: https://legacy.ballistica.net/v2id/YOURV1IDHERE
-#authenticate_clients = true
+authenticate_clients = true
 
 # Account IDs of server admins. Server admins are not kickable
 # through the default kick vote system and they are able to kick
