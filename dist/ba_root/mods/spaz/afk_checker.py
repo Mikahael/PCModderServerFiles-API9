@@ -47,4 +47,5 @@ def afk_main(self, player):
                     f"Removing {player.getname()} for being AFK for more than {to} seconds"
                 )
                 player.remove_from_game()
+
     self.afk_timer = bs.Timer(1.0, babase.CallStrict(afk_checker, timeout), repeat=True)

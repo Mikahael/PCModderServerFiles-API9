@@ -119,18 +119,27 @@ def new__init__(
         session_players = session.sessionplayers
         k = self._sessionplayer.inputdevice.get_v1_account_name(True)
         #
-        r = self._sessionplayer.inputdevice.client_id
+        clID = self._sessionplayer.inputdevice.client_id
         
+        #
+        acc = None
+        name = None
+        #
         for i in session_players:
-            if i.inputdevice.client_id==r:
+            if i.inputdevice.client_id==clID:
                 acc = i.get_account_id()
                 name = i.getname()
+                break
+                
+        if acc is None:
+            bs.broadcastmessage("Player details not found! Rejoin!", clients=[clID], transient=True)
+            return
                 
         if acc in afk.AFK_REMOVED:
             data = afk.AFK_REMOVED.pop(acc)
-            bs.broadcastmessage(f"You were removed for being AFK ({int(data['duration'])}s!)")
+            bs.broadcastmessage(f"You were removed for being AFK ({int(data['duration'])}s!)", clients=[clID], transient=True)
         else:
-            bs.broadcastmessage(k+' ---> '+acc+' ---> '+str(r))
+            bs.broadcastmessage(k+' ---> '+acc+' ---> '+str(clID), clients=[clID], transient=True)
 
         # Set our initial name to '<choosing player>' in case anyone asks.
         self._sessionplayer.setname(

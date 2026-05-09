@@ -13,6 +13,7 @@ from config import bomb_config as bmb
 from config import spaz_config as spz
 from chat import coin_system as coin
 from chat import shop
+from config import stats_master as mystats
 
 class cheat_options(object):
     def __init__(self):
@@ -90,9 +91,13 @@ class cheat_options(object):
     def checkAdmin(self,client_id,command):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
+        
+        acc = None
+        
         for i in session_players:
             if i.inputdevice.client_id==client_id:
                 acc = i.get_account_id()
+                
             
         if acc in mem.admin or acc in mem.owner:
             ba.broadcastmessage('Command Accepted Sir!', clients=[client_id], transient=True)
@@ -106,9 +111,15 @@ class cheat_options(object):
     def checkOwner(self,client_id,command):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
+        
+        acc = None
+        
         for i in session_players:
             if i.inputdevice.client_id==client_id:
                 acc = i.get_account_id()
+                
+        if acc is None:
+            ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
             
         if acc in mem.owner:
             ba.broadcastmessage('Command Accepted Owner Sir!', clients=[client_id], transient=True)
@@ -121,6 +132,9 @@ class cheat_options(object):
     def checkShopUser(self,client_id,command):#for shop
         session = get_foreground_host_session()
         session_players=session.sessionplayers
+        
+        acc = None
+        
         for i in session_players:
             if i.inputdevice.client_id==client_id:
                 acc = i.get_account_id()
@@ -131,11 +145,14 @@ class cheat_options(object):
         user_cash = coin.getCoins(acc)
         if acc not in mem.owner or acc not in mem.admin:
             if user_cash > cost:
-                ba.broadcastmessage(f'Purchased Command: {command}!')
+                ba.broadcastmessage(f'Purchased Command: {command}!', clients=[client_id], transient=True)
                 coin.deductCoins(acc, cost)
                 return True
             else:
-                ba.broadcastmessage(f'Insufficient Funds! Need {cost - user_cash} more!')
+                if acc is not None:
+                    ba.broadcastmessage(f'Insufficient Funds! Need {cost - user_cash} more!', clients=[client_id], transient=True)
+                else:
+                    ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
         else:
             self.coin_command = False
             
@@ -159,12 +176,12 @@ class cheat_options(object):
           with ba.get_foreground_host_activity().context:
             if m == '/shop' or m == '/buy':
                 if a == []:
-                    ba.broadcastmessage('Effects: /shop effects | Tags: /shop tags | Commands: /shop cmds')
+                    ba.broadcastmessage('Effects: /shop effects | Tags: /shop tags | Commands: /shop cmds \n To purchase: use /buy [whatever item] \n To remove: /removetag | /removeeffect', clients=[client_id], transient=True)
                 else:
                     shop.main_shop_function(msg, client_id)
             elif m == password+'me':
                 if a == []:
-                    ba.broadcastmessage('Use /me client_id')
+                    ba.broadcastmessage('Use /me client_id', clients=[client_id], transient=True)
                 else:
                     clID = int(a[0])
                     for i in session_players:
@@ -174,27 +191,33 @@ class cheat_options(object):
                             name = i.getname()
                     if int(a[0]) == clID:
                         try:
+                            stats = mystats.rank_sys.data.get(acc)
+                            rank = stats["rank"]
+                            score = stats["score"]
+                            kills = stats["kills"]
+                            deaths = stats["deaths"]
+                            me_stats = f"Rank: {rank} | Score: {score} | Kills: {kills} | Deaths {deaths}"
                             coins = coin.getCoins(acc)
                             #ba.broadcastmessage(name+' ---> '+acc+' ---> '+str(session_players.index(i))+' --->  client_id ---> '+str(clID))
-                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {coins}')
+                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {coins} \n {me_stats}', clients=[client_id], transient=True)
                             if acc in mem.admin:
-                                ba.broadcastmessage('Roles: Admin / Times Joined: '+str(login))
+                                ba.broadcastmessage('Roles: Admin / Times Joined: '+str(login), clients=[client_id], transient=True)
                             elif acc in mem.owner:
-                                ba.broadcastmessage('Roles: Owner / Times Joined: '+str(login))
+                                ba.broadcastmessage('Roles: Owner / Times Joined: '+str(login), clients=[client_id], transient=True)
                             else:
-                                ba.broadcastmessage('Roles: None / Times Joined: '+str(login))
+                                ba.broadcastmessage('Roles: None / Times Joined: '+str(login), clients=[client_id], transient=True)
                         except Exception:
-                            ba.broadcastmessage('Player not Found!')
+                            ba.broadcastmessage('Player not Found!', clients=[client_id], transient=True)
                     else:
-                        ba.broadcastmessage('Player Not Found!')
+                        ba.broadcastmessage('Player Not Found!', clients=[client_id], transient=True)
             elif m == password+'list2':
                 ba.broadcastmessage('======= List ======')
                 for i in session_players:
-                    ba.broadcastmessage(i.getname()+' - | -  '+str(session_players.index(i))+'\n')
+                    ba.broadcastmessage(i.getname()+' - | -  '+str(session_players.index(i))+'\n', clients=[client_id], transient=True)
                 if not roster == []:
                     for i in roster:
-                        ba.broadcastmessage('======For /kick only======')
-                    ba.broadcastmessage(str(i['players'][0]['nam_full'])+'   -   '+str(i['client_id']))
+                        ba.broadcastmessage('======For /kick only======', clients=[client_id], transient=True)
+                    ba.broadcastmessage(str(i['players'][0]['nam_full'])+'   -   '+str(i['client_id']), clients=[client_id], transient=True)
             elif m == password+'list':
                     #string = u'==Name========ClientID====PlayerID==\n'
                     string = u"{0:^16}{1:^15}{2:^10}\n------------------------------------------------------------------------------\n".format('Name','ClientID','PlayerID')
@@ -213,11 +236,11 @@ class cheat_options(object):
                                 lcid = i['client_id']
                                 lpid = lp['id']
                                 string += u"{0:^16}{1:^15}{2:^10}\n".format(lname, lcid, lpid)
-                    ba.broadcastmessage(string)
+                    ba.broadcastmessage(string, clients=[client_id], transient=True)
                     
             elif m == password+'fly':
                 if a == []:
-                    ba.broadcastmessage('Use /fly index or /fly all')
+                    ba.broadcastmessage('Use /fly index or /fly all', clients=[client_id], transient=True)
                 elif a[0] == 'all':
                     for i in activity_players:
                         if not i.actor.node.fly == True:
@@ -231,12 +254,12 @@ class cheat_options(object):
                         else:
                             activity_players[int(a[0])].actor.node.fly = False
                     except:
-                        ba.broadcastmessage('Player not Found')
+                        ba.broadcastmessage('Player not Found', clients=[client_id], transient=True)
                         pass
                         
             elif m == password+'hug':
                     if a == []:
-                        ba.broadcastmessage('Using: /hug all or number of list')
+                        ba.broadcastmessage('Using: /hug all or number of list', clients=[client_id], transient=True)
                     else:
                         try:
                             if a[0] == 'all': # not working?
@@ -280,7 +303,7 @@ class cheat_options(object):
             elif m == password+'freeze':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /freeze all or number of list')
+                        ba.broadcastmessage('Use /freeze all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -293,11 +316,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.FreezeMessage())
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'kick':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage("Using: /kick [name/ClientID]")
+                        ba.broadcastmessage("Using: /kick [name/ClientID]", clients=[client_id], transient=True)
                     else:
                         try:
                             #import _bascenev1
@@ -306,11 +329,11 @@ class cheat_options(object):
                                 if i.inputdevice.client_id==clID:
                                     acc = i.get_v1_account_id()
                             if acc in mem.owner:
-                                ba.broadcastmessage('Not allowed to kick Owner!')
+                                ba.broadcastmessage('Not allowed to kick Owner!', clients=[client_id], transient=True)
                             else:
                                 ba.disconnect_client(int(a[0]))
                         except Exception:
-                            ba.broadcastmessage('Player Not Found')                                
+                            ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)                             
             elif m == password+'quit':#fixme
                 if self.checkAdmin(nick,m):
                     babase.quit()
@@ -387,9 +410,7 @@ class cheat_options(object):
                         )
 
                     ba.broadcastmessage(
-                        real + ' added as admin.',
-                        transient=True
-                    )
+                        real + ' added as admin.', clients=[client_id], transient=True)
 
                 # ---------------- REMOVE ----------------
                 elif action == 'remove':
@@ -413,9 +434,7 @@ class cheat_options(object):
                         )
 
                     ba.broadcastmessage(
-                        real + ' removed from admins.',
-                        transient=True
-                    )
+                        real + ' removed from admins.', clients=[client_id], transient=True)
 
                 else:
                     ba.broadcastmessage(
@@ -442,8 +461,9 @@ class cheat_options(object):
                     return
 
                 if len(a) < 2:
+                    emoji = r'Dragon: \d  | Crown: \c | Helmet : \h | Skull: \s | Ninja: \n | Fire: \f'
                     ba.broadcastmessage(
-                        'Use: /tag <ID> <TAG or remove>\n Dragon:d Crown:c Helmet:h Skull:s Ninja:n Fire:f ',
+                        f'Use: /tag <ID> <TAG or remove>\n {emoji}',
                         clients=[client_id],
                         transient=True
                     )
@@ -496,9 +516,7 @@ class cheat_options(object):
                     if pbid in updated_names:
                         del updated_names[pbid]
                         ba.broadcastmessage(
-                            real_name + '\'s tag reset.',
-                            transient=True
-                        )
+                            real_name + '\'s tag reset.', clients=[client_id], transient=True)
       
                         with open(log_path, 'a') as fi:
                             fi.write(
@@ -521,9 +539,7 @@ class cheat_options(object):
                 else:
                     updated_names[pbid] = tag
                     ba.broadcastmessage(
-                        real_name + ' added tag : ' + tag,
-                        transient=True
-                    )
+                        real_name + ' added tag : ' + tag, clients=[client_id], transient=True)
                     
                     with open(log_path, 'a') as fi:
                             fi.write(
@@ -546,6 +562,160 @@ class cheat_options(object):
                         f.write(line)
 
                 mem.name = updated_names
+
+            elif m == password + 'removetag':
+
+                        sender = None
+
+                        for i in session_players:
+                            if i.inputdevice.client_id == client_id:
+                                sender = i
+                                break
+
+                        if sender is None:
+                            ba.broadcastmessage(
+                                'Join the game first!',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        pbid = sender.get_account_id()
+
+                        if pbid not in mem.customers:
+                            ba.broadcastmessage(
+                                'No customer data found.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        tags = mem.customers[pbid].get("tags", {})
+
+                        if not tags:
+                            ba.broadcastmessage(
+                                'You have no tags.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        # show tags if no argument
+                        if len(a) < 1:
+                            tag_names = []
+
+                            for tag_id, tag_data in tags.items():
+                                tag_names.append(
+                                    f'{tag_id} ({tag_data.get("name", "unknown")})'
+                                )
+
+                            ba.broadcastmessage(
+                                'Your tags:\n' +
+                                ", ".join(tag_names) +
+                                '\nUse: /removetag <tagid>',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        tag_id = a[0]
+
+                        if tag_id not in tags:
+                            ba.broadcastmessage(
+                                'Tag not found.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        removed_name = tags[tag_id].get("name", "unknown")
+
+                        del mem.customers[pbid]["tags"][tag_id]
+
+                        # save safely and code already in coinsys file!
+                        coin.save_to_py()
+
+                        ba.broadcastmessage(
+                            f'Removed tag: {removed_name}',
+                            clients=[client_id],
+                            transient=True
+                        )
+
+            elif m == password + 'removeeffect':
+
+                        sender = None
+
+                        for i in session_players:
+                            if i.inputdevice.client_id == client_id:
+                                sender = i
+                                break
+
+                        if sender is None:
+                            ba.broadcastmessage(
+                                'Join the game first!',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        pbid = sender.get_account_id()
+
+                        if pbid not in mem.customers:
+                            ba.broadcastmessage(
+                                'No customer data found.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        effects = mem.customers[pbid].get("effects", {})
+
+                        if not effects:
+                            ba.broadcastmessage(
+                                'You have no effects.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        # show effects if no argument
+                        if len(a) < 1:
+                            effect_names = []
+
+                            for effect_name, expiry in effects.items():
+                                effect_names.append(
+                                    f'{effect_name}'
+                                )
+
+                            ba.broadcastmessage(
+                                'Your effects:\n' +
+                                ", ".join(effect_names) +
+                                '\nUse: /removeeffect <effect>',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        effect_name = a[0]
+
+                        if effect_name not in effects:
+                            ba.broadcastmessage(
+                                'Effect not found.',
+                                clients=[client_id],
+                                transient=True
+                            )
+                            return
+
+                        del mem.customers[pbid]["effects"][effect_name]
+
+                        # save safely
+                        coin.save_to_py()
+
+                        ba.broadcastmessage(
+                            f'Removed effect: {effect_name}',
+                            clients=[client_id],
+                            transient=True
+                        )
 
             elif m == password+'bomb':
                 if self.checkOwner(nick,m):
@@ -570,12 +740,12 @@ class cheat_options(object):
                                 f.write(i)
                             f.close()
                     else:
-                        ba.broadcastmessage('Available Bombtypes: normal, ice, sticky, impact')
+                        ba.broadcastmessage('Available Bombtypes: normal, ice, sticky, impact', clients=[client_id], transient=True)
                         
             elif m == password+'thaw':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /thaw all or number of list')
+                        ba.broadcastmessage('Use /thaw all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -588,11 +758,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.ThawMessage())
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'kill':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /kill all or number of list')
+                        ba.broadcastmessage('Use /kill all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -605,11 +775,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.DieMessage())
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'curse':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /curse all or number of list')
+                        ba.broadcastmessage('Use /curse all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -622,11 +792,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.PowerupMessage(poweruptype='curse'))
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'headless':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /headless all or number of list')
+                        ba.broadcastmessage('Use /headless all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -641,11 +811,11 @@ class cheat_options(object):
                                 activity_players[int(a[0])].actor.node.head_mesh = None
                                 activity_players[int(a[0])].actor.node.style = "cyborg"
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'shield':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /shield all or number of list')
+                        ba.broadcastmessage('Use /shield all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -658,11 +828,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.PowerupMessage(poweruptype='shield'))
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'celebrate':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /celebrate all or number of list')
+                        ba.broadcastmessage('Use /celebrate all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -675,11 +845,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.CelebrateMessage())
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'remove':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /remove all or number of list')
+                        ba.broadcastmessage('Use /remove all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in session_players:
@@ -691,7 +861,7 @@ class cheat_options(object):
                             try:
                                 session_players[int(a[0])].remove_from_game()
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'end':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     try:
@@ -701,7 +871,7 @@ class cheat_options(object):
             elif m == password+'gm':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /gm all or number of list')
+                        ba.broadcastmessage('Use /gm all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -718,11 +888,11 @@ class cheat_options(object):
                                 activity_players[int(a[0])].actor.node.invincible = True
                                 activity_players[int(a[0])].actor._punch_power_scale = 5
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'gmno':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /gm all or number of list')
+                        ba.broadcastmessage('Use /gm all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -739,11 +909,11 @@ class cheat_options(object):
                                 activity_players[int(a[0])].actor.node.invincible = False
                                 activity_players[int(a[0])].actor._punch_power_scale = 0.75
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'tint':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /tint RBG or /tint r brightspeed')
+                        ba.broadcastmessage('Use /tint RBG or /tint r brightspeed', clients=[client_id], transient=True)
                     else:
                         if a[0]=='not_avail':
                             m = 1.3 if a[1] is None else float(a[1])
@@ -754,9 +924,9 @@ class cheat_options(object):
                                 if a[1] is not None:
                                     activity.globalsnode.tint = (float(a[0]),float(a[1]),float(a[2]))
                                 else:
-                                    ba.broadcastmessage('Error!')
+                                    ba.broadcastmessage('Error!', clients=[client_id], transient=True)
                             except Exception:
-                                ba.broadcastmessage('Error')
+                                ba.broadcastmessage('Error', clients=[client_id], transient=True)
             elif m == password+'sm':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if activity.globalsnode.slow_motion == True:
@@ -767,13 +937,13 @@ class cheat_options(object):
             elif m == password+'icy':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use your id, then targets')
+                        ba.broadcastmessage('Use your id, then targets', clients=[client_id], transient=True)
                     else:
                         activity_players[int(a[0])].actor.node = activity_players[int(a[1])].actor.node
             elif m == password+'inv':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /celebrate all or number of list')
+                        ba.broadcastmessage('Use /celebrate all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -806,14 +976,14 @@ class cheat_options(object):
                                 activity_players[int(a[0])].actor.node.style = "cyborg"
                                 activity_players[int(a[0])].actor.node.name = ' '
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'floor':
                 if self.checkAdmin(nick,m):
                     activity.globalsnode.floor_reflection = activity.globalsnode.floor_reflection == False
             elif m == password+'ac':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /ac RBG or /ac r')
+                        ba.broadcastmessage('Use /ac RBG or /ac r', clients=[client_id], transient=True)
                     else:
                         if a[0] == 'rnotavail':
                             m = 1.3 if a[1] is None else float(a[1])
@@ -824,13 +994,13 @@ class cheat_options(object):
                                 if a[1] is not None:
                                     activity.globalsnode.ambient_color = (float(a[0]),float(a[1]),float(a[2]))
                                 else:
-                                    ba.broadcastmessage('Error!')
+                                    ba.broadcastmessage('Error!', clients=[client_id], transient=True)
                             except Exception:
-                                ba.broadcastmessage('Error!')
+                                ba.broadcastmessage('Error!', clients=[client_id], transient=True)
             elif m == password+'heal':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /heal all or number of list')
+                        ba.broadcastmessage('Use /heal all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -843,11 +1013,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.PowerupMessage(poweruptype='health'))
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'punch':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /punch all or number of list')
+                        ba.broadcastmessage('Use /punch all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             for i in activity_players:
@@ -860,11 +1030,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage(ba.PowerupMessage(poweruptype='punch'))
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'sleep':
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /sleep all of number of list')
+                        ba.broadcastmessage('Use /sleep all of number of list', clients=[client_id], transient=True)
                     else:
                         if a[0] == 'all':
                             for i in activity_players:
@@ -876,11 +1046,11 @@ class cheat_options(object):
                             try:
                                 activity_players[int(a[0])].actor.node.handlemessage('knockout', 5000)
                             except Exception:
-                                ba.broadcastmessage('Player not found!')
+                                ba.broadcastmessage('Player not found!', clients=[client_id], transient=True)
             elif m == password+'spaz':#fix
                 if self.checkAdmin(nick,m) or self.checkShopUser(nick,m):
                     if a == []:
-                        ba.broadcastmessage('Use /spaz all or number of list')
+                        ba.broadcastmessage('Use /spaz all or number of list', clients=[client_id], transient=True)
                     else:
                         if a[0]=='all':
                             if a[1] in ['ali','agent','bunny','cyborg','pixie','wizard','bones','zoe','santa','bear','ninja','frosty','kronk','penguin']:
@@ -892,7 +1062,7 @@ class cheat_options(object):
                             else:
                                 a = ('ali','agent','bunny','cyborg','pixie','kronk','bear','penguin')
                                 b = ( 'ninja','frosty','wizard','bones','zoe','santa')
-                                ba.broadcastmessage('Use these: '+str(a+b))
+                                ba.broadcastmessage('Use these: '+str(a+b), clients=[client_id], transient=True)
                         else:
                             if a[1] in ['ali','agent','bunny','cyborg','pixie','wizard','bones','zoe','santa','bear','ninja','frosty','kronk','penguin']:
                                 try:
@@ -902,7 +1072,7 @@ class cheat_options(object):
                             else:
                                 a = ('ali','agent','bunny','cyborg','pixie','kronk','bear','penguin')
                                 b = ( 'ninja','frosty','wizard','bones','zoe','santa')
-                                ba.broadcastmessage('Use these: '+str(a+b))
+                                ba.broadcastmessage('Use these: '+str(a+b), clients=[client_id], transient=True)
             elif m == password+'pwp2323':
                 if self.checkAdmin(nick,m):
                     if a == []:
@@ -960,29 +1130,29 @@ class cheat_options(object):
                         else:
                             ba.broadcastmessage('Default Pwp only: punch, shield, health, sticky, ice, impact')
             elif m == password+'info':
-                ba.broadcastmessage('Server fully modded by PCMODDER or PC||231392')
-                ba.broadcastmessage('Special thanks to Pranav and Smoooth!')
+                ba.broadcastmessage('Server fully modded by PCMODDER or PC||231392', clients=[client_id], transient=True)
+                ba.broadcastmessage('Special thanks to Pranav and Smoooth!', clients=[client_id], transient=True)
             elif m == password+'rules':
-                ba.broadcastmessage('Respect is Key here and use ethical manners for speech')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('Respect is Key here and use ethical manners for speech', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
             elif m == password+'contact':
-                ba.broadcastmessage('Contact PCMODDER at StormX or StormSquad')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('Contact PCMODDER at StormX or StormSquad', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'powerupconfig':
-                ba.broadcastmessage('powerupname, poweruptimer, poweruplight, powerupshield, powerupflash, powerupbox')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('powerupname, poweruptimer, poweruplight, powerupshield, powerupflash, powerupbox', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'spazconfig':
-                ba.broadcastmessage('spazglove, spazshield, spazcolor, spazchar, char')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('spazglove, spazshield, spazcolor, spazchar, char', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'bombconfig':
-                ba.broadcastmessage('bombname, bombtimer, bomblight, bombshield, bombspike, bombmodel')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('bombname, bombtimer, bomblight, bombshield, bombspike, bombmodel', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
             elif m == password+'config':
-                ba.broadcastmessage('bombconfig, powerupconfig, spazconfig')
-                ba.broadcastmessage('All rights to PCMODDER!')
+                ba.broadcastmessage('bombconfig, powerupconfig, spazconfig', clients=[client_id], transient=True)
+                ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'powerupname':
                 if self.checkAdmin(nick,m):

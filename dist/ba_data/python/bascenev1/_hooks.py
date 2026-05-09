@@ -43,6 +43,21 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     from chat import chat_filter
     from chat import coin_system as coin
     import fire
+    
+    from bascenev1 import get_foreground_host_session
+    import bascenev1 as bs
+    import babase
+    
+    session = get_foreground_host_session()
+    session_players=session.sessionplayers
+    acc = None
+    for i in session_players:
+        if i.inputdevice.client_id==client_id:
+            acc = i.get_account_id()
+            break
+    if acc is None: # if just in lobby, make him join first to chat!
+        bs.broadcastmessage('Join the game to chat!', clients=[client_id],transient=True)
+        return None
 
     # ✅ Check if message is allowed
     allowed = chat_filter.check_message(cid=client_id, message=msg)

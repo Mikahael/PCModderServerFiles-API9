@@ -13,7 +13,7 @@
    "Complete": false
   },
   "Free Loader": {
-   "Complete": false
+   "Complete": true
   },
   "Gold Miner": {
    "Complete": false
@@ -143,16 +143,18 @@
  "Fleet Zone Ping Last Flush Time": 1778205910,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 91.61087300003601,
-   "delhi.v4": 85.35060099984548,
-   "hyderabad.v4": 71.13265499992849,
-   "kolkata.v4": 76.15290300009292,
-   "kuala_lampur.v4": 73.60342299989497,
-   "mumbai.v4": 58.44958800003042
+   "bangkok.v4": 100.22935139587025,
+   "delhi.v4": 109.76088663488778,
+   "hong_kong.v4": 183.44273494987556,
+   "hyderabad.v4": 125.96384567351548,
+   "kolkata.v4": 118.38979973812417,
+   "kuala_lampur.v4": 143.52686500023992,
+   "mumbai.v4": 92.31056751408185,
+   "singapore.v4": 147.66894400008823
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1778292699
+  "prod": 1778362928
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -482,7 +484,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 426,
+ "launchCount": 493,
  "lc14173": 1,
  "lc14292": 1
 }

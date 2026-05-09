@@ -8,6 +8,7 @@ from spaz import admin
 from spaz import decorator
 from chat import coin_system as coin
 from datetime import datetime, timedelta
+from babase import SpecialChar
 #
 #
 #
@@ -24,7 +25,25 @@ def main_shop_function(msg, client_id):
     
     user_cash = coin.getCoins(acc)
     
-    
+
+    def parse_icons(tag: str) -> str:
+        if '\\' not in tag:
+            return tag
+
+        replacements = {
+        r'\d': '\ue048',
+        r'\c': '\ue043',
+        r'\h': '\ue049',
+        r'\s': '\ue046',
+        r'\n': '\ue04b',
+        r'\f': '\ue04f',
+        }
+
+        for k, v in replacements.items():
+            tag = tag.replace(k, v)
+
+        return tag
+  
     effects = {
             "spark": 300,
             "sparkground": 350,
@@ -106,7 +125,6 @@ def main_shop_function(msg, client_id):
             return {e: cash.get(e) for e in tag_name}
             
     
-    
     def save_to_py():
         file_path = 'ba_root/mods/spaz/member_id.py'
 
@@ -178,9 +196,10 @@ def main_shop_function(msg, client_id):
     data = customers.setdefault(acc, {"tags": {}, "effects": {}})
     c_effects = data["effects"]
     c_tags = data["tags"]
+    ticket = babase.charstr(babase.SpecialChar.TICKET)
     #start
     if msg == '/shop effects':
-        lines = [f"{dec:<15} {price}💰" for dec, price in effects.items()]
+        lines = [f"{dec:<15} {ticket}{price}" for dec, price in effects.items()]
 
         # pair into two columns
         pairs = []
@@ -191,13 +210,17 @@ def main_shop_function(msg, client_id):
 
         # send 5 rows per message
         for i in range(0, len(pairs), 5):
-            chatmessage("\n".join(pairs[i:i+5]))
+            chatmessage("\n".join(pairs[i:i+5]), clients=[client_id], transient=True)
     elif msg == '/shop tags':
+        lines = []
+
         for tag in tags_description:
             name, desc, price = tag.split(' - ')
-            chatmessage(f"{name:<6} - {desc:<22} - {price}💰")
+            lines.append(f"{name:<6} - {desc:<22} - {ticket}{price}")
+
+        chatmessage('\n'.join(lines), clients=[client_id], transient=True)
     elif msg == '/shop cmds':
-        lines = [f"{cmd:<15} {price}💰" for cmd, price in avail_commands.items()]
+        lines = [f"{cmd:<15} {ticket}{price}" for cmd, price in avail_commands.items()]
 
         # pair into two columns
         pairs = []
@@ -208,10 +231,10 @@ def main_shop_function(msg, client_id):
 
         # send 5 rows per message
         for i in range(0, len(pairs), 5):
-            chatmessage("\n".join(pairs[i:i+5]))
+            chatmessage("\n".join(pairs[i:i+5]), clients=[client_id], transient=True)
     elif m == '/buy':
         if not a:
-            chatmessage('use /shop')
+            chatmessage('use /shop', clients=[client_id], transient=True)
             return
 
         item = a[0]
@@ -220,7 +243,7 @@ def main_shop_function(msg, client_id):
         # effect purchase
         if item in effects:
             if item in c_effects:
-                chatmessage(f'You already have: {item}!')
+                chatmessage(f'You already have: {item}!', clients=[client_id], transient=True)
                 return
 
             price = effects_cash(item)
@@ -228,33 +251,35 @@ def main_shop_function(msg, client_id):
                 coin.deductCoins(acc, price)
                 if add_effect(acc, item):
                     save_to_py()
-                chatmessage(f'Purchased Effect: {item}!')
+                chatmessage(f'Purchased Effect: {item}!', clients=[client_id], transient=True)
             else:
-                chatmessage(f'Insufficient Funds! Need {price - user_cash} more!')
+                chatmessage(f'Insufficient Funds! Need {ticket}{price - user_cash} more!', clients=[client_id], transient=True)
 
         # tag purchase
         elif item in tags:
             user_tags = customers.get(acc, {}).get("tags", {})
             
             if user_tags: # only allow client to have one tag at a time or clashing will occur between tags
-                chatmessage('You already have a Tag!')
+                chatmessage('You already have a Tag!', clients=[client_id], transient=True)
                 return
                 
             if acc in mid.name:
-                chatmessage('You already have Custom tag!')
+                chatmessage('You already have Custom tag!', clients=[client_id], transient=True)
                 return
 
             price = tags_cash(item)
             if user_cash >= price:
                 if len(a) > 1: # what to do if client wants to buy tag but havent defined tag name!
                     coin.deductCoins(acc, price)
-                    if add_tag(acc, item,tag_name=a[1]):
+                    tag = " ".join(a[1:])
+                    tag = parse_icons(tag)
+                    if add_tag(acc, item,tag_name=tag):
                         save_to_py()
-                    chatmessage(f'Purchased Tag: {item}!')
+                    chatmessage(f'Purchased Tag: {item}!', clients=[client_id], transient=True)
                 else:
-                    chatmessage('Specify Tag Name as well!')
+                    chatmessage('Specify Tag Name as well!', clients=[client_id], transient=True)
             else:
-                chatmessage(f'Insufficient Funds! Need {price - user_cash} more!')
+                chatmessage(f'Insufficient Funds! Need {ticket}{price - user_cash} more!', clients=[client_id], transient=True)
 
         else:
-            chatmessage('Item not available! Use /shop instead!')
+            chatmessage('Item not available! Use /shop instead!', clients=[client_id], transient=True)
