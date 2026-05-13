@@ -58,6 +58,33 @@ def _map_custom_init(self, *args, **kwargs):
         # Show message every 15 seconds
     bs.timer(15, soby, repeat=True)
 
+
+    self.endvote_node = bs.newnode('text',
+                attrs={
+                    'text': '',
+                    'scale': 0.85,
+                    'position': (500, -80),
+                    'maxwidth': 500,
+                    'flatness': 0.0,
+                    'shadow': 0.5,
+                    'h_align': 'center',
+                    'v_align': 'center',
+                    'v_attach': 'top'
+                })
+        #bs.animate(self.time_node,'opacity',{0.0: 0.0, 0.35: 1.0})
+        #print(bs.animate)
+    def update_endvote_text(self):
+
+        if not vote_in_progress:
+            self.endvote_node.text = ''
+            return
+
+        yes_votes = sum(votes.values())
+        no_votes = len(votes) - yes_votes
+
+        self.endvote_node.text = (
+            f"[EndVote: YES {yes_votes} | NO {no_votes}]"
+        )
         
     self.time_node = bs.newnode('text',
                 attrs={
@@ -73,6 +100,7 @@ def _map_custom_init(self, *args, **kwargs):
                 })
         #bs.animate(self.time_node,'opacity',{0.0: 0.0, 0.35: 1.0})
         #print(bs.animate)
+
 
     def update_time():
                 import datetime
