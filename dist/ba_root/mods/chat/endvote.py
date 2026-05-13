@@ -65,7 +65,7 @@ def end_vote(starter_client_id: int):
     votes = {}
     vote_in_progress = True
 
-    activity.bstextonmap.update_endvote_text()
+    bstextonmap.update_endvote_text()
 
     bs.broadcastmessage(
         "Vote to end the match started!\n"
@@ -93,7 +93,7 @@ def count_votes():
 
     vote_in_progress = False
     if activity is not None:
-        activity.bstextonmap.update_endvote_text()
+        bstextonmap.update_endvote_text()
 
     bs.broadcastmessage(
         f"Vote Results | YES: {yes_votes} | NO: {no_votes}",
@@ -190,7 +190,7 @@ def handle_vote(client_id: int, vote: int):
     
     activity = get_activity()
     if activity is not None:
-        activity.bstextonmap.update_endvote_text()
+        bstextonmap.update_endvote_text()
 
     bs.broadcastmessage(
         f"{player_name} voted {'YES' if vote else 'NO'}",
