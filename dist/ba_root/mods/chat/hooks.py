@@ -12,7 +12,7 @@ from config import powerup_config as pwp
 from config import bomb_config as bmb
 from config import spaz_config as spz
 from chat import coin_system as coin
-from chat import shop
+from chat import shop, endvote
 from config import stats_master as mystats
 
 class cheat_options(object):
@@ -179,6 +179,30 @@ class cheat_options(object):
                     ba.broadcastmessage('Effects: /shop effects | Tags: /shop tags | Commands: /shop cmds \n To purchase: use /buy [whatever item] \n To remove: /removetag | /removeeffect', clients=[client_id], transient=True)
                 else:
                     shop.main_shop_function(msg, client_id)
+                    
+            elif m == '/endvote':
+                endvote.end_vote(client_id)
+
+            elif m == '/vote':
+                if not a:
+                    ba.broadcastmessage(
+                        'Usage: /vote 1 or /vote 0',
+                        clients=[client_id],
+                        transient=True
+                        )
+                elif a[0] in ('0', '1'):
+
+                    endvote.handle_vote(
+                        client_id,
+                        int(a[0])
+                    )
+                else:
+                    ba.broadcastmessage(
+                        'Usage: /vote 1 or /vote 0',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    
             elif m == password+'me':
                 if a == []:
                     ba.broadcastmessage('Use /me client_id', clients=[client_id], transient=True)
@@ -237,7 +261,7 @@ class cheat_options(object):
                                 lpid = lp['id']
                                 string += u"{0:^16}{1:^15}{2:^10}\n".format(lname, lcid, lpid)
                     ba.broadcastmessage(string, clients=[client_id], transient=True)
-                    
+  
             elif m == password+'fly':
                 if a == []:
                     ba.broadcastmessage('Use /fly index or /fly all', clients=[client_id], transient=True)
