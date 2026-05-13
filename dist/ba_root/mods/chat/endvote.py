@@ -66,11 +66,7 @@ def end_vote(starter_client_id: int):
 
     bs.broadcastmessage(
         "Vote to end the match started!\n"
-        "Type /vote 1 for YES or /vote 0 for NO",
-        clients=[starter_client_id],
-        color=(1, 1, 0),
-        transient=True
-    )
+        "Type /vote 1 for YES or /vote 0 for NO")
 
     vote_timer = bs.AppTimer(
         20.0,
@@ -113,7 +109,7 @@ def count_votes():
 
         bs.timer(
             2.0,
-            bs.WeakCall(activity.end_game)
+            bs.WeakCallPartial(activity.end_game)
         )
 
     else:
