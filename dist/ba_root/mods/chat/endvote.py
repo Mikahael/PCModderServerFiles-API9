@@ -1,7 +1,8 @@
+# endvote.py
+
 import bascenev1 as bs
 import _bascenev1 as _bs
-import random
-from maps import bstextonmap
+import maps.bstextonmap as bstextonmap
 
 votes: dict[str, int] = {}
 vote_in_progress = False
@@ -9,12 +10,30 @@ vote_timer = None
 
 
 def get_activity():
-    """Get current foreground activity safely."""
     return bs.get_foreground_host_activity()
 
 
+def update_endvote_text():
+
+    node = bstextonmap.endvote_node
+
+    if node is None:
+        return
+
+    if not vote_in_progress:
+        node.text = ''
+        return
+
+    yes_votes = sum(votes.values())
+    no_votes = len(votes) - yes_votes
+
+    node.text = (
+        f"[EndVote: YES {yes_votes} | NO {no_votes}]"
+    )
+
+
 def get_player_by_client_id(client_id: int):
-    """Find player from client id."""
+
     activity = get_activity()
 
     if activity is None:
@@ -34,6 +53,7 @@ def get_player_by_client_id(client_id: int):
 
 
 def end_vote(starter_client_id: int):
+
     global votes
     global vote_in_progress
     global vote_timer
@@ -44,19 +64,18 @@ def end_vote(starter_client_id: int):
         return
 
     if vote_in_progress:
+
         bs.broadcastmessage(
             "A vote is already in progress.",
             color=(1, 0, 0),
-            clients=[starter_client_id],
             transient=True
         )
         return
 
-    # Optional minimum player requirement
     if len(activity.players) < 2:
+
         bs.broadcastmessage(
             "Not enough players for a vote.",
-            clients=[starter_client_id],
             color=(1, 0, 0),
             transient=True
         )
@@ -65,11 +84,14 @@ def end_vote(starter_client_id: int):
     votes = {}
     vote_in_progress = True
 
-    bstextonmap.update_endvote_text()
+    update_endvote_text()
 
     bs.broadcastmessage(
         "Vote to end the match started!\n"
-        "Type /vote 1 for YES or /vote 0 for NO")
+        "Type /vote 1 for YES or /vote 0 for NO",
+        color=(1, 1, 0),
+        transient=True
+    )
 
     vote_timer = bs.AppTimer(
         20.0,
@@ -78,12 +100,14 @@ def end_vote(starter_client_id: int):
 
 
 def count_votes():
+
     global vote_in_progress
 
     activity = get_activity()
 
     if activity is None:
         vote_in_progress = False
+        update_endvote_text()
         return
 
     total_players = len(activity.players)
@@ -92,8 +116,8 @@ def count_votes():
     no_votes = len(votes) - yes_votes
 
     vote_in_progress = False
-    if activity is not None:
-        bstextonmap.update_endvote_text()
+
+    update_endvote_text()
 
     bs.broadcastmessage(
         f"Vote Results | YES: {yes_votes} | NO: {no_votes}",
@@ -101,7 +125,6 @@ def count_votes():
         transient=True
     )
 
-    # Majority requirement
     required_yes = max(1, (total_players // 2) + 1)
 
     if yes_votes >= required_yes:
@@ -114,7 +137,7 @@ def count_votes():
 
         bs.timer(
             2.0,
-            bs.WeakCallPartial(activity.end_game)
+            activity.end_game
         )
 
     else:
@@ -134,7 +157,6 @@ def handle_vote(client_id: int, vote: int):
 
         bs.broadcastmessage(
             "No vote is currently active.",
-            clients=[client_id],
             color=(1, 0, 0),
             transient=True
         )
@@ -144,7 +166,6 @@ def handle_vote(client_id: int, vote: int):
 
         bs.broadcastmessage(
             "Use /vote 1 or /vote 0",
-            clients=[client_id],
             color=(1, 0, 0),
             transient=True
         )
@@ -156,7 +177,6 @@ def handle_vote(client_id: int, vote: int):
 
         bs.broadcastmessage(
             "Player not found.",
-            clients=[client_id],
             color=(1, 0, 0),
             transient=True
         )
@@ -170,27 +190,22 @@ def handle_vote(client_id: int, vote: int):
 
         bs.broadcastmessage(
             "Failed to identify player.",
-            clients=[client_id],
             transient=True
         )
         return
 
-    # Prevent duplicate voting
     if account_id in votes:
 
         bs.broadcastmessage(
             "You already voted.",
-            clients=[client_id],
             color=(1, 0.5, 0),
             transient=True
         )
         return
 
     votes[account_id] = vote
-    
-    activity = get_activity()
-    if activity is not None:
-        bstextonmap.update_endvote_text()
+
+    update_endvote_text()
 
     bs.broadcastmessage(
         f"{player_name} voted {'YES' if vote else 'NO'}",
@@ -198,7 +213,6 @@ def handle_vote(client_id: int, vote: int):
         transient=True
     )
 
-    # Optional early finish if everyone voted
     activity = get_activity()
 
     if activity is not None:

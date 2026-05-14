@@ -6,6 +6,8 @@ from bascenev1 import _map
 import fire
 from bascenev1lib.gameutils import SharedObjects
 
+endvote_node = None
+
 # Save original Map.__init__ to call it safely
 
 _original_map_init = _map.Map.__init__
@@ -13,9 +15,30 @@ _original_map_init = _map.Map.__init__
 def _map_custom_init(self, *args, **kwargs):
     """Custom Map init to add text on map."""
     
+    global endvote_node
+    
     # Call the original __init__ safely
     
     _original_map_init(self, *args, **kwargs)
+    
+    
+    endvote_node = bs.newnode(
+        'text',
+        attrs={
+            'text': '',
+            'scale': 0.85,
+            'position': (500, -80),
+            'maxwidth': 500,
+            'flatness': 0.0,
+            'shadow': 0.5,
+            'h_align': 'center',
+            'v_align': 'center',
+            'v_attach': 'top',
+            'color': (1, 1, 1)
+        }
+    )
+
+    
 
     def soby():
                 # Pick a random message
@@ -59,33 +82,7 @@ def _map_custom_init(self, *args, **kwargs):
     bs.timer(15, soby, repeat=True)
 
 
-    self.endvote_node = bs.newnode('text',
-                attrs={
-                    'text': '',
-                    'scale': 0.85,
-                    'position': (500, -80),
-                    'maxwidth': 500,
-                    'flatness': 0.0,
-                    'shadow': 0.5,
-                    'h_align': 'center',
-                    'v_align': 'center',
-                    'v_attach': 'top'
-                })
-        #bs.animate(self.time_node,'opacity',{0.0: 0.0, 0.35: 1.0})
-        #print(bs.animate)
-    def update_endvote_text(self):
-
-        if not vote_in_progress:
-            self.endvote_node.text = ''
-            return
-
-        yes_votes = sum(votes.values())
-        no_votes = len(votes) - yes_votes
-
-        self.endvote_node.text = (
-            f"[EndVote: YES {yes_votes} | NO {no_votes}]"
-        )
-        
+    # for the time module!    
     self.time_node = bs.newnode('text',
                 attrs={
                     'text': '',
