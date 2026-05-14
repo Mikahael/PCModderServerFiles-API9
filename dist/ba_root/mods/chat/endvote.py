@@ -7,10 +7,26 @@ import maps.bstextonmap as bstextonmap
 votes: dict[str, int] = {}
 vote_in_progress = False
 vote_timer = None
+vote_activity = None
 
 
 def get_activity():
-    return bs.get_foreground_host_activity()
+    return bs.get_foreground_host_activity() # pls work
+
+
+def reset_vote_state():
+
+    global votes
+    global vote_in_progress
+    global vote_timer
+    global vote_activity
+
+    votes = {}
+    vote_in_progress = False
+    vote_timer = None
+    vote_activity = None
+
+    update_endvote_text()
 
 
 def update_endvote_text():
@@ -57,11 +73,16 @@ def end_vote(starter_client_id: int):
     global votes
     global vote_in_progress
     global vote_timer
+    global vote_activity
 
     activity = get_activity()
 
     if activity is None:
         return
+
+    # New match/activity detected.
+    if vote_activity is not None and vote_activity is not activity:
+        reset_vote_state()
 
     if vote_in_progress:
 
@@ -83,6 +104,7 @@ def end_vote(starter_client_id: int):
 
     votes = {}
     vote_in_progress = True
+    vote_activity = activity
 
     update_endvote_text()
 
@@ -102,22 +124,25 @@ def end_vote(starter_client_id: int):
 def count_votes():
 
     global vote_in_progress
+    global votes
+    global vote_timer
+    global vote_activity
 
     activity = get_activity()
 
+    # Match changed while vote was active.
+    if activity is not vote_activity:
+        reset_vote_state()
+        return
+
     if activity is None:
-        vote_in_progress = False
-        update_endvote_text()
+        reset_vote_state()
         return
 
     total_players = len(activity.players)
 
     yes_votes = sum(votes.values())
     no_votes = len(votes) - yes_votes
-
-    vote_in_progress = False
-
-    update_endvote_text()
 
     bs.broadcastmessage(
         f"Vote Results | YES: {yes_votes} | NO: {no_votes}",
@@ -148,6 +173,8 @@ def count_votes():
             transient=True
         )
 
+    reset_vote_state()
+
 
 def handle_vote(client_id: int, vote: int):
 
@@ -166,6 +193,19 @@ def handle_vote(client_id: int, vote: int):
 
         bs.broadcastmessage(
             "Use /vote 1 or /vote 0",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
+
+    activity = get_activity()
+
+    # Prevent votes from old matches.
+    if activity is not vote_activity:
+        reset_vote_state()
+
+        bs.broadcastmessage(
+            "Vote expired.",
             color=(1, 0, 0),
             transient=True
         )
@@ -212,8 +252,6 @@ def handle_vote(client_id: int, vote: int):
         color=(0, 1, 1),
         transient=True
     )
-
-    activity = get_activity()
 
     if activity is not None:
         if len(votes) >= len(activity.players):
