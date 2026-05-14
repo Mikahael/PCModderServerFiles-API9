@@ -38,6 +38,11 @@ def update_endvote_text():
     if node is None:
         return
 
+    # Node was destroyed with old activity.
+    if not node.exists():
+        bstextonmap.endvote_node = None
+        return
+
     if not vote_in_progress:
         node.text = ''
         return

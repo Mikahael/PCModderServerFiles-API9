@@ -9,6 +9,8 @@ from maps import bstextonmap
 from lobby import bslobby, players
 from config import stats_master as mystats
 from chat import coin_system as coin
+from chat import endvote
+from bascenev1 import _activity
 import bascenev1 as bs
 import bascenev1
 
@@ -33,6 +35,7 @@ def run_mods():
     mystats.enable_stats()
     coin.enable_coinsys()
     clean_expiry_customers()
+    start_begin()
     print('✅ Mods loaded and running!')
 
 
@@ -48,3 +51,14 @@ def clean_expiry_customers():
     check_expiration()
     if expiry_timer is None:
         expiry_timer = bs.AppTimer(3600, check_expiration, repeat=True)
+        
+        
+old_begin = bs._activity.Activity.on_begin
+def update_new_begin(self):
+    old_begin(self)
+    print('endvote cleared and working!')
+    endvote.reset_vote_state()
+    
+def start_begin():
+    print('✅ Endvote cleared!')
+    bs._activity.Activity.on_begin = update_new_begin
