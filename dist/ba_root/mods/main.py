@@ -56,7 +56,7 @@ def clean_expiry_customers():
 old_begin = bs._activity.Activity.on_begin
 def update_new_begin(self):
     old_begin(self)
-    print('endvote cleared and working!')
+    #print('endvote cleared and working!')
     endvote.reset_vote_state()
     
 def start_begin():
