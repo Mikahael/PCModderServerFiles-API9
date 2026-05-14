@@ -6,8 +6,10 @@ from bascenev1._gameactivity import GameActivity
 import maps.bstextonmap as bstextonmap
 
 votes: dict[str, int] = {}
+
 vote_in_progress = False
-vote_timer = None
+vote_checker = None
+vote_time_left = 0
 
 
 def get_activity():
@@ -18,11 +20,13 @@ def reset_vote_state():
 
     global votes
     global vote_in_progress
-    global vote_timer
+    global vote_checker
+    global vote_time_left
 
     votes = {}
     vote_in_progress = False
-    vote_timer = None
+    vote_checker = None
+    vote_time_left = 0
 
     update_endvote_text()
 
@@ -42,7 +46,8 @@ def update_endvote_text():
     no_votes = len(votes) - yes_votes
 
     node.text = (
-        f"[EndVote: YES {yes_votes} | NO {no_votes}]"
+        f"[EndVote: YES {yes_votes} | NO {no_votes} | "
+        f"{vote_time_left}s]"
     )
 
 
@@ -69,18 +74,42 @@ def get_player_by_client_id(client_id: int):
     return None
 
 
+def vote_tick():
+
+    global vote_time_left
+
+    activity = get_activity()
+
+    # Match ended or lobby loaded.
+    if activity is None or not isinstance(activity, GameActivity):
+        reset_vote_state()
+        return
+
+    if not vote_in_progress:
+        reset_vote_state()
+        return
+
+    vote_time_left -= 1
+
+    update_endvote_text()
+
+    if vote_time_left <= 0:
+        count_votes()
+
+
 def end_vote(starter_client_id: int):
 
     global votes
     global vote_in_progress
-    global vote_timer
+    global vote_checker
+    global vote_time_left
 
     activity = get_activity()
 
     if activity is None:
         return
 
-    # Prevent starting in lobby/menu.
+    # Prevent lobby votes.
     if not isinstance(activity, GameActivity):
 
         bs.broadcastmessage(
@@ -110,6 +139,7 @@ def end_vote(starter_client_id: int):
 
     votes = {}
     vote_in_progress = True
+    vote_time_left = 20
 
     update_endvote_text()
 
@@ -120,21 +150,19 @@ def end_vote(starter_client_id: int):
         transient=True
     )
 
-    vote_timer = bs.AppTimer(
-        20.0,
-        count_votes
+    # Repeating watchdog timer.
+    vote_checker = bs.AppTimer(
+        1.0,
+        vote_tick,
+        repeat=True
     )
 
 
 def count_votes():
 
-    global vote_in_progress
-    global votes
-    global vote_timer
-
     activity = get_activity()
 
-    # Match ended or lobby loaded.
+    # Match already ended.
     if activity is None or not isinstance(activity, GameActivity):
         reset_vote_state()
         return
@@ -191,7 +219,7 @@ def handle_vote(client_id: int, vote: int):
 
     activity = get_activity()
 
-    # Vote expired because game ended.
+    # Vote expired because match ended.
     if activity is None or not isinstance(activity, GameActivity):
 
         reset_vote_state()
@@ -254,6 +282,6 @@ def handle_vote(client_id: int, vote: int):
         transient=True
     )
 
-    # Everyone voted -> finalize immediately.
+    # Everyone voted early.
     if len(votes) >= len(activity.players):
         count_votes()
