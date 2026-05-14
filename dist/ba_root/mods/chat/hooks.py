@@ -181,8 +181,9 @@ class cheat_options(object):
                     shop.main_shop_function(msg, client_id)
                     
             elif m == '/endvote':
-                session = get_foreground_host_session()
-                if isinstance(session, (bs.FreeForAllSession, bs.DualTeamSession)):
+                from bascenev1._gameactivity import GameActivity
+                activity = get_foreground_host_activity()
+                if isinstance(activity, GameActivity):
                     endvote.end_vote(client_id)
                 else:
                     ba.broadcastmessage(
