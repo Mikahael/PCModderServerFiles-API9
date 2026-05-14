@@ -21,13 +21,13 @@ def _map_custom_init(self, *args, **kwargs):
     
     _original_map_init(self, *args, **kwargs)
     
-    
+    #for endvote mod
     endvote_node = bs.newnode(
         'text',
         attrs={
             'text': '',
             'scale': 0.85,
-            'position': (500, -80),
+            'position': (500, -120),
             'maxwidth': 500,
             'flatness': 0.0,
             'shadow': 0.5,
@@ -80,7 +80,6 @@ def _map_custom_init(self, *args, **kwargs):
 
         # Show message every 15 seconds
     bs.timer(15, soby, repeat=True)
-
 
     # for the time module!    
     self.time_node = bs.newnode('text',
