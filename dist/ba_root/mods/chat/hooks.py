@@ -181,7 +181,15 @@ class cheat_options(object):
                     shop.main_shop_function(msg, client_id)
                     
             elif m == '/endvote':
-                endvote.end_vote(client_id)
+                session = get_foreground_host_session()
+                if isinstance(session, (bs.FreeForAllSession, bs.DualTeamSession)):
+                    endvote.end_vote(client_id)
+                else:
+                    ba.broadcastmessage(
+                        'Use in an active gamemode! Not lobby!',
+                        clients=[client_id],
+                        transient=True
+                    )
 
             elif m == '/vote':
                 if not a:
