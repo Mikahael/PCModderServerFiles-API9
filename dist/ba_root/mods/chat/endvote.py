@@ -2,16 +2,16 @@
 
 import bascenev1 as bs
 import _bascenev1 as _bs
+from bascenev1._gameactivity import GameActivity
 import maps.bstextonmap as bstextonmap
 
 votes: dict[str, int] = {}
 vote_in_progress = False
 vote_timer = None
-vote_activity = None
 
 
 def get_activity():
-    return bs.get_foreground_host_activity() # pls work
+    return bs.get_foreground_host_activity()
 
 
 def reset_vote_state():
@@ -19,12 +19,10 @@ def reset_vote_state():
     global votes
     global vote_in_progress
     global vote_timer
-    global vote_activity
 
     votes = {}
     vote_in_progress = False
     vote_timer = None
-    vote_activity = None
 
     update_endvote_text()
 
@@ -55,6 +53,9 @@ def get_player_by_client_id(client_id: int):
     if activity is None:
         return None
 
+    if not isinstance(activity, GameActivity):
+        return None
+
     for player in activity.players:
         try:
             sessionplayer = player.sessionplayer
@@ -73,16 +74,21 @@ def end_vote(starter_client_id: int):
     global votes
     global vote_in_progress
     global vote_timer
-    global vote_activity
 
     activity = get_activity()
 
     if activity is None:
         return
 
-    # New match/activity detected.
-    if vote_activity is not None and vote_activity is not activity:
-        reset_vote_state()
+    # Prevent starting in lobby/menu.
+    if not isinstance(activity, GameActivity):
+
+        bs.broadcastmessage(
+            "Use during an active game!",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
 
     if vote_in_progress:
 
@@ -104,7 +110,6 @@ def end_vote(starter_client_id: int):
 
     votes = {}
     vote_in_progress = True
-    vote_activity = activity
 
     update_endvote_text()
 
@@ -122,21 +127,16 @@ def end_vote(starter_client_id: int):
 
 
 def count_votes():
-    from bascenev1._gameactivity import GameActivity # important
+
     global vote_in_progress
     global votes
     global vote_timer
 
     activity = get_activity()
 
-    # Match ended / lobby loaded.
-    if not isinstance(activity, GameActivity):
-
-        votes = {}
-        vote_in_progress = False
-        vote_timer = None
-
-        update_endvote_text()
+    # Match ended or lobby loaded.
+    if activity is None or not isinstance(activity, GameActivity):
+        reset_vote_state()
         return
 
     total_players = len(activity.players)
@@ -173,9 +173,87 @@ def count_votes():
             transient=True
         )
 
-    # Fully reset after completion.
-    votes = {}
-    vote_in_progress = False
-    vote_timer = None
+    reset_vote_state()
+
+
+def handle_vote(client_id: int, vote: int):
+
+    global votes
+
+    if not vote_in_progress:
+
+        bs.broadcastmessage(
+            "No vote is currently active.",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
+
+    activity = get_activity()
+
+    # Vote expired because game ended.
+    if activity is None or not isinstance(activity, GameActivity):
+
+        reset_vote_state()
+
+        bs.broadcastmessage(
+            "Vote expired.",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
+
+    if vote not in (0, 1):
+
+        bs.broadcastmessage(
+            "Use /vote 1 or /vote 0",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
+
+    player = get_player_by_client_id(client_id)
+
+    if player is None:
+
+        bs.broadcastmessage(
+            "Player not found.",
+            color=(1, 0, 0),
+            transient=True
+        )
+        return
+
+    try:
+        account_id = player.sessionplayer.get_account_id()
+        player_name = player.getname(full=True)
+
+    except Exception:
+
+        bs.broadcastmessage(
+            "Failed to identify player.",
+            transient=True
+        )
+        return
+
+    if account_id in votes:
+
+        bs.broadcastmessage(
+            "You already voted.",
+            color=(1, 0.5, 0),
+            transient=True
+        )
+        return
+
+    votes[account_id] = vote
 
     update_endvote_text()
+
+    bs.broadcastmessage(
+        f"{player_name} voted {'YES' if vote else 'NO'}",
+        color=(0, 1, 1),
+        transient=True
+    )
+
+    # Everyone voted -> finalize immediately.
+    if len(votes) >= len(activity.players):
+        count_votes()
