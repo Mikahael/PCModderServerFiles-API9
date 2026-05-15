@@ -8,6 +8,8 @@ from bascenev1lib.gameutils import SharedObjects
 
 endvote_node = None
 
+question_answer = None
+
 # Save original Map.__init__ to call it safely
 
 _original_map_init = _map.Map.__init__
@@ -16,10 +18,44 @@ def _map_custom_init(self, *args, **kwargs):
     """Custom Map init to add text on map."""
     
     global endvote_node
+    global question_answer
     
     # Call the original __init__ safely
     
     _original_map_init(self, *args, **kwargs)
+
+
+    def start_question_messages():
+        def start_timer():
+
+                # Create text node
+                question_answer = bs.newnode(
+                        'text',
+                        attrs={
+                                'text': msg,
+                                'scale': 0.0,
+                                'position': (-500, -80),
+                                'maxwidth': 700,
+                                'flatness': 0.0,
+                                'shadow': 0.5,
+                                'h_align': 'center',
+                                'v_align': 'center',
+                                'v_attach': 'top',
+                                'color': (1, 1, 1),
+                                'opacity': 1.0})
+
+                # Bounce-in animation
+                bs.animate(question_answer,'scale',{
+                         0.0: 0.0,
+                         0.25: 0.7,
+                         0.45: 1.35,
+                         0.6: 1.6,})
+                # Fade out
+                bs.animate(question_answer,'opacity',{7.0: 1.0, 9.5: 0.0,})
+                bs.timer(10.0, question_answer.delete)
+
+        # Show message every 15 seconds
+        bs.timer(15, start_timer, repeat=True)
     
     #for endvote mod
     endvote_node = bs.newnode(
@@ -37,8 +73,7 @@ def _map_custom_init(self, *args, **kwargs):
             'color': (1, 1, 1)
         }
     )
-
-    
+   
 
     def soby():
                 # Pick a random message

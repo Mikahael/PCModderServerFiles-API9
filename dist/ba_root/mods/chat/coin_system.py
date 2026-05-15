@@ -9,6 +9,7 @@ from fire import *
 from spaz import member_id as mid
 from chat import shop
 from bascenev1lib.actor.zoomtext import ZoomText
+from maps import bstextonmap
 
 correctAnswer = None
 answeredBy = None
@@ -155,24 +156,46 @@ def askQuestion():
         correctAnswer = str(a * b)
         question = f"What is {a} x {b}?"
 
-    #chatmessage(question)
-    
     activity = bs.get_foreground_host_activity()
-
     with activity.context:
-        global current_question_text
+        
+        # Delete old question node
+        if bstextonmap.question_answer:
+            bstextonmap.question_answer.delete()
 
-        current_question_text = ZoomText(
-            text=question,
-            position=(-250, 250),
-            shiftposition=(-250, 250),
-            shiftdelay=3.0,
-            lifespan=3.0,
-            flash=False,
-            trail=False,
-            scale = 0.30,
-            color = (1,1,1)
-            )
+        # Create new node
+        bstextonmap.question_answer = bs.newnode(
+            'text',
+            attrs={
+                'text': f"[{question}]",
+                'scale': 0.0,
+                'position': (-300, -80),
+                'maxwidth': 700,
+                'flatness': 0.0,
+                'shadow': 0.5,
+                'h_align': 'center',
+                'v_align': 'center',
+                'v_attach': 'top',
+                'color': (1, 1, 1),
+                'opacity': 1.0
+            }
+        )
+
+        bs.animate(bstextonmap.question_answer, 'scale', {
+            0.0: 0.0,
+            0.25: 0.25,
+            0.45: 0.45,
+            0.6: 0.65,
+            0.8: 0.85
+        })
+
+        bs.animate(bstextonmap.question_answer, 'opacity', {
+            7.0: 1.0,
+            9.5: 0.0,
+        })
+
+        bs.timer(10.0, bstextonmap.question_answer.delete)
+
     answeredBy = None
 
     #checkExpiredItems()
@@ -206,10 +229,15 @@ def checkAnswer(msg: str, client_id: int):
 
             try:
                 bs.broadcastmessage(
-                    f"Congratulations {answeredBy}! You won 🎟10",
-                    clients=[client_id], transient=True
-                )
-                addCoins(account_id, 10)
+                    f"Congratulations {answeredBy}! You won 🎟25",
+                    clients=[client_id], transient=True)
+                
+                addCoins(account_id, 25)
+                #
+                if bstextonmap.question_answer: # say who won instead of deleting node
+                    bstextonmap.question_answer.text = (f"Congratulations {answeredBy}! You won 🎟25")
+                    #bstextonmap.question_answer.delete()
+                #
             except Exception as e:
                 print("Reward error:", e)
 
@@ -229,9 +257,9 @@ def addCoins(account_id, amount):
     if amount > 0:
         run_in_context(lambda: bs.getsound('cashRegister').play())
 
-    print("Transaction successful")
+    #print("Transaction successful")
     coins = getCoins(account_id)
-    print(coins)
+    #print(coins)
 
 
 def deductCoins(account_id, amount):
