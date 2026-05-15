@@ -194,7 +194,7 @@ def askQuestion():
             9.5: 0.0,
         })
 
-        bs.timer(10.0, bstextonmap.question_answer.delete)
+        bs.timer(18.5, bstextonmap.question_answer.delete)
 
     answeredBy = None
 
@@ -213,7 +213,7 @@ def checkAnswer(msg: str, client_id: int):
 
     if answeredBy is not None:
         bs.broadcastmessage(
-            f"Already answered by {answeredBy}",
+            f"Already answered by {answeredBy}!",
             clients=[client_id], transient=True
         )
         return
@@ -228,14 +228,15 @@ def checkAnswer(msg: str, client_id: int):
             chatmessage(f"{answeredBy}: {msg}")
 
             try:
+                ticket = babase.charstr(babase.SpecialChar.TICKET)
                 bs.broadcastmessage(
-                    f"Congratulations {answeredBy}! You won 🎟25",
+                    f"Congratulations {answeredBy}! You won {ticket}25",
                     clients=[client_id], transient=True)
                 
                 addCoins(account_id, 25)
                 #
                 if bstextonmap.question_answer: # say who won instead of deleting node
-                    bstextonmap.question_answer.text = (f"Congratulations {answeredBy}! You won 🎟25")
+                    bstextonmap.question_answer.text = (f"Congratulations {answeredBy}! You won {ticket}25")
                     #bstextonmap.question_answer.delete()
                 #
             except Exception as e:

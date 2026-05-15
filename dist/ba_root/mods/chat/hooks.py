@@ -143,6 +143,7 @@ class cheat_options(object):
         
         cost = self.command_cash(command) #price of each cmd
         user_cash = coin.getCoins(acc)
+        ticket = babase.charstr(babase.SpecialChar.TICKET)
         if acc not in mem.owner or acc not in mem.admin:
             if user_cash > cost:
                 ba.broadcastmessage(f'Purchased Command: {command}!', clients=[client_id], transient=True)
@@ -150,7 +151,7 @@ class cheat_options(object):
                 return True
             else:
                 if acc is not None:
-                    ba.broadcastmessage(f'Insufficient Funds! Need {cost - user_cash} more!', clients=[client_id], transient=True)
+                    ba.broadcastmessage(f'Insufficient Funds! Need {ticket}{cost - user_cash} more!', clients=[client_id], transient=True)
                 else:
                     ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
         else:
@@ -230,9 +231,10 @@ class cheat_options(object):
                             kills = stats["kills"]
                             deaths = stats["deaths"]
                             me_stats = f"Rank: {rank} | Score: {score} | Kills: {kills} | Deaths {deaths}"
+                            ticket = babase.charstr(babase.SpecialChar.TICKET)
                             coins = coin.getCoins(acc)
                             #ba.broadcastmessage(name+' ---> '+acc+' ---> '+str(session_players.index(i))+' --->  client_id ---> '+str(clID))
-                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {coins} \n {me_stats}', clients=[client_id], transient=True)
+                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {ticket}{coins} \n {me_stats}', clients=[client_id], transient=True)
                             if acc in mem.admin:
                                 ba.broadcastmessage('Roles: Admin / Times Joined: '+str(login), clients=[client_id], transient=True)
                             elif acc in mem.owner:
