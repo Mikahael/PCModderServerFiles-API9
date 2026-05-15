@@ -67,7 +67,8 @@ class cheat_options(object):
             '/hug',
             'celebrate',
             'headless',
-            'icy'
+            'icy',
+            '/addcash'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -212,7 +213,54 @@ class cheat_options(object):
                         clients=[client_id],
                         transient=True
                     )
-                    
+            elif m == password+'addcash':
+                if self.checkAdmin(nick, m):
+
+                    if len(a) < 2:
+                        ba.broadcastmessage(
+                            'Use /addcash [clID] [cash]',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    try:
+                        target_id = int(a[0])
+                        cash_amount = int(a[1])
+
+                    except ValueError:
+                        ba.broadcastmessage(
+                            'Invalid cash values!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    target_player = None
+
+                    for i in session_players:
+                        if i.inputdevice.client_id == target_id:
+                            target_player = i
+                            break
+
+                    if target_player is None:
+                        ba.broadcastmessage(
+                            'Player Not Found!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    acc = target_player.get_account_id()
+                    name = target_player.getname()
+                    #add coin to acc here!
+                    coin.addCoins(acc, cash_amount)
+                    ticket = babase.charstr(babase.SpecialChar.TICKET)
+                    ba.broadcastmessage(
+                        f'Added {ticket}{cash_amount} cash added to {name}!',
+                        clients=[client_id],
+                        transient=True
+                    )
             elif m == password+'me':
                 if a == []:
                     ba.broadcastmessage('Use /me client_id', clients=[client_id], transient=True)
