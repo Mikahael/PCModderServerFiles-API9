@@ -16,3 +16,5 @@ questionsList = {'Who is the owner of Server?': 'pcmodder', 'Who modded the serv
 enableCoinSystem = True
 #
 ping_tag = True
+#
+fall_protection = False

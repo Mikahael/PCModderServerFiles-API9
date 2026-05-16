@@ -629,7 +629,7 @@ def new_get_default_powerup_distribution():
         ('revenge_bomb',2),
         ('headache',2), #turned to random bombs
         ('glowy',2),
-        ('rchar',2322),
+        ('rchar',0),
     )
 
 def enable_pwps():

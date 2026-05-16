@@ -135,6 +135,22 @@
    "asyncio.exceptions.CancelledError"
   ]
  },
+ "Custom Team Colors": [
+  [
+   1.0,
+   2.0,
+   4.0
+  ],
+  [
+   4.0,
+   2.0,
+   1.0
+  ]
+ ],
+ "Custom Team Names": [
+  "Stars",
+  "Galaxies"
+ ],
  "Default Player Profiles": {
   "Client Input Device #1": "__account__"
  },
@@ -142,21 +158,14 @@
  "Fleet Zone Ping Last Flush Time": 1778636441,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 168.01711444562352,
-   "delhi.v4": 96.23965337370282,
-   "hong_kong.v4": 125.97550672569923,
-   "hyderabad.v4": 91.65816585391258,
-   "jakarta.v4": 95.06011560773368,
-   "kolkata.v4": 91.97955286218348,
-   "kuala_lampur.v4": 95.53269430413457,
-   "manila.v4": 191.93326200002048,
-   "mumbai.v4": 67.34867119247792,
-   "singapore.v4": 109.45859976611064,
-   "taipei.v4": 92.7939676795977
+   "delhi.v4": 76.83015832991305,
+   "hyderabad.v4": 68.89353263192424,
+   "kolkata.v4": 68.83702403994084,
+   "mumbai.v4": 60.22999107193664
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1778813740
+  "prod": 1778909912
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -186,6 +195,8 @@
  "Port": 43210,
  "Show Tutorial": false,
  "Signed In Last Session": false,
+ "Team Tournament Playlist Randomize": true,
+ "Team Tournament Playlist Selection": "__default__",
  "Team Tournament Playlists": {
   "test playlist": [
    {
@@ -486,7 +497,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 53,
+ "launchCount": 64,
  "lc14173": 1,
  "lc14292": 1
 }

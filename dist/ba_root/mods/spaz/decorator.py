@@ -105,6 +105,10 @@ def all_decorate(self, player):
     
     # add effects and tags to clients now
     
+    #fall protection for everyone - allow it in fire.py
+    if fire.fall_protection:
+        self.fall_protect = True
+    
     
     if acc in mid.customers:
         purchased_effects = list(mid.customers[acc]["effects"].keys())
@@ -142,6 +146,8 @@ def all_decorate(self, player):
         if not user_tags and acc not in mid.name: # only show if custom name or purchased tag doesnt exist!
             # red color for owners!
             animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=3)
+            #owner gets fall protection!
+            self.fall_protect = True
     
 
     for effect_name in enabled_effects:
