@@ -137,7 +137,8 @@ def _map_custom_init(self, *args, **kwargs):
                 import datetime
                 e = datetime.datetime.now()
                 time_thing = e.strftime("%A, %B %d, %Y") + '\n' + e.strftime("%I:%M:%S %p")
-                self.time_node.text = time_thing
+                if self.time_node and self.time_node.exists():
+                    self.time_node.text = time_thing
     bs.timer(0.5, bs.CallPartial(update_time), repeat=True)
     
     session = bs.get_foreground_host_session()

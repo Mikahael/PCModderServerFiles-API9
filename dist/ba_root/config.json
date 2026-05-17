@@ -158,17 +158,13 @@
  "Fleet Zone Ping Last Flush Time": 1778636441,
  "Fleet Zone Pings": {
   "prod": {
-   "bangkok.v4": 166.38342454998246,
-   "delhi.v4": 105.40680643772438,
-   "hyderabad.v4": 71.71966144268248,
-   "kolkata.v4": 80.7863810385754,
-   "kuala_lampur.v4": 82.64544178188908,
-   "mumbai.v4": 93.05858818989589,
-   "singapore.v4": 82.19927106201249
+   "delhi.v4": 33.972553099145415,
+   "hyderabad.v4": 42.160260080922946,
+   "mumbai.v4": 21.17272823044253
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1778909947
+  "prod": 1779006215
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -500,7 +496,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 64,
+ "launchCount": 103,
  "lc14173": 1,
  "lc14292": 1
 }

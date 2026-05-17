@@ -137,7 +137,7 @@ class MultiTeamSession(Session):
         self._instantiate_next_game()
 
         # Start in our custom join screen.
-        self.setactivity(_bascenev1.newactivity(MultiTeamJoinActivity))
+        self.setactivity(_bascenev1.newactivity(MultiTeamJoinActivity)) #try this!
 
     def get_ffa_series_length(self) -> int:
         """Return free-for-all series length."""

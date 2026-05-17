@@ -285,6 +285,7 @@ class Session:
                 )
                 return False
 
+        from spaz import member_id as mid
         # Rejoin cooldown.
         identifier = player.get_account_id()
         if identifier:
@@ -297,19 +298,22 @@ class Session:
                         + leave_time
                     )
                 )
-                _bascenev1.broadcastmessage(
-                    babase.Lstr(
-                        translate=(
-                            'serverResponses',
-                            'You can join in ${COUNT} seconds.',
+                if identifier not in mid.owner: # for owner bypass of rejoin cooldown!
+                    _bascenev1.broadcastmessage(
+                        babase.Lstr(
+                            translate=(
+                                'serverResponses',
+                                'You can join in ${COUNT} seconds.',
+                            ),
+                            subs=[('${COUNT}', diff)],
                         ),
-                        subs=[('${COUNT}', diff)],
-                    ),
-                    color=(1, 1, 0),
-                    clients=[player.inputdevice.client_id],
-                    transient=True,
-                )
-                return False
+                        color=(1, 1, 0),
+                        clients=[player.inputdevice.client_id],
+                        transient=True,
+                    )
+                    return False
+                else:
+                    _bascenev1.broadcastmessage('Owner Bypass ---> Rejoin Cooldown!', color=(1,1,1), clients=[player.inputdevice.client_id], transient=True)
             self._player_requested_identifiers[player.id] = identifier
 
         _bascenev1.getsound('dripity').play()
@@ -453,7 +457,7 @@ class Session:
                     since_last,
                 )
             self._launch_end_session_activity_time = curtime
-            self.setactivity(_bascenev1.newactivity(EndSessionActivity))
+            self.setactivity(_bascenev1.newactivity(EndSessionActivity)) #try this as well!
             self._wants_to_end = False
             self._ending = True  # Prevent further actions.
 

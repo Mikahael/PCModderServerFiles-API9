@@ -68,7 +68,9 @@ class cheat_options(object):
             'celebrate',
             'headless',
             'icy',
-            '/addcash'
+            '/addcash',
+            '/teams',
+            '/ffa'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -193,6 +195,38 @@ class cheat_options(object):
                         clients=[client_id],
                         transient=True
                     )
+
+            elif m == '/teams':
+                if self.checkAdmin(nick,m):
+                    ba.broadcastmessage('Team Mode enabled!')
+                    teams()
+                
+            elif m == '/ffa':
+                if self.checkAdmin(nick,m):
+                    ba.broadcastmessage('FFA Mode enabled!')
+                    ffa()
+
+            elif m == '/maps':
+                from bascenev1lib import maps as bsMaps
+                if a == []:
+                    ba.broadcastmessage(
+                        'HockeyStadium | FootballStadium | Bridgit | BigG | \n'
+                        'Roundabout | MonkeyFace | ZigZag | ThePad | DoomShroom | \n'
+                        'LakeFrigid | TipTop | CragCastle | TowerD | \n'
+                        'HappyThoughts | StepRightUp | Courtyard | Rampage'
+                    )
+                else:
+                    try:
+                        map_name = a[0]
+                        # convert string -> map class
+                        map_type = getattr(bsMaps, map_name)
+                        force_change_map(map_type)
+                    except Exception as e:
+                        print(e)
+                        ba.broadcastmessage(
+                            'Invalid map name.',
+                            color=(1, 0, 0)
+                        )
 
             elif m == '/vote':
                 if not a:
@@ -1416,7 +1450,180 @@ class cheat_options(object):
                         f'Spaz {char} turned ---> True',
                         transient=True
                     )
- 
+
+
+
+def teams(): # working
+    import _bascenev1
+    from bascenev1._dualteamsession import DualTeamSession
+
+    _bascenev1.new_host_session(DualTeamSession)
+    
+
+def ffa(): # working
+    import _bascenev1
+    from bascenev1._freeforallsession import FreeForAllSession
+
+    _bascenev1.new_host_session(FreeForAllSession)
+    
+def maps():
+    import bascenev1 as bs
+    from bascenev1lib.maps import Bridgit
+
+    activity = bs.getactivity()
+
+    # preload
+    activity.preloads[Bridgit] = Bridgit.on_preload()
+
+    oldmap = activity.map
+
+    # ONLY delete actual map terrain nodes
+    for attr in [
+        'node',
+        'background',
+        'bottom',
+        'floor',
+        'bg_collide',
+        'railing',
+        'stem',
+        'bg2',
+        'node_bottom',
+        'stands',
+    ]:
+        obj = getattr(oldmap, attr, None)
+
+        if obj:
+            try:
+                obj.delete()
+            except:
+                pass
+
+    # replace map
+    activity.map = Bridgit()
+    
+import bascenev1 as bs
+from bascenev1lib.maps import (
+        HockeyStadium,
+        FootballStadium,
+        Bridgit,
+        BigG,
+        Roundabout,
+        MonkeyFace,
+        ZigZag,
+        ThePad,
+        DoomShroom,
+        LakeFrigid,
+        TipTop,
+        CragCastle,
+        TowerD,
+        HappyThoughts,
+        StepRightUp,
+        Courtyard,
+        Rampage,
+)
+
+def force_change_map(map_type):
+    activity = bs.get_foreground_host_activity()
+
+    # preload map
+    if map_type not in activity.preloads:
+        activity.preloads[map_type] = map_type.on_preload()
+
+    # delete old map nodes
+    try:
+        oldmap = activity.map
+
+        for name, val in vars(oldmap).items():
+            if isinstance(val, bs.Node):
+                try:
+                    if val:
+                        val.delete()
+                except:
+                    pass
+
+    except Exception as e:
+        print("Old map cleanup failed:", e)
+
+    # create new map
+    newmap = map_type()
+
+    # assign
+    activity.map = newmap
+
+    # force defs
+    activity.map.defs = map_type.defs
+
+    print("Changed map to:", map_type.name)
+
+    # PRINT ALL MAP DATA
+    try:
+        print("\n=== POINTS ===")
+        for k, v in activity.map.defs.points.items():
+            print(k, "=", v)
+    except:
+        pass
+
+    try:
+        print("\n=== BOXES ===")
+        for k, v in activity.map.defs.boxes.items():
+            print(k, "=", v)
+    except:
+        pass
+
+    # FORCE COMMON GAME VALUES
+    defs = activity.map.defs
+
+    # ffa spawn
+    if 'ffa_spawn1' in defs.points:
+        activity._spawn_center = defs.points['ffa_spawn1'][0:3]
+
+    # team spawns
+    if 'spawn1' in defs.points:
+        activity._spawn1 = defs.points['spawn1'][0:3]
+
+    if 'spawn2' in defs.points:
+        activity._spawn2 = defs.points['spawn2'][0:3]
+
+    # flags
+    if 'flag1' in defs.points:
+        activity._flag1_pos = defs.points['flag1'][0:3]
+
+    if 'flag2' in defs.points:
+        activity._flag2_pos = defs.points['flag2'][0:3]
+
+    # hill
+    if 'powerup_spawn1' in defs.points:
+        activity._powerup_spawn = defs.points['powerup_spawn1'][0:3]
+
+    # respawn all players
+    for player in activity.players:
+
+        try:
+            if player.actor:
+                player.actor.handlemessage(bs.DieMessage())
+
+        except:
+            pass
+
+        try:
+            activity.spawn_player(player)
+
+        except Exception as e:
+            print("Respawn failed:", e)
+
+    bs.broadcastmessage(
+        f'Map changed to {map_type.name}',
+        color=(0, 1, 0)
+    )
+
+
+# EXAMPLES:
+
+# force_change_map(Bridgit)
+# force_change_map(ThePad)
+# force_change_map(Rampage)
+# force_change_map(DoomShroom)
+    
 c = cheat_options()
 def cmnd(msg,client_id):
     if ba.get_foreground_host_activity() is not None:
