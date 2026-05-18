@@ -489,19 +489,17 @@ class Stats:
                         clID = (killer.sessionplayer.inputdevice.client_id)
                         #
                         _bascenev1.broadcastmessage(
-                            f'Please dont betray : {killer.getname()}!'
+                            f'Warning, Please dont betray! | {killer.getname()}!'
                             f'({killer.betray_count}/3)',
-                            color=(1, 0, 0), clients=[clID], transient=True)
+                            color=(1, 1, 1), clients=[clID], transient=True)
 
                         # Kick after 3 betrayals
                         if killer.betray_count >= 3:
 
                             _bascenev1.broadcastmessage(
                                 f'{killer.getname()} was kicked '
-                                f'for betrayal!',
+                                f'for betrayal! Play fair!',
                                 color=(1, 1, 1))
-                            _bascenev1.screenmessage('no betray screenmessage')
-                            _bascenev1.chatmessage('no betray chatmessage')
 
                             try:
                                 client_id = (
