@@ -18,3 +18,5 @@ enableCoinSystem = True
 ping_tag = True
 #
 fall_protection = False
+#
+suicide_messages = True # messages when u kill urself

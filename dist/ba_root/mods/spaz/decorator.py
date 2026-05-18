@@ -147,7 +147,7 @@ def all_decorate(self, player):
             # red color for owners!
             animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=3)
             #owner gets fall protection!
-            self.fall_protect = True
+            self.fall_protect = False
     
 
     for effect_name in enabled_effects:

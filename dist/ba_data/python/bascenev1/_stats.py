@@ -468,7 +468,8 @@ class Stats:
             if killed:
             #if killed and _bascenev1.getactivity().announce_player_deaths:
                 if killer is player:
-                    _bascenev1.broadcastmessage(
+                    if _bascenev1.getactivity().announce_player_deaths:
+                     _bascenev1.broadcastmessage(
                         babase.Lstr(
                             resource='nameSuicideText',
                             subs=[('${NAME}', name)]
@@ -476,7 +477,23 @@ class Stats:
                         top=True,
                         color=player.color,
                         image=player.get_icon(),
-                    )
+                     )
+                    suicide_messages = [
+                            '{} rage quit against the map.',
+                            '{} eliminated themselves professionally.',
+                            '{} pressed the self-destruct button.',
+                            '{} became their own worst enemy.',
+                            '{} sacrificed themselves for absolutely nothing.',
+                            '{} disconnected from life temporarily.',
+                            '{} skill-issued themselves.',
+                            '{} thought they were immortal.',
+                            '{} speedran dying.',
+                            '{} entered spectator mode early.',
+                    ]
+                    message = random.choice(suicide_messages).format(name)
+                    import fire
+                    if fire.suicide_messages:
+                        _bascenev1.broadcastmessage(message, color=(1,1,1))
 
                 elif killer is not None:
                     if killer.team is player.team:
@@ -517,8 +534,8 @@ class Stats:
                                 )
 
                             return
-
-                        _bascenev1.broadcastmessage(
+                        if _bascenev1.getactivity().announce_player_deaths:
+                         _bascenev1.broadcastmessage(
                             babase.Lstr(
                                 resource='nameBetrayedText',
                                 subs=[
@@ -529,10 +546,11 @@ class Stats:
                             top=True,
                             color=killer.color,
                             image=killer.get_icon(),
-                        )
+                         )
 
                     else:
-                        _bascenev1.broadcastmessage(
+                        if _bascenev1.getactivity().announce_player_deaths:
+                         _bascenev1.broadcastmessage(
                             babase.Lstr(
                                 resource='nameKilledText',
                                 subs=[
@@ -543,10 +561,11 @@ class Stats:
                             top=True,
                             color=killer.color,
                             image=killer.get_icon(),
-                        )
+                         )
 
                 else:
-                    _bascenev1.broadcastmessage(
+                    if _bascenev1.getactivity().announce_player_deaths:
+                     _bascenev1.broadcastmessage(
                         babase.Lstr(
                             resource='nameDiedText',
                             subs=[('${NAME}', name)]
@@ -554,7 +573,7 @@ class Stats:
                         top=True,
                         color=player.color,
                         image=player.get_icon(),
-                    )
+                     )
 
         except Exception:
             logging.exception('Error announcing kill.')
