@@ -348,6 +348,55 @@ class GameActivity[PlayerT: bascenev1.Player, TeamT: bascenev1.Team](
     @override
     def on_begin(self) -> None:
         super().on_begin()
+        #
+        from bascenev1lib.actor.spazbot import (
+            SpazBotSet,
+            ChargerBot, BomberBot, BomberBotPro, BomberBotProShielded, 
+            BrawlerBot, BrawlerBotPro, BouncyBot, TriggerBotPro, StickyBot, ExplodeyBot,
+            SpazBotDiedMessage,
+        )
+        import bascenev1 as bs
+        from bascenev1._multiteamsession import MultiTeamSession
+
+        try:
+            self._bots = SpazBotSet() # took a very long time to port from lawgic and had to fix few bugs from my side!
+            self.bot_types = [ChargerBot, BomberBot, BomberBotPro, 
+                              BomberBotProShielded, BrawlerBot, BrawlerBotPro, 
+                              BouncyBot, TriggerBotPro, StickyBot, ExplodeyBot]
+
+            def btspawn():
+                if len(self.players) == 1:
+                    try:
+                        if not self._bots.have_living_bots():
+                            pt = (self.players[0].actor.node.position[0],
+                                  self.players[0].actor.node.position[1] + 2,
+                                  self.players[0].actor.node.position[2])
+                            self._bots.spawn_bot(random.choice(self.bot_types),
+                                                    pos=pt,
+                                                    spawn_time=0.5)
+                    except Exception:
+                        pass
+                else:
+                    self.botTimer = None
+                    
+            self.botTimer = bs.Timer(1, btspawn, repeat=True)
+            
+            if isinstance(self.session, MultiTeamSession):
+                bs.set_analytics_screen('Teams Game: ' + self.getname())
+                bs.increment_analytics_count('Teams round start')
+                if len(self.players) == 1:
+                    bs.increment_analytics_count(
+                        'Teams round start 1 human player')
+                elif len(self.players) > 1 and len(self.players) < 8:
+                    bs.increment_analytics_count('Teams round start ' +
+                                                        str(len(self.players)) +
+                                                        ' human players')
+                elif len(self.players) >= 8:
+                    bs.increment_analytics_count(
+                        'Teams round start 8+ human players')
+            
+        except Exception:
+            print("error setting analytics screen")
 
         if babase.app.classic is not None:
             babase.app.classic.game_begin_analytics()

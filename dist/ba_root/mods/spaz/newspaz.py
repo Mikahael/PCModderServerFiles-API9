@@ -1652,7 +1652,7 @@ def new_on_punch_press(self) -> None:
                         0.8,
                     ),
                 )
-        self._turbo_filter_add_press('punch')
+        #self._turbo_filter_add_press('punch')
         
 def new_on_pickup_press(self) -> None:
         """
@@ -1704,7 +1704,7 @@ def new_on_pickup_press(self) -> None:
                 self.node.style = char  
             self.node.pickup_pressed = True
             self.last_pickup_time_ms = t_ms
-        self._turbo_filter_add_press('pickup')
+        #self._turbo_filter_add_press('pickup')
 
 
 def new_on_move_up_down(self, value: float) -> None:
