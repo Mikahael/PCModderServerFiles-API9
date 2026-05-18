@@ -117,7 +117,7 @@ def new__init__(
         import bascenev1 as bs
         session = get_foreground_host_session()
         session_players = session.sessionplayers
-        k = self._sessionplayer.inputdevice.get_v1_account_name(True)
+        acc_name = self._sessionplayer.inputdevice.get_v1_account_name(True)
         #
         clID = self._sessionplayer.inputdevice.client_id
         
@@ -130,6 +130,9 @@ def new__init__(
                 acc = i.get_account_id()
                 name = i.getname()
                 break
+
+            
+        from lobby import daily_cash as daily
                 
         if acc is None:
             bs.broadcastmessage("Player details not found! Rejoin!", clients=[clID], transient=True)
@@ -139,7 +142,8 @@ def new__init__(
             data = afk.AFK_REMOVED.pop(acc)
             bs.broadcastmessage(f"You were removed for being AFK ({int(data['duration'])}s!)", clients=[clID], transient=True)
         else:
-            bs.broadcastmessage(k+' ---> '+acc+' ---> '+str(clID), clients=[clID], transient=True)
+            # moved to daily_cash.py
+            daily.add_cash(clID,acc_name)
 
         # Set our initial name to '<choosing player>' in case anyone asks.
         self._sessionplayer.setname(

@@ -6,7 +6,7 @@ from powerups import powerupbox
 from bomb import newbomb
 from spaz import admin, newspaz
 from maps import bstextonmap
-from lobby import bslobby, players
+from lobby import bslobby
 from config import stats_master as mystats
 from chat import coin_system as coin
 from chat import endvote
@@ -31,7 +31,6 @@ def run_mods():
     newbomb.enable_bomb()
     bstextonmap.enable_textonmap()
     bslobby.enable_lobby()
-    players.log_players()
     mystats.enable_stats()
     coin.enable_coinsys()
     clean_expiry_customers()

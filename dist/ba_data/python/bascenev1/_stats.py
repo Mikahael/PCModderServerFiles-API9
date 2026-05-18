@@ -465,18 +465,62 @@ class Stats:
             prec.accum_killed_count += 1
             prec.killed_count += 1
         try:
-            if killed and _bascenev1.getactivity().announce_player_deaths:
+            if killed:
+            #if killed and _bascenev1.getactivity().announce_player_deaths:
                 if killer is player:
                     _bascenev1.broadcastmessage(
                         babase.Lstr(
-                            resource='nameSuicideText', subs=[('${NAME}', name)]
+                            resource='nameSuicideText',
+                            subs=[('${NAME}', name)]
                         ),
                         top=True,
                         color=player.color,
                         image=player.get_icon(),
                     )
+
                 elif killer is not None:
                     if killer.team is player.team:
+
+                        # Anti-betrayal system
+                        if not hasattr(killer, 'betray_count'):
+                            killer.betray_count = 0
+
+                        killer.betray_count += 1
+
+                        _bascenev1.broadcastmessage(
+                            f'{killer.getname()} betrayed a teammate! '
+                            f'({killer.betray_count}/3)',
+                            color=(1, 0, 0),
+                            top=True,
+                        )
+
+                        # Kick after 3 betrayals
+                        if killer.betray_count >= 3:
+
+                            _bascenev1.broadcastmessage(
+                                f'{killer.getname()} was kicked '
+                                f'for team killing!',
+                                color=(1, 0, 0),
+                                top=True,
+                            )
+
+                            try:
+                                client_id = (
+                                    killer.sessionplayer
+                                    .inputdevice.client_id
+                                )
+
+                                _bascenev1.disconnect_client(
+                                    client_id
+                                )
+
+                            except Exception:
+                                logging.exception(
+                                    'Failed to disconnect client.'
+                                )
+
+                            return
+
                         _bascenev1.broadcastmessage(
                             babase.Lstr(
                                 resource='nameBetrayedText',
@@ -489,6 +533,7 @@ class Stats:
                             color=killer.color,
                             image=killer.get_icon(),
                         )
+
                     else:
                         _bascenev1.broadcastmessage(
                             babase.Lstr(
@@ -502,14 +547,17 @@ class Stats:
                             color=killer.color,
                             image=killer.get_icon(),
                         )
+
                 else:
                     _bascenev1.broadcastmessage(
                         babase.Lstr(
-                            resource='nameDiedText', subs=[('${NAME}', name)]
+                            resource='nameDiedText',
+                            subs=[('${NAME}', name)]
                         ),
                         top=True,
                         color=player.color,
                         image=player.get_icon(),
                     )
+
         except Exception:
             logging.exception('Error announcing kill.')
