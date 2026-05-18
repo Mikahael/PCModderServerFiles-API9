@@ -490,9 +490,7 @@ class Stats:
                         _bascenev1.broadcastmessage(
                             f'{killer.getname()} betrayed a teammate! '
                             f'({killer.betray_count}/3)',
-                            color=(1, 0, 0),
-                            top=True,
-                        )
+                            color=(1, 0, 0))
 
                         # Kick after 3 betrayals
                         if killer.betray_count >= 3:
@@ -500,9 +498,7 @@ class Stats:
                             _bascenev1.broadcastmessage(
                                 f'{killer.getname()} was kicked '
                                 f'for team killing!',
-                                color=(1, 0, 0),
-                                top=True,
-                            )
+                                color=(1, 0, 0))
 
                             try:
                                 client_id = (
