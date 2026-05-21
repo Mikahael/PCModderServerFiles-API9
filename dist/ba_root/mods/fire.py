@@ -1,7 +1,7 @@
 # the mighty fire.py is back for 1.9
 
-# snowy mapp
-snow = False
+# snowy mapy
+snow = True
 # floater on map
 floater = True
 # true for pcfloater, false for regular floater
@@ -20,3 +20,5 @@ ping_tag = True
 fall_protection = False
 #
 suicide_messages = True # messages when u kill urself
+# for auto night mode
+night = True

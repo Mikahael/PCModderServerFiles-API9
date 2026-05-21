@@ -6,7 +6,7 @@ from powerups import powerupbox
 from bomb import newbomb
 from spaz import admin, newspaz
 from maps import bstextonmap
-from lobby import bslobby
+from lobby import bslobby, botspawn
 from config import stats_master as mystats
 from chat import coin_system as coin
 from chat import endvote
@@ -33,6 +33,7 @@ def run_mods():
     bslobby.enable_lobby()
     mystats.enable_stats()
     coin.enable_coinsys()
+    botspawn.new_ga_on_begin()
     clean_expiry_customers()
     start_begin()
     print('✅ Mods loaded and running!')
