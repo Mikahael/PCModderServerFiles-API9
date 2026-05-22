@@ -38,6 +38,7 @@ def new_on_begin(self) -> None:
     _old_on_begin(self) #TODO: add the extra mods here like nightmode and snowymap
     
     MapBounds = self.map.get_def_bound_box("map_bounds")
+    spawnpoint = self.map.get_def_points('spawn')
     
     def snowymap():
         for i in range(5):
@@ -155,7 +156,7 @@ def new_on_begin(self) -> None:
         )
 
         # Extra analytics if needed
-        if isinstance(self.session, MultiTeamSession):
+        if len(self.players) == 1:
             bs.broadcastmessage(u"Solo mode detected: bots enabled!", color=(1,1,1)) # add later ffa and coop
 
     except Exception as e:

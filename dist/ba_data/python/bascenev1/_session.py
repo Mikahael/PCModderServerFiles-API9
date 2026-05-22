@@ -285,7 +285,6 @@ class Session:
                 )
                 return False
 
-        from spaz import member_id as mid
         # Rejoin cooldown.
         identifier = player.get_account_id()
         if identifier:
@@ -298,22 +297,19 @@ class Session:
                         + leave_time
                     )
                 )
-                if identifier not in mid.owner: # for owner bypass of rejoin cooldown!
-                    _bascenev1.broadcastmessage(
-                        babase.Lstr(
-                            translate=(
-                                'serverResponses',
-                                'You can join in ${COUNT} seconds.',
-                            ),
-                            subs=[('${COUNT}', diff)],
+                _bascenev1.broadcastmessage(
+                    babase.Lstr(
+                        translate=(
+                            'serverResponses',
+                            'You can join in ${COUNT} seconds.',
                         ),
-                        color=(1, 1, 0),
-                        clients=[player.inputdevice.client_id],
-                        transient=True,
-                    )
-                    return False
-                else:
-                    _bascenev1.broadcastmessage('Owner Bypass ---> Rejoin Cooldown!', color=(1,1,1), clients=[player.inputdevice.client_id], transient=True)
+                        subs=[('${COUNT}', diff)],
+                    ),
+                    color=(1, 1, 0),
+                    clients=[player.inputdevice.client_id],
+                    transient=True,
+                )
+                return False
             self._player_requested_identifiers[player.id] = identifier
 
         _bascenev1.getsound('dripity').play()

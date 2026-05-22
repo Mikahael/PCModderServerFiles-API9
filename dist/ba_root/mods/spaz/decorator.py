@@ -12,6 +12,7 @@ from config import stats_master as mystats
 import babase
 import fire
 from functools import partial
+from lobby import antibetray
 
 STATS_FILE = 'ba_root/mods/config/player_data.json'
 
@@ -108,6 +109,10 @@ def all_decorate(self, player):
     #fall protection for everyone - allow it in fire.py
     if fire.fall_protection:
         self.fall_protect = True
+        
+    
+    if acc in antibetray.nooblist:
+        prefix_tag(self, prefix='NOOB', animation=False, pos=(0, 1.45, 0))
     
     
     if acc in mid.customers:
@@ -131,13 +136,16 @@ def all_decorate(self, player):
             elif tag_type == 'tag5':
                 anim = 5
             color = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5)) # let it be rando color instead of red all the time!
-            animated_prefix_tag(self, prefix=name, col=(1.0, 0.0, 0.0), anim_id=anim)
+            # dont show if account in nooblist xd
+            if acc not in antibetray.nooblist:
+                animated_prefix_tag(self, prefix=name, col=(1.0, 0.0, 0.0), anim_id=anim)
         
     
     user_tags = mid.customers.get(acc, {}).get("tags", {})
     if acc in mid.admin:
         if not user_tags and acc not in mid.name:
-            prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.45, 0))
+            if acc not in antibetray.nooblist:
+                prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.45, 0))
         #glow_effect(self)
         #enabled_effects.append("spark")
     
@@ -145,7 +153,8 @@ def all_decorate(self, player):
     if acc in mid.owner:
         if not user_tags and acc not in mid.name: # only show if custom name or purchased tag doesnt exist!
             # red color for owners!
-            animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=3)
+            if acc not in antibetray.nooblist:
+                animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=3)
             #owner gets fall protection!
             self.fall_protect = False
     
@@ -169,9 +178,11 @@ def all_decorate(self, player):
         )
     
     if acc in mid.name:
-        if not user_tags: # if u already purchased a tag, dont show!
-            tag = mid.name[acc]#stored value
-            prefix_tag(self, prefix=tag, animation=True, pos=(0, 1.45, 0))
+        # dont show if account in nooblist
+        if acc not in antibetray.nooblist:
+            if not user_tags: # if u already purchased a tag, dont show!
+                tag = mid.name[acc]#stored value
+                prefix_tag(self, prefix=tag, animation=True, pos=(0, 1.45, 0))
     
 
     from _bascenev1 import get_client_ping as _get_ping

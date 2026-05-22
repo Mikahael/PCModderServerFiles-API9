@@ -6,7 +6,7 @@ from powerups import powerupbox
 from bomb import newbomb
 from spaz import admin, newspaz
 from maps import bstextonmap
-from lobby import bslobby, botspawn
+from lobby import bslobby, botspawn, antibetray, cooldown, daily_cash
 from config import stats_master as mystats
 from chat import coin_system as coin
 from chat import endvote
@@ -34,6 +34,9 @@ def run_mods():
     mystats.enable_stats()
     coin.enable_coinsys()
     botspawn.new_ga_on_begin()
+    antibetray.load_anti_betray()
+    cooldown.remove_cooldown()
+    daily_cash.load_multikill_bonus()
     clean_expiry_customers()
     start_begin()
     print('✅ Mods loaded and running!')
@@ -58,6 +61,8 @@ def update_new_begin(self):
     old_begin(self)
     #print('endvote cleared and working!')
     endvote.reset_vote_state()
+    antibetray.nooblist.clear()
+    #print('nooblist cleared!')
     
 def start_begin():
     print('✅ Endvote cleared!')
