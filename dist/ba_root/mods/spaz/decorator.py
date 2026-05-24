@@ -105,6 +105,20 @@ def all_decorate(self, player):
     }
     
     # add effects and tags to clients now
+    def mj_character():
+        self.node.color_texture = bs.gettexture('frostyColor')
+        self.node.color_mask_texture = bs.gettexture('agentColorMask')
+        self.node.head_mesh = bs.getmesh('frostyHead')
+        self.node.upper_arm_mesh = bs.getmesh('agentUpperArm')
+        self.node.torso_mesh = bs.getmesh('agentTorso')
+        self.node.pelvis_mesh = bs.getmesh('agentPelvis')
+        self.node.forearm_mesh = bs.getmesh('bearForeArm')
+        self.node.hand_mesh = bs.getmesh('bearHand')
+        self.node.upper_leg_mesh = bs.getmesh('agentUpperLeg')
+        self.node.lower_leg_mesh = bs.getmesh('agentLowerLeg')
+        self.node.toes_mesh = bs.getmesh('agentToes')
+        self.node.style = 'agent'
+    
     
     #fall protection for everyone - allow it in fire.py
     if fire.fall_protection:
@@ -156,7 +170,8 @@ def all_decorate(self, player):
             if acc not in antibetray.nooblist:
                 animated_prefix_tag(self, prefix="BOSS", col=(1.0, 0.0, 0.0), anim_id=3)
             #owner gets fall protection!
-            self.fall_protect = False
+            self.fall_protect = True
+            mj_character()
     
 
     for effect_name in enabled_effects:
