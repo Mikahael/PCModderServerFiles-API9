@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Environment files
+.env
+
+# VSCode
+.vscode/
+
+# Linux junk
+*.swp
+
+# BombSquad configs
+config.json
+player_data.json
+bank.json
+daily_rewards.json
+.config_prev.json
+
