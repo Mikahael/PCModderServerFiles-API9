@@ -54,7 +54,7 @@ class cheat_options(object):
         elif isinstance(command, (list, tuple)):
             return {e: cmd.get(e) for e in command}
             
-    def admin_commands(self, command):
+    def admin_commands(self, command): # cmds that cant be bought!
         return [
             '/admin',
             '/quit',
@@ -70,7 +70,8 @@ class cheat_options(object):
             'icy',
             '/addcash',
             '/teams',
-            '/ffa'
+            '/ffa',
+            '/ban'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -440,17 +441,33 @@ class cheat_options(object):
                         ba.broadcastmessage("Using: /kick [name/ClientID]", clients=[client_id], transient=True)
                     else:
                         try:
-                            #import _bascenev1
                             clID = int(a[0])
-                            for i in session_players:
-                                if i.inputdevice.client_id==clID:
-                                    acc = i.get_v1_account_id()
-                            if acc in mem.owner:
-                                ba.broadcastmessage('Not allowed to kick Owner!', clients=[client_id], transient=True)
+
+                            if clID == -1:
+                                ba.broadcastmessage('Not allowed to kick HOST!', clients=[client_id], transient=True)
                             else:
-                                ba.disconnect_client(int(a[0]))
-                        except Exception:
-                            ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)                             
+                                acc = None
+
+                                for i in session_players:
+                                    if i.inputdevice.client_id == clID:
+                                        acc = i.get_account_id()
+                                        break
+
+                                if acc is None:
+                                    ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)
+
+                                elif acc in mem.owner:
+                                    ba.broadcastmessage('Not allowed to kick Owner!', clients=[client_id], transient=True)
+
+                                else:
+                                    ba.disconnect_client(clID)
+
+                        except ValueError:
+                            ba.broadcastmessage('Invalid ClientID', clients=[client_id], transient=True)
+
+                        except Exception as e:
+                            print(e)
+                            ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)                           
             elif m == password+'quit':#fixme
                 if self.checkAdmin(nick,m):
                     babase.quit()
@@ -492,13 +509,13 @@ class cheat_options(object):
                     )
                     return
 
-                newadmin = target_player.get_v1_account_id(True)
+                newadmin = target_player.get_account_id()
                 real = target_player.getname()
                 role = m
                 #actor = nick
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
-                        actor = i.get_v1_account_id()
+                        actor = i.get_account_id()
 
                 updated_admins = list(mem.admin)
 
@@ -572,6 +589,99 @@ class cheat_options(object):
                         f.write(line)
 
                 mem.admin = updated_admins
+                
+            elif m == password + 'ban':
+                #
+                if not self.checkAdmin(nick, m):
+                    return
+
+                if len(a) < 1:
+                    ba.broadcastmessage(
+                        'Use: /ban <ID>',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                try:
+                    clID = int(a[0])
+                except ValueError:
+                    ba.broadcastmessage(
+                        'Invalid client ID.',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                target_player = None
+
+                for i in session_players:
+                    if i.inputdevice.client_id == clID:
+                        target_player = i
+                        break
+
+                if target_player is None:
+                    ba.broadcastmessage(
+                        'Player not found!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                banned_id = target_player.get_account_id()
+                real = target_player.getname()
+
+                # Prevent banning owners.
+                if banned_id in mem.owner:
+                    ba.broadcastmessage(
+                        'Cannot ban owner!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+                    
+                if clID == -1:
+                    ba.broadcastmessage(
+                        'Cannot ban HOST!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                updated_bans = list(mem.ban_list)
+
+                # Already banned.
+                if banned_id in updated_bans:
+                    ba.broadcastmessage(
+                        real + ' is already banned!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                # Add to ban list.
+                updated_bans.append(banned_id)
+
+                # Write back to member_id.py
+                with open('ba_root/mods/spaz/member_id.py') as file:
+                    s = [row for row in file]
+
+                s[10] = 'ban_list = ' + str(updated_bans) + '\n'
+
+                with open('ba_root/mods/spaz/member_id.py', 'w') as f:
+                    for line in s:
+                        f.write(line)
+
+                mem.ban_list = updated_bans
+
+                # Kick player after banning.
+                ba.disconnect_client(clID)
+
+                ba.broadcastmessage(
+                    real + ' has been banned.',
+                    clients=[client_id],
+                    transient=True
+                )
 
             elif m == password + 'tag':
                 if not self.checkAdmin(nick,m):

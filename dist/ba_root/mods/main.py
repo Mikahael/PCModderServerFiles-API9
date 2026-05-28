@@ -9,7 +9,7 @@ from maps import bstextonmap
 from lobby import bslobby, botspawn, antibetray, cooldown, daily_cash
 from config import stats_master as mystats
 from chat import coin_system as coin
-from chat import endvote
+from chat import endvote, kick
 from bascenev1 import _activity
 import bascenev1 as bs
 import bascenev1
@@ -37,6 +37,7 @@ def run_mods():
     antibetray.load_anti_betray()
     cooldown.remove_cooldown()
     daily_cash.load_multikill_bonus()
+    kick.new_kick()
     clean_expiry_customers()
     start_begin()
     print('✅ Mods loaded and running!')
