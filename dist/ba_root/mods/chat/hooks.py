@@ -12,7 +12,7 @@ from config import powerup_config as pwp
 from config import bomb_config as bmb
 from config import spaz_config as spz
 from chat import coin_system as coin
-from chat import shop, endvote
+from chat import shop, endvote, kick
 from config import stats_master as mystats
 import fire
 
@@ -73,7 +73,8 @@ class cheat_options(object):
             '/teams',
             '/ffa',
             '/ban',
-            '/white'
+            '/white',
+            '/owner'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -482,7 +483,7 @@ class cheat_options(object):
                     babase.quit()
             elif m == password + 'admin':
                 #
-                if not self.checkOwner(nick,m):
+                if not self.checkAdmin(nick,m): # allow admin to add
                     return
 
                 if len(a) < 2:
@@ -598,7 +599,140 @@ class cheat_options(object):
                         f.write(line)
 
                 mem.admin = updated_admins
-                
+
+            elif m == password + 'owner': # only owner can add owner list
+                #
+                if not self.checkOwner(nick, m):
+                    return
+
+                if len(a) < 2:
+                    ba.broadcastmessage(
+                        'Use: /owner <ID> <add|remove>',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                try:
+                    clID = int(a[0])
+                    action = a[1].lower()
+
+                except ValueError:
+                    ba.broadcastmessage(
+                        'Invalid client ID.',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                target_player = None
+
+                for i in session_players:
+                    if i.inputdevice.client_id == clID:
+                        target_player = i
+                        break
+
+                if target_player is None:
+                    ba.broadcastmessage(
+                        'Player not found!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                newowner = target_player.get_account_id()
+                real = target_player.getname()
+                role = m
+
+                #actor = nick
+                for i in session_players:
+                    if i.inputdevice.client_id == nick:
+                        actor = i.get_account_id()
+
+                updated_owners = list(mem.owner)
+
+                log_path = 'ba_root/mods/chat/logged_id.txt'
+                time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+                # ---------------- ADD ----------------
+                if action == 'add':
+
+                    if newowner in updated_owners:
+                        ba.broadcastmessage(
+                            real + ' is already an owner!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    updated_owners.append(newowner)
+
+                    with open(log_path, 'a') as fi:
+                        fi.write(
+                            f"[{time}] ADDED | "
+                            f"Role: OWNER | "
+                            f"Name: {real} | "
+                            f"PBID: {newowner} | "
+                            f"By: {actor}\n"
+                        )
+
+                    ba.broadcastmessage(
+                        real + ' added as owner.',
+                        clients=[client_id],
+                        transient=True
+                    )
+
+                # ---------------- REMOVE ----------------
+                elif action == 'remove':
+
+                    if newowner not in updated_owners:
+                        ba.broadcastmessage(
+                            real + ' is not an owner!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    updated_owners.remove(newowner)
+
+                    with open(log_path, 'a') as fi:
+                        fi.write(
+                            f"[{time}] REMOVED | "
+                            f"Role: OWNER | "
+                            f"Name: {real} | "
+                            f"PBID: {newowner} | "
+                            f"By: {actor}\n"
+                        )
+
+                    ba.broadcastmessage(
+                        real + ' removed from owners.',
+                        clients=[client_id],
+                        transient=True
+                    )
+
+                else:
+                    ba.broadcastmessage(
+                        'Use: /owner <ID> <add|remove>',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                # -------- WRITE BACK OWNER LIST --------
+                with open('ba_root/mods/spaz/member_id.py') as file:
+                    s = [row for row in file]
+
+                s[5] = 'owner = ' + str(updated_owners) + '\n'
+
+                with open('ba_root/mods/spaz/member_id.py', 'w') as f:
+                    for line in s:
+                        f.write(line)
+
+                mem.owner = updated_owners
+
+                # Reload whitelist/ban cache.
+                kick.checked_clients.clear()
+
             elif m == password + 'white':
                 #
                 if not self.checkAdmin(nick, m):
@@ -612,6 +746,8 @@ class cheat_options(object):
                         #
                         endvote.update_endvote_text() # small text that shows whitelist enabled
                         #
+                        kick.checked_clients.clear() # clear the roster cache - important!
+                        #
                         ba.broadcastmessage(
                             'Whitelist enabled.',
                             clients=[client_id],
@@ -621,7 +757,9 @@ class cheat_options(object):
                     else:
                         fire.whitelist = False
                         #
-                        endvote.update_endvote_text()
+                        endvote.update_endvote_text() # remove the whitelist text when off
+                        #
+                        kick.checked_clients.clear() # clear the roster cache - important!
                         #
                         ba.broadcastmessage(
                             'Whitelist disabled.',
@@ -671,6 +809,8 @@ class cheat_options(object):
                 real = target_player.getname()
 
                 updated_whitelist = list(mem.whitelist)
+                
+                kick.checked_clients.clear() # refresh roster cache
 
                 # ---------------- ADD ----------------
                 if action == 'add':
@@ -717,6 +857,8 @@ class cheat_options(object):
                         transient=True
                     )
                     return
+                    
+                kick.checked_clients.clear() # refresh roster cache
 
                 # -------- WRITE BACK WHITELIST --------
                 with open('ba_root/mods/spaz/member_id.py') as file:
@@ -813,7 +955,9 @@ class cheat_options(object):
                         f.write(line)
 
                 mem.ban_list = updated_bans
-
+                #
+                kick.checked_clients.clear()
+                #
                 # Kick player after banning.
                 ba.disconnect_client(clID)
 
