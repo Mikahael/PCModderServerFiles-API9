@@ -14,6 +14,7 @@ from config import spaz_config as spz
 from chat import coin_system as coin
 from chat import shop, endvote
 from config import stats_master as mystats
+import fire
 
 class cheat_options(object):
     def __init__(self):
@@ -71,7 +72,8 @@ class cheat_options(object):
             '/addcash',
             '/teams',
             '/ffa',
-            '/ban'
+            '/ban',
+            '/white'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -189,7 +191,14 @@ class cheat_options(object):
                 from bascenev1._gameactivity import GameActivity
                 activity = get_foreground_host_activity()
                 if isinstance(activity, GameActivity):
-                    endvote.end_vote(client_id)
+                    if not fire.whitelist: # if whitelist enabled, dont do endvote
+                        endvote.end_vote(client_id)
+                    else:
+                        ba.broadcastmessage(
+                            'Whitelist currently enabled!',
+                            clients=[client_id],
+                            transient=True
+                        )
                 else:
                     ba.broadcastmessage(
                         'Use in an active gamemode! Not lobby!',
@@ -589,6 +598,135 @@ class cheat_options(object):
                         f.write(line)
 
                 mem.admin = updated_admins
+                
+            elif m == password + 'white':
+                #
+                if not self.checkAdmin(nick, m):
+                    return
+
+                # ---------------- TOGGLE WHITELIST ----------------
+                if len(a) == 1 and a[0].lower() in ['true', 'false']:
+
+                    if a[0].lower() == 'true':
+                        fire.whitelist = True
+                        #
+                        endvote.update_endvote_text()
+                        #
+                        ba.broadcastmessage(
+                            'Whitelist enabled.',
+                            clients=[client_id],
+                            transient=True
+                        )
+
+                    else:
+                        fire.whitelist = False
+
+                        ba.broadcastmessage(
+                            'Whitelist disabled.',
+                            clients=[client_id],
+                            transient=True
+                        )
+
+                    return
+
+                # ---------------- ADD/REMOVE PLAYER ----------------
+                if len(a) < 2:
+                    ba.broadcastmessage(
+                        'Use: /white <ID> <add|remove> OR /white <true|false>',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                try:
+                    clID = int(a[0])
+                    action = a[1].lower()
+
+                except ValueError:
+                    ba.broadcastmessage(
+                        'Invalid client ID.',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                target_player = None
+
+                for i in session_players:
+                    if i.inputdevice.client_id == clID:
+                        target_player = i
+                        break
+
+                if target_player is None:
+                    ba.broadcastmessage(
+                        'Player not found!',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                whitelist_id = target_player.get_account_id()
+                real = target_player.getname()
+
+                updated_whitelist = list(mem.whitelist)
+
+                # ---------------- ADD ----------------
+                if action == 'add':
+
+                    if whitelist_id in updated_whitelist:
+                        ba.broadcastmessage(
+                            real + ' is already whitelisted!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    updated_whitelist.append(whitelist_id)
+
+                    ba.broadcastmessage(
+                        real + ' added to whitelist.',
+                        clients=[client_id],
+                        transient=True
+                    )
+
+                # ---------------- REMOVE ----------------
+                elif action == 'remove':
+
+                    if whitelist_id not in updated_whitelist:
+                        ba.broadcastmessage(
+                            real + ' is not whitelisted!',
+                            clients=[client_id],
+                            transient=True
+                        )
+                        return
+
+                    updated_whitelist.remove(whitelist_id)
+
+                    ba.broadcastmessage(
+                        real + ' removed from whitelist.',
+                        clients=[client_id],
+                        transient=True
+                    )
+
+                else:
+                    ba.broadcastmessage(
+                        'Use: /white <ID> <add|remove>',
+                        clients=[client_id],
+                        transient=True
+                    )
+                    return
+
+                # -------- WRITE BACK WHITELIST --------
+                with open('ba_root/mods/spaz/member_id.py') as file:
+                    s = [row for row in file]
+
+                s[11] = 'whitelist = ' + str(updated_whitelist) + '\n'
+
+                with open('ba_root/mods/spaz/member_id.py', 'w') as f:
+                    for line in s:
+                        f.write(line)
+
+                mem.whitelist = updated_whitelist
                 
             elif m == password + 'ban':
                 #

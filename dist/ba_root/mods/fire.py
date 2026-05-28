@@ -22,3 +22,5 @@ fall_protection = False
 suicide_messages = True # messages when u kill urself
 # for auto night mode
 night = True
+#
+whitelist = False

@@ -4,6 +4,7 @@ import bascenev1 as bs
 import _bascenev1 as _bs
 from bascenev1._gameactivity import GameActivity
 import maps.bstextonmap as bstextonmap
+import fire
 
 votes: dict[str, int] = {}
 
@@ -41,6 +42,11 @@ def update_endvote_text():
     # Node was destroyed with old activity.
     if not node.exists():
         bstextonmap.endvote_node = None
+        return
+
+    # Show whitelist text immediately.
+    if fire.whitelist:
+        node.text = '[Whitelist Enabled]'
         return
 
     if not vote_in_progress:

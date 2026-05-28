@@ -8,6 +8,7 @@ import _bascenev1 as _bs
 import _babase
 
 from spaz import member_id as mid
+import fire
 
 banned: list[str] = []
 
@@ -36,6 +37,18 @@ def run() -> None:
 
                 if client_id != -1:
                     bs.disconnect_client(client_id)
+            
+            if fire.whitelist:
+                
+                if acc not in mid.whitelist and acc not in mid.owner: # owners not allowed to be kicked even in whitelist
+                    bs.broadcastmessage(
+                        "Whitelist is active, Please join later!",
+                        color=(1, 1, 1),
+                        clients=[client_id], transient=True,
+                    )
+
+                    if client_id != -1:
+                        bs.disconnect_client(client_id)
 
     except Exception as e:
         print(e)
