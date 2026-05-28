@@ -610,7 +610,7 @@ class cheat_options(object):
                     if a[0].lower() == 'true':
                         fire.whitelist = True
                         #
-                        endvote.update_endvote_text()
+                        endvote.update_endvote_text() # small text that shows whitelist enabled
                         #
                         ba.broadcastmessage(
                             'Whitelist enabled.',
@@ -620,7 +620,9 @@ class cheat_options(object):
 
                     else:
                         fire.whitelist = False
-
+                        #
+                        endvote.update_endvote_text()
+                        #
                         ba.broadcastmessage(
                             'Whitelist disabled.',
                             clients=[client_id],
