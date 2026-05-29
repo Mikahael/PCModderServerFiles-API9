@@ -99,21 +99,42 @@ class cheat_options(object):
         session = get_foreground_host_session()
         session_players=session.sessionplayers
         
+        
         acc = None
         
         for i in session_players:
             if i.inputdevice.client_id==client_id:
                 acc = i.get_account_id()
                 
+        stats = mystats.rank_sys.data.get(acc)
+        
+        rank = stats.get("rank", 0) # pull safely
+        score = stats.get("score", 0)
+                
             
         if acc in mem.admin or acc in mem.owner:
             ba.broadcastmessage('Command Accepted Sir!', clients=[client_id], transient=True)
-            self.coin_command = False
             return True
         else:
             if command in self.admin_commands(command): 
-                ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
+                if score > 5000 and rank == 1:
+                    ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
+                else:
+                    if score < 5000 and rank == 1:
+                        ba.broadcastmessage('Reach 5k score for admin!', clients=[client_id], transient=True)
+                    else:
+                        ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
                 return False
+
+        # Perk-admin restrictions.
+        if score > 5000 and rank == 1:
+            # Block protected admin commands.
+            if command in self.admin_commands(command):
+                ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
+                return False
+
+            ba.broadcastmessage('Command accepted Rank 1!', clients=[client_id], transient=True)
+            return True
         
     def checkOwner(self,client_id,command):
         session = get_foreground_host_session()
@@ -125,6 +146,11 @@ class cheat_options(object):
             if i.inputdevice.client_id==client_id:
                 acc = i.get_account_id()
                 
+        stats = mystats.rank_sys.data.get(acc)
+        
+        rank = stats.get("rank", 0) # pull safely
+        score = stats.get("score", 0)
+                
         if acc is None:
             ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
             
@@ -133,7 +159,10 @@ class cheat_options(object):
             return True
         else:
             if command in self.admin_commands(command): 
-                ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
+                if score > 5000 and rank == 1:
+                    ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
+                else:
+                    ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
                 return False
             
     def checkShopUser(self,client_id,command):#for shop

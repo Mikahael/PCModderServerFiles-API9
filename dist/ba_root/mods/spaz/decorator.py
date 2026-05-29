@@ -218,21 +218,24 @@ def all_decorate(self, player):
     deaths = stats.get("deaths", 0)
 
     if rank == 1:
-        icon = u'\ue043'  # crown
+        icon = u'RANK '  # crown
 
     elif rank == 2:
-        icon = u'\ue048'  # dragon
+        icon = u'RANK ' # dragon
 
     elif rank == 3:
-        icon = u'\ue049'
+        icon = u'RANK '
 
     elif rank == 4:
-        icon = u'\ue00c'
+        icon = u'RANK '
 
     else:
         icon = u'\ue047'
 
-    display = icon + '#' + str(rank) + icon
+    if rank in [1,2,3,4]:
+        display = icon + '#' + str(rank)
+    else:
+        display = icon + '#' + str(rank) + icon
 
     if rank > 0:
         prefix_tag(
