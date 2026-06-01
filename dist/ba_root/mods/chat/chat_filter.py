@@ -4,6 +4,7 @@ from bascenev1 import get_foreground_host_session
 import fire
 from spaz import member_id as mem
 import time
+from chat import master_logger as log
 
 
 # account_id -> unmute_timestamp
@@ -89,7 +90,7 @@ def handle_violation(cid, acc, name):
     warn_dict.pop(cid, None)
 
     bs.broadcastmessage(
-        f"{name} ➜ Muted for 10 minutes (chat abuse)",
+        f"[{name}] | [{acc}] : muted for 10 minutes (chat abuse)",
         color=(1, 1, 1),
         transient=True
     )
@@ -123,6 +124,8 @@ def check_message(cid, message):
     for word in BAD_WORDS:
         if word in msg:
             handle_violation(cid, acc, name)
+            log.filter_chat(msg, cid)
+            log.chat_log(msg, cid)
             return False  # 🚨 block bad message
 
     return True  # allow clean messages

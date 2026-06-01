@@ -152,20 +152,21 @@
   "Galaxies"
  ],
  "Default Player Profiles": {
-  "Client Input Device #1": "\u019d\u2d4a\u10ba\u10baIGG\u028f",
+  "Client Input Device #1": "fu\u0441\u043a",
   "Client Input Device #2": "__account__"
  },
  "FFA Series Length": 24,
- "Fleet Zone Ping Last Flush Time": 1779640971,
+ "Fleet Zone Ping Last Flush Time": 1780296201,
  "Fleet Zone Pings": {
   "prod": {
-   "delhi.v4": 84.36272455624749,
-   "hyderabad.v4": 71.11253402794773,
-   "mumbai.v4": 68.23218294008166
+   "delhi.v4": 87.66476008513493,
+   "hyderabad.v4": 75.78912544050246,
+   "kolkata.v4": 60.053099676355274,
+   "mumbai.v4": 37.431889604761544
   }
  },
  "Fleet Zone Pings Updated Time": {
-  "prod": 1780070639
+  "prod": 1780336609
  },
  "Free-for-All Playlist Randomize": true,
  "Free-for-All Playlist Selection": "__default__",
@@ -497,7 +498,7 @@
  },
  "Teams Series Length": 7,
  "Use Native Python REPL": false,
- "launchCount": 257,
+ "launchCount": 294,
  "lc14173": 1,
  "lc14292": 1
 }

@@ -42,6 +42,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
 
     from chat import chat_filter
     from chat import coin_system as coin
+    from chat import master_logger as log
     import fire
     
     from bascenev1 import get_foreground_host_session
@@ -68,6 +69,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     if msg.startswith('/'):
         from chat import hooks
         hooks.cmnd(msg, client_id)
+        log.chat_commands(msg, client_id)
+        log.chat_log(msg, client_id)
         return None
 
     # ✅ Coin system answer check
@@ -77,7 +80,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
         except Exception as e:
             print("Coin system error:", e)
 
-    # ✅ Let message pass to chat
+    # ✅ Let message pass to chat and log all chat
+    log.chat_log(msg, client_id)
     return msg
 
 

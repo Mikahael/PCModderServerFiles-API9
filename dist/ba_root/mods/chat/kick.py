@@ -1,25 +1,23 @@
-#
-
 from __future__ import annotations
 
 import babase
 import bascenev1 as bs
-import _babase
+import random
 
 from spaz import member_id as mid
+from chat import master_logger as log # for master logger!
 import fire
 
 banned: list[str] = []
-checked_clients: set[int] = set() # so infinite timer wont check people already in roster
 
 
 def run() -> None:
     try:
         global banned
-        global checked_clients
 
         roster = bs.get_game_roster()
-        current_clients: set[int] = set()
+
+        current_accounts: set[str] = set()
 
         banned = mid.ban_list
 
@@ -29,37 +27,21 @@ def run() -> None:
             client_id = i['client_id']
             acc = i['account_id']
 
-            current_clients.add(client_id)
-
-            # Already checked this player.
-            if client_id in checked_clients: # if client already in roster, skip
+            if not acc:
                 continue
 
-            checked_clients.add(client_id)
+            current_accounts.add(acc)
 
-            # Kick banned players.
-            if acc in banned:
+            # New account detected.
+            if acc not in log.active_players:
+                if client_id != -1: #ignore server
+                    log.player_join(acc, name)
 
-                bs.broadcastmessage(
-                    "You have been banned! Contact Server Admins!",
-                    color=(1, 1, 1),
-                    clients=[client_id],
-                    transient=True,
-                )
-
-                if client_id != -1:
-                    bs.disconnect_client(client_id)
-
-                continue
-
-            # Whitelist check.
-            if fire.whitelist:
-
-                # Owners bypass whitelist.
-                if acc not in mid.whitelist and acc not in mid.owner:
+                # Ban check.
+                if acc in banned:
 
                     bs.broadcastmessage(
-                        "Whitelist is active, Please join later!",
+                        "You have been banned! Contact Server Admins!",
                         color=(1, 1, 1),
                         clients=[client_id],
                         transient=True,
@@ -68,17 +50,51 @@ def run() -> None:
                     if client_id != -1:
                         bs.disconnect_client(client_id)
 
-        # Remove disconnected clients.
-        checked_clients &= current_clients # removes players who left the server from the roster list.
+                    continue
+
+                # Whitelist check.
+                if fire.whitelist:
+
+                    if acc not in mid.whitelist and acc not in mid.owner:
+
+                        bs.broadcastmessage(
+                            "Whitelist is active, Please join later!",
+                            color=(1, 1, 1),
+                            clients=[client_id],
+                            transient=True,
+                        )
+
+                        if client_id != -1:
+                            bs.disconnect_client(client_id)
+
+                        continue
+
+                # Welcome message.
+                if client_id != -1:
+
+                    bs.broadcastmessage(
+                        u'\ue043Welcome to the server by PCModder!\ue043',
+                        color=(
+                            random.random(),
+                            random.random(),
+                            random.random()
+                        ),
+                        clients=[client_id],
+                        transient=True,
+                    )
+
+        # Detect leaves.
+        for acc in list(log.active_players.keys()):
+
+            if acc not in current_accounts:
+                log.player_leave(acc)
 
     except Exception as e:
-        print(e)
+        print(f"[Master Log] {e}")
 
     babase.apptimer(2.0, run)
 
 
 def new_kick():
     babase.apptimer(2.0, run)
-    print('✅ Ban list running')
-    
-
+    print('✅ Master Log running!')

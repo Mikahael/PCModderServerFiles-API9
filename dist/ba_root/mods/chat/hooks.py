@@ -121,7 +121,7 @@ class cheat_options(object):
                     ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
                 else:
                     if score < 5000 and rank == 1:
-                        ba.broadcastmessage('Reach 5k score for admin!', clients=[client_id], transient=True)
+                        ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
                     else:
                         ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
                 return False
@@ -177,12 +177,20 @@ class cheat_options(object):
      
         #print(command)
         
+        stats = mystats.rank_sys.data.get(acc)
+        
+        rank = stats.get("rank", 0) # pull safely
+        score = stats.get("score", 0)
+        
         cost = self.command_cash(command) #price of each cmd
         user_cash = coin.getCoins(acc)
         ticket = babase.charstr(babase.SpecialChar.TICKET)
         if acc not in mem.owner or acc not in mem.admin:
             if user_cash > cost:
-                ba.broadcastmessage(f'Purchased Command: {command}!', clients=[client_id], transient=True)
+                if score < 5000 and rank == 1: #what to do if guy with rank 1 has admin but less than 5000 score!
+                    ba.broadcastmessage(f'You need 5000 score and Rank 1 for admin!\nPurchasing Command instead: {command}', clients=[client_id], transient=True)
+                else:
+                    ba.broadcastmessage(f'Purchased Command: {command}', clients=[client_id], transient=True)
                 coin.deductCoins(acc, cost)
                 return True
             else:
