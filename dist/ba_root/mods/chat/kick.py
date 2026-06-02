@@ -10,7 +10,6 @@ import fire
 
 banned: list[str] = []
 
-
 def run() -> None:
     try:
         global banned

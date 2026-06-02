@@ -13,6 +13,7 @@ from config import bomb_config as bmb
 from config import spaz_config as spz
 from chat import coin_system as coin
 from chat import shop, endvote, kick
+from chat import master_logger as log
 from config import stats_master as mystats
 import fire
 
@@ -485,36 +486,91 @@ class cheat_options(object):
             elif m == password+'kick':
                 if self.checkAdmin(nick,m):
                     if a == []:
-                        ba.broadcastmessage("Using: /kick [name/ClientID]", clients=[client_id], transient=True)
+                        ba.broadcastmessage(
+                            "Using: /kick [name/ClientID]",
+                            clients=[client_id],
+                            transient=True
+                        )
                     else:
                         try:
                             clID = int(a[0])
 
                             if clID == -1:
-                                ba.broadcastmessage('Not allowed to kick HOST!', clients=[client_id], transient=True)
+                                ba.broadcastmessage(
+                                    'Not allowed to kick HOST!',
+                                    clients=[client_id],
+                                    transient=True
+                                )
                             else:
                                 acc = None
+                                target_name = None
 
                                 for i in session_players:
                                     if i.inputdevice.client_id == clID:
                                         acc = i.get_account_id()
+                                        target_name = i.getname()
                                         break
 
                                 if acc is None:
-                                    ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)
+                                    ba.broadcastmessage(
+                                        'Player Not Found',
+                                        clients=[client_id],
+                                        transient=True
+                                    )
 
                                 elif acc in mem.owner:
-                                    ba.broadcastmessage('Not allowed to kick Owner!', clients=[client_id], transient=True)
+                                    ba.broadcastmessage(
+                                        'Not allowed to kick Owner!',
+                                        clients=[client_id],
+                                        transient=True
+                                    )
 
                                 else:
+                                    admin_user = None
+                                    admin_name = None
+
+                                    for i in session_players:
+                                        if i.inputdevice.client_id == client_id:
+                                            admin_user = i.get_account_id()
+                                            admin_name = i.getname()
+                                            break
+
+                                    if admin_user in mem.admin:
+                                        admin_role = 'ADMIN'
+                                    elif admin_user in mem.owner:
+                                        admin_role = 'OWNER'
+                                    else:
+                                        admin_role = 'UNKNOWN'
+
+                                    log_path = 'ba_root/mods/logs/kicklog.log'
+                                    time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+                                    with open(log_path, 'a') as fi:
+                                        fi.write(
+                                            f"[{time}] "
+                                            f"[PLAYER KICKED] | "
+                                            f"Name: {target_name} | "
+                                            f"PBID: {acc} | "
+                                            f"ClientID: {clID} | "
+                                            f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
+                                        )
+
                                     ba.disconnect_client(clID)
 
                         except ValueError:
-                            ba.broadcastmessage('Invalid ClientID', clients=[client_id], transient=True)
+                            ba.broadcastmessage(
+                                'Invalid ClientID',
+                                clients=[client_id],
+                                transient=True
+                            )
 
                         except Exception as e:
                             print(e)
-                            ba.broadcastmessage('Player Not Found', clients=[client_id], transient=True)                           
+                            ba.broadcastmessage(
+                                'Player Not Found',
+                                clients=[client_id],
+                                transient=True
+                            )                       
             elif m == password+'quit':#fixme
                 if self.checkAdmin(nick,m):
                     babase.quit()
@@ -562,11 +618,19 @@ class cheat_options(object):
                 #actor = nick
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
-                        actor = i.get_account_id()
+                        admin_user = i.get_account_id()
+                        admin_name = i.getname()
+                        
+                if admin_user in mem.admin:
+                    admin_role = 'ADMIN'
+                elif admin_user in mem.owner:
+                    admin_role = 'OWNER'
+                else:
+                    admin_role = 'UNKNOWN'
 
                 updated_admins = list(mem.admin)
 
-                log_path = 'ba_root/mods/chat/logged_id.txt'
+                log_path = 'ba_root/mods/logs/rolelog.log'
                 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 # ---------------- ADD ----------------
@@ -583,11 +647,11 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] ADDED | "
-                            f"Role: {role} | "
+                            f"[{time}] "
+                            f"[ADMIN ADDED] | "
                             f"Name: {real} | "
                             f"PBID: {newadmin} | "
-                            f"By: {actor}\n"
+                            f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
 
                     ba.broadcastmessage(
@@ -607,11 +671,11 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] REMOVED | "
-                            f"Role: {role} | "
+                            f"[{time}] "
+                            f"[ADMIN REMOVED] | "
                             f"Name: {real} | "
                             f"PBID: {newadmin} | "
-                            f"By: {actor}\n"
+                            f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
 
                     ba.broadcastmessage(
@@ -684,11 +748,19 @@ class cheat_options(object):
                 #actor = nick
                 for i in session_players:
                     if i.inputdevice.client_id == nick:
-                        actor = i.get_account_id()
+                        admin_user = i.get_account_id()
+                        admin_name = i.getname()
+                        
+                if admin_user in mem.admin:
+                    admin_role = 'ADMIN'
+                elif admin_user in mem.owner:
+                    admin_role = 'OWNER'
+                else:
+                    admin_role = 'UNKNOWN'
 
                 updated_owners = list(mem.owner)
 
-                log_path = 'ba_root/mods/chat/logged_id.txt'
+                log_path = 'ba_root/mods/logs/rolelog.log'
                 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 # ---------------- ADD ----------------
@@ -706,11 +778,11 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] ADDED | "
-                            f"Role: OWNER | "
+                            f"[{time}] "
+                            f"[OWNER ADDED] | "
                             f"Name: {real} | "
                             f"PBID: {newowner} | "
-                            f"By: {actor}\n"
+                            f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
 
                     ba.broadcastmessage(
@@ -734,13 +806,12 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] REMOVED | "
-                            f"Role: OWNER | "
+                            f"[{time}] "
+                            f"[OWNER REMOVED] | "
                             f"Name: {real} | "
                             f"PBID: {newowner} | "
-                            f"By: {actor}\n"
+                            f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
-
                     ba.broadcastmessage(
                         real + ' removed from owners.',
                         clients=[client_id],
@@ -768,7 +839,7 @@ class cheat_options(object):
                 mem.owner = updated_owners
 
                 # Reload whitelist/ban cache.
-                kick.checked_clients.clear()
+                log.active_players.clear()
 
             elif m == password + 'white':
                 #
@@ -783,7 +854,7 @@ class cheat_options(object):
                         #
                         endvote.update_endvote_text() # small text that shows whitelist enabled
                         #
-                        kick.checked_clients.clear() # clear the roster cache - important!
+                        log.active_players.clear() # clear the roster cache - important!
                         #
                         ba.broadcastmessage(
                             'Whitelist enabled.',
@@ -796,7 +867,7 @@ class cheat_options(object):
                         #
                         endvote.update_endvote_text() # remove the whitelist text when off
                         #
-                        kick.checked_clients.clear() # clear the roster cache - important!
+                        log.active_players.clear() # clear the roster cache - important!
                         #
                         ba.broadcastmessage(
                             'Whitelist disabled.',
@@ -847,7 +918,7 @@ class cheat_options(object):
 
                 updated_whitelist = list(mem.whitelist)
                 
-                kick.checked_clients.clear() # refresh roster cache
+                log.active_players.clear() # refresh roster cache
 
                 # ---------------- ADD ----------------
                 if action == 'add':
@@ -895,7 +966,7 @@ class cheat_options(object):
                     )
                     return
                     
-                kick.checked_clients.clear() # refresh roster cache
+                log.active_players.clear() # refresh roster cache
 
                 # -------- WRITE BACK WHITELIST --------
                 with open('ba_root/mods/spaz/member_id.py') as file:
@@ -949,6 +1020,19 @@ class cheat_options(object):
 
                 banned_id = target_player.get_account_id()
                 real = target_player.getname()
+                role = m
+
+                for i in session_players:
+                    if i.inputdevice.client_id == client_id:
+                        admin_user = i.get_account_id()
+                        admin_name = i.getname()
+
+                if admin_user in mem.admin:
+                    admin_role = 'ADMIN'
+                elif admin_user in mem.owner:
+                    admin_role = 'OWNER'
+                else:
+                    admin_role = 'UNKNOWN'
 
                 # Prevent banning owners.
                 if banned_id in mem.owner:
@@ -958,7 +1042,7 @@ class cheat_options(object):
                         transient=True
                     )
                     return
-                    
+
                 if clID == -1:
                     ba.broadcastmessage(
                         'Cannot ban HOST!',
@@ -978,8 +1062,19 @@ class cheat_options(object):
                     )
                     return
 
-                # Add to ban list.
+                log_path = 'ba_root/mods/logs/banlog.log'
+                time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
                 updated_bans.append(banned_id)
+
+                with open(log_path, 'a') as fi:
+                    fi.write(
+                        f"[{time}] "
+                        f"[PLAYER BANNED] | "
+                        f"Name: {real} | "
+                        f"PBID: {banned_id} | "
+                        f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
+                    )
 
                 # Write back to member_id.py
                 with open('ba_root/mods/spaz/member_id.py') as file:
@@ -993,9 +1088,8 @@ class cheat_options(object):
 
                 mem.ban_list = updated_bans
                 #
-                kick.checked_clients.clear()
+                log.active_players.clear()
                 #
-                # Kick player after banning.
                 ba.disconnect_client(clID)
 
                 ba.broadcastmessage(
@@ -1054,7 +1148,7 @@ class cheat_options(object):
                     if i.inputdevice.client_id==nick:
                         actor = i.get_account_id()
                         
-                log_path = 'ba_root/mods/chat/logged_id.txt'
+                log_path = 'ba_root/mods/logs/rolelog.log'
                 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 updated_names = dict(mem.name)  # COPY
