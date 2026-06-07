@@ -51,6 +51,14 @@ class SpazPlayer(PlayerSpaz):
         
         #client = player.inputdevice.client_id #for clientid using player instead of player1
         #print(client)
+        
+        roster = bs.get_game_roster()
+        for i in roster:
+            name = i['display_string']
+            client_id = i['client_id']
+            acc = i['account_id']
+       
+        #print(name,client_id,acc)
 
 
         self.active_effects = [] # for master timer system!

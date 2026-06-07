@@ -49,6 +49,8 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
     import bascenev1 as bs
     import babase
     
+    settings = log.master_load_db("settings")
+    
     session = get_foreground_host_session()
     session_players=session.sessionplayers
     acc = None
@@ -74,7 +76,7 @@ def filter_chat_message(msg: str, client_id: int) -> str | None:
         return None
 
     # ✅ Coin system answer check
-    if fire.enableCoinSystem:
+    if settings["enableCoinSystem"]:
         try:
             coin.checkAnswer(msg, client_id)
         except Exception as e:

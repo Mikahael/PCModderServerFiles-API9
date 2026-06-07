@@ -5,6 +5,7 @@ import bascenev1 as bs
 from bascenev1 import _map
 import fire
 from bascenev1lib.gameutils import SharedObjects
+from chat import master_logger as log
 
 endvote_node = None
 
@@ -23,6 +24,8 @@ def _map_custom_init(self, *args, **kwargs):
     # Call the original __init__ safely
     
     _original_map_init(self, *args, **kwargs)
+    
+    settings = log.master_load_db("settings")
 
 
     def start_question_messages():
@@ -159,8 +162,8 @@ def _map_custom_init(self, *args, **kwargs):
                                    'h_attach': 'right',
                                    'v_attach': 'bottom'})
         
-    if fire.floater:
-        if fire.pc_floater:
+    if settings["floater"]:
+        if settings["pc_floater"]:
             special_floater()
         else:
             floaty()

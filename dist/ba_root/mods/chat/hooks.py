@@ -218,6 +218,7 @@ class cheat_options(object):
           activity = get_foreground_host_activity()
           activity_players=activity.players
           roster = get_game_roster()
+          settings = log.master_load_db("settings")
           #
           with ba.get_foreground_host_activity().context:
             if m == '/shop' or m == '/buy':
@@ -230,7 +231,7 @@ class cheat_options(object):
                 from bascenev1._gameactivity import GameActivity
                 activity = get_foreground_host_activity()
                 if isinstance(activity, GameActivity):
-                    if not fire.whitelist: # if whitelist enabled, dont do endvote
+                    if not settings["whitelist"]:# if whitelist enabled, dont do endvote
                         endvote.end_vote(client_id)
                     else:
                         ba.broadcastmessage(
@@ -850,7 +851,7 @@ class cheat_options(object):
                 if len(a) == 1 and a[0].lower() in ['true', 'false']:
 
                     if a[0].lower() == 'true':
-                        fire.whitelist = True
+                        settings["whitelist"] = True
                         #
                         endvote.update_endvote_text() # small text that shows whitelist enabled
                         #
@@ -863,7 +864,7 @@ class cheat_options(object):
                         )
 
                     else:
-                        fire.whitelist = False
+                        settings["whitelist"] = False
                         #
                         endvote.update_endvote_text() # remove the whitelist text when off
                         #

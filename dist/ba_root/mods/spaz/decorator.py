@@ -13,6 +13,7 @@ import babase
 import fire
 from functools import partial
 from lobby import antibetray
+from chat import master_logger as log
 
 STATS_FILE = 'ba_root/mods/config/player_data.json'
 
@@ -120,8 +121,11 @@ def all_decorate(self, player):
         self.node.style = 'agent'
     
     
-    #fall protection for everyone - allow it in fire.py
-    if fire.fall_protection:
+    #fall protection for everyone - allow it in fire.json
+    
+    settings = log.master_load_db("settings")
+    
+    if settings["fall_protection"]:
         self.fall_protect = True
         
     
@@ -202,7 +206,7 @@ def all_decorate(self, player):
 
     from _bascenev1 import get_client_ping as _get_ping
     client = player.inputdevice.client_id
-    if fire.ping_tag:
+    if settings["ping_tag"]:
         ping_tag(self, player)
         
     # rank tag comes here now!

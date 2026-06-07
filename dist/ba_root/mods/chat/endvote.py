@@ -5,6 +5,7 @@ import _bascenev1 as _bs
 from bascenev1._gameactivity import GameActivity
 import maps.bstextonmap as bstextonmap
 import fire
+from chat import master_logger as log
 
 votes: dict[str, int] = {}
 
@@ -33,7 +34,8 @@ def reset_vote_state():
 
 
 def update_endvote_text():
-
+    
+    settings = log.master_load_db("settings")
     node = bstextonmap.endvote_node
 
     if node is None:
@@ -45,7 +47,7 @@ def update_endvote_text():
         return
 
     # Show whitelist text immediately.
-    if fire.whitelist:
+    if settings["whitelist"]:
         node.text = '[Whitelist Enabled]'
         return
 

@@ -7,6 +7,26 @@ from datetime import datetime
 
 PLAYER_DB = 'ba_root/mods/config/master_log.json'
 
+DATABASES = {
+    "settings": "ba_root/mods/fire.json"
+}
+
+def master_load_db(name):
+    path = DATABASES[name]
+
+    if not os.path.exists(path):
+        return {}
+
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+def master_save_db(name, data):
+    path = DATABASES[name]
+
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
+        
+        
 active_players = {}
 
 

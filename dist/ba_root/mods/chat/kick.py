@@ -19,6 +19,8 @@ def run() -> None:
         current_accounts: set[str] = set()
 
         banned = mid.ban_list
+        
+        settings = log.master_load_db("settings")
 
         for i in roster:
 
@@ -51,8 +53,8 @@ def run() -> None:
 
                     continue
 
-                # Whitelist check.
-                if fire.whitelist:
+                # Whitelist check - fire.json
+                if settings["whitelist"]:
 
                     if acc not in mid.whitelist and acc not in mid.owner:
 

@@ -10,6 +10,7 @@ from spaz import member_id as mid
 from chat import shop
 from bascenev1lib.actor.zoomtext import ZoomText
 from maps import bstextonmap
+from chat import master_logger as log
 
 correctAnswer = None
 answeredBy = None
@@ -18,6 +19,8 @@ chatmessage = bs.chatmessage
 
 # New proper path
 bankfile = 'ba_root/mods/config/bank.json'
+
+settings = log.master_load_db("settings")
 
 
 def run_in_context(func):
@@ -139,6 +142,8 @@ def clean_expired_tags():
 
 def askQuestion():
     global correctAnswer, answeredBy
+    
+    questionsList = settings["questionsList"]
 
     keys = list(questionsList.keys())
     question = keys[randrange(len(keys))]
@@ -303,8 +308,10 @@ coin_timer = None
 
 def enable_coinsys():
     global coin_timer
-
-    if enableCoinSystem:
+    
+    questionDelay = settings["questionDelay"]
+    
+    if settings["enableCoinSystem"]:
         coin_timer = bs.AppTimer(
             questionDelay,
             askQuestion,

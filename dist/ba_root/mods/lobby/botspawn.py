@@ -13,6 +13,7 @@ from bascenev1._gameactivity import GameActivity
 from bascenev1._multiteamsession import MultiTeamSession
 from bascenev1 import _map
 from maps import bstextonmap
+from chat import master_logger as log
 
 from bascenev1lib.actor.spazbot import (
     SpazBotSet,
@@ -37,6 +38,8 @@ def new_on_begin(self) -> None:
     # Call original first
     _old_on_begin(self) #TODO: add the extra mods here like nightmode and snowymap
     
+    settings = log.master_load_db("settings")
+    
     MapBounds = self.map.get_def_bound_box("map_bounds")
     spawnpoint = self.map.get_def_points('spawn')
     
@@ -52,7 +55,7 @@ def new_on_begin(self) -> None:
                       count=5,
                       scale=0.5,
                       spread=0.2,chunk_type='ice')
-    if fire.snow:
+    if settings["snow"]:
         bs.timer(1, snowymap, repeat = True)
         
 
@@ -94,9 +97,9 @@ def new_on_begin(self) -> None:
         if now.hour >= 19 or now.hour <= 7:
             activity.globalsnode.tint = (0.5, 0.7, 1)
             light()
-            fire.night = True
+            settings["night"] = True
         else:
-            fire.night = False
+            settings["night"] = False
 
     nightymode()
 

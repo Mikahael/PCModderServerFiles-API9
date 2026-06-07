@@ -77,9 +77,10 @@ def player_was_killed_patch(
                     suicide_messages
                 ).format(name)
 
-                import fire
+                from chat import master_logger as log
+                settings = log.master_load_db("settings")
 
-                if fire.suicide_messages:
+                if settings["suicide_messages"]:
                     _bascenev1.broadcastmessage(
                         message,
                         color=(1, 1, 1),

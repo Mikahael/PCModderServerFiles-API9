@@ -5,6 +5,7 @@ import fire
 from spaz import member_id as mem
 import time
 from chat import master_logger as log
+import json
 
 
 # account_id -> unmute_timestamp
@@ -98,7 +99,8 @@ def handle_violation(cid, acc, name):
 
 
 def check_message(cid, message):
-    if not fire.chat_filter:
+    settings = log.master_load_db("settings")
+    if not settings["chat_filter"]:
         return True  # allow chat
 
     player, name, acc = get_player_from_cid(cid)
