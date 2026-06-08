@@ -12,16 +12,13 @@ from bascenev1lib.actor.zoomtext import ZoomText
 from maps import bstextonmap
 from chat import master_logger as log
 
+
 correctAnswer = None
 answeredBy = None
 
 chatmessage = bs.chatmessage
 
-# New proper path
-bankfile = 'ba_root/mods/config/bank.json'
-
 settings = log.master_load_db("settings")
-
 
 def run_in_context(func):
     activity = bs.get_foreground_host_activity()
@@ -249,58 +246,46 @@ def checkAnswer(msg: str, client_id: int):
 
 
 def addCoins(account_id, amount):
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.load(f)
-    else:
-        bank = {}
+    master = log.master_load_db("player")
 
-    bank[account_id] = bank.get(account_id, 0) + amount
+    if account_id not in master:
+        print(f"[WARN] addCoins: account not found: {account_id}")
+        return
 
-    with open(bankfile, 'w') as f:
-        json.dump(bank, f)
+    master[account_id]["bank"] += amount
+
+    log.master_save_db("player", master)
 
     if amount > 0:
         run_in_context(lambda: bs.getsound('cashRegister').play())
 
-    #print("Transaction successful")
-    coins = getCoins(account_id)
-    #print(coins)
-
 
 def deductCoins(account_id, amount):
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.load(f)
-    else:
-        bank = {}
+    master = log.master_load_db("player")
 
-    current = bank.get(account_id, 0)
-
-    # 🔴 prevent negative balance
-    if current < amount:
-        print("Not enough coins")
+    if account_id not in master:
         return False
 
-    bank[account_id] = current - amount
+    current = master[account_id]["bank"]
 
-    with open(bankfile, 'w') as f:
-        json.dump(bank, f)
+    if current < amount:
+        return False
+
+    master[account_id]["bank"] = current - amount
+
+    log.master_save_db("player", master)
 
     run_in_context(lambda: bs.getsound('cashRegister').play())
-
-    print("Deduction successful")
-    coins = getCoins(account_id)
-    print(coins)
 
     return True
 
 def getCoins(account_id):
-    if os.path.exists(bankfile):
-        with open(bankfile) as f:
-            bank = json.load(f)
-            return bank.get(account_id, 0)
-    return 0
+    master = log.master_load_db("player")
+
+    if account_id not in master:
+        return 0
+
+    return master[account_id]["bank"]
 
 
 # Start Coin System!

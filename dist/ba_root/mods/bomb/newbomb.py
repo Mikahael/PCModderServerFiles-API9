@@ -18,7 +18,9 @@ from bascenev1lib.actor import bomb
 from powerups import powerupbox as ppbx
 from bascenev1lib.actor.bomb import Bomb, ExplodeMessage, ArmMessage, WarnMessage, Blast, BombFactory, ExplodeHitMessage, ImpactMessage, SplatMessage
 
-from config import bomb_config as bmb
+from chat import master_logger as log
+
+bomby = log.master_load_db("bomb")
 
 bomb_types = [
     'ice', 'impact', 'landMine', 'normal', 'sticky', 'tnt','ice_impact',
@@ -1550,7 +1552,7 @@ class NewBomby(bs.Actor):
         }
         bomb_name = BOMB_NAMES[bomb_type]
             
-        if bmb.bomb_name:
+        if bomby["bomb_name"]:
             text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.5, 0), 'operation': 'add'})        
             self.node.connectattr('position', text, 'input2')
             self.spazText = bs.newnode('text',
@@ -1564,20 +1566,20 @@ class NewBomby(bs.Actor):
                                 'scale': 0.01,
                                 'h_align': 'center'})
             text.connectattr('output', self.spazText, 'position')
-            if bmb.light:
+            if bomby["light"]:
                 bs.animate_array(node=self.spazText, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
         
-        if bmb.shield:        
+        if bomby["shield"]:
             self.shield = bs.newnode('shield',
                                  owner=self.node,
                                  attrs={
                                      'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),    
                                      'radius': 0.8})
             self.node.connectattr('position', self.shield, 'position')
-            if bmb.light:
+            if bomby["light"]:
                 bs.animate_array(node=self.shield, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
-            
-        if bmb.bomb_model:    
+        
+        if bomby["bomb_model"]:  
             shieldy = bs.newnode('math', owner=self.node, attrs={'input1': (0, -0.03, 0), 'operation': 'add'}) 
             self.node.connectattr('position', shieldy, 'input2')
             self.shield = bs.newnode('shield',
@@ -1589,7 +1591,7 @@ class NewBomby(bs.Actor):
             self.node.connectattr('position', self.shield, 'position')
             shieldy.connectattr('output', self.shield, 'position')
         
-        if bmb.spike_model:    
+        if bomby["spike_model"]: 
             shieldy = bs.newnode('math', owner=self.node, attrs={'input1': (0, -0.03, 0), 'operation': 'add'}) 
             self.node.connectattr('position', shieldy, 'input2')
             self.shield = bs.newnode('shield',
@@ -1610,12 +1612,12 @@ class NewBomby(bs.Actor):
                                'color':((0+random.random()*1.0),(0+random.random()*1.0),(0+random.random()*1.0))})
             m.connectattr('output', self.flash, 'position') 
             bs.animate_array(node=self.flash, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
-            
-        if bmb.bomb_expire:
+        
+        if bomby["bomb_expire"]:
           bts = ['impact','land_mine','tnt','ice_impact','curse_mine','ice_mine','curse_impact',
                  'tele_impact','shock_bomb','weed_bomb','boom_bomb','headache']
           if bomb_type not in bts:
-            if bmb.bomb_name:
+            if bomby["bomb_name"]:
                 # if bmb text on, go a bit higher
                 text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.95, 0), 'operation': 'add'})  
             else:
@@ -1653,7 +1655,7 @@ class NewBomby(bs.Actor):
             _update_bomb_timer()
             bs.timer(1.0, _update_bomb_timer, repeat=True)
             
-        if bmb.bomb_model or bmb.spike_model:
+        if bomby["bomb_model"] or bomby["spike_model"]:
             bs.animate(self.node,'mesh_scale',
                 {0: 0, 0.2: 0, 0.26: 0})
         else:

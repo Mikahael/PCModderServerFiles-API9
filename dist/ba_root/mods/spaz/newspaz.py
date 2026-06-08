@@ -18,7 +18,9 @@ from bascenev1lib.actor.powerupbox import PowerupBoxFactory, PowerupBox
 from bascenev1lib.actor.spazfactory import SpazFactory
 from bascenev1lib.gameutils import SharedObjects
 #
-from config import spaz_config as spz
+from chat import master_logger as log
+#
+spazy = log.master_load_db("spaz")
 #
 screenmessage = bs.broadcastmessage
 #
@@ -47,8 +49,8 @@ def newSpazInit(self, *args, **kwargs):
     self.boom_bomb_count = 0
     self.headache_count = 0
     self.bomb_count = 2
-    if spz.gloves: self.equip_boxing_gloves()
-    if spz.shield: self.equip_shields()
+    if spazy["gloves"]: self.equip_boxing_gloves()
+    if spazy["shield"]: self.equip_shields()
     #
     # for ezy char pull
     #
@@ -73,14 +75,14 @@ def newSpazInit(self, *args, **kwargs):
             self.node.pelvis_mesh = get(char+'Pelvis')
         self.node.style = char  
 
-    if spz.ninja: pull_char(char='ninja')
-    if spz.frosty: pull_char(char='frosty')
-    if spz.wizard: pull_char(char='wizard')
-    if spz.ali: pull_char(char='ali')
-    if spz.santa: pull_char(char='santa')
-    if spz.robot: pull_char(char='robot')
-    if spz.pengu: pull_char(char='pengu')
-    if spz.pixie: pull_char(char='pixie')
+    if spazy["ninja"]: pull_char(char='ninja')
+    if spazy["frosty"]: pull_char(char='frosty')
+    if spazy["wizard"]: pull_char(char='wizard')
+    if spazy["ali"]: pull_char(char='ali')
+    if spazy["santa"]: pull_char(char='santa')
+    if spazy["robot"]: pull_char(char='robot')
+    if spazy["pengu"]: pull_char(char='pengu')
+    if spazy["pixie"]: pull_char(char='pixie')
     
     self.random_bombs = False #for rando bombs
     self.random_colors = False #for rando colors
@@ -126,7 +128,7 @@ def new_handlemessage(self, msg: Any) -> Any:
                 return None
             if self.pick_up_powerup_callback is not None:
                 self.pick_up_powerup_callback(self)
-            if spz.popuptext:
+            if spazy["popuptext"]:
                 if msg.poweruptype == 'headache':
                     pptx("Random Bombs!",
                         color=(1, 1, 1),
@@ -151,7 +153,7 @@ def new_handlemessage(self, msg: Any) -> Any:
                         scale=1.0,
                         position=self.node.position,
                     ).autoretain()
-            if spz.lightning:
+            if spazy["lightning"]:
                 self.light = bs.newnode('light', attrs={'position': self.node.position, 'color': (1.2, 1.2, 1.4), 'volume_intensity_scale': 2.35, 'intensity': 0.0})
                 bs.animate(self.light, 'intensity', {0.0: 0.0, 0.07: 0.5, 0.35: 0.0})
                 bs.timer(0.5, self.light.delete)
@@ -755,15 +757,15 @@ def new_handlemessage(self, msg: Any) -> Any:
                 self.set_shock_count(min(self.shock_count + 5, 5))
             elif msg.poweruptype == 'headache':
                 self.random_bombs = True #random bombs equipped
-                if not spz.popuptext:
+                if not spazy["popuptext"]:
                     pptx('Random Bombs!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
             elif msg.poweruptype == 'glowy':
                 self.random_colors = True #random colors at punch
-                if not spz.popuptext:
+                if not spazy["popuptext"]:
                     pptx('Press Punch!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
             elif msg.poweruptype == 'rchar':
                 self.random_characters = True #random characters at pickup
-                if not spz.popuptext:
+                if not spazy["popuptext"]:
                     pptx('Press Pickup!',color=(1, 1, 1), scale=1.0,position=self.node.position,).autoretain()
             elif msg.poweruptype == 'weed':
                 def weed():
@@ -1162,7 +1164,7 @@ def new_handlemessage(self, msg: Any) -> Any:
                     },
                 )
                 #bs.timer(0.06, flash.delete)
-                if spz.punch_flash:
+                if spazy["punch_flash"]:
                     bs.timer(0.2, flash.delete)
                 else:
                     bs.timer(0.06, flash.delete)
@@ -1636,7 +1638,7 @@ def new_on_punch_press(self) -> None:
                 self.punch_callback(self)
             self._punched_nodes = set()  # Reset this.
             self.last_punch_time_ms = t_ms
-            if spz.spaz_color:
+            if spazy["spaz_color"]:
                 self.node.color = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
                 self.node.highlight = ((0+random.random()*6.5),(0+random.random()*6.5),(0+random.random()*6.5))
             elif self.random_colors: #for d pwp
@@ -1664,7 +1666,7 @@ def new_on_pickup_press(self) -> None:
         t_ms = int(bs.time() * 1000.0)
         assert isinstance(t_ms, int)
         if t_ms - self.last_pickup_time_ms >= self._pickup_cooldown:
-            if spz.spaz_char:
+            if spazy["spaz_char"]: # fix invalid wizard style!
                 tex = bs.gettexture
                 get = bs.getmesh
                 char = random.choice(['frosty','wizard','santa','pixie','cyborg','ninja','agent','bear','ali'])                

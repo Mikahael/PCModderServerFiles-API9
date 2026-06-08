@@ -10,6 +10,9 @@ import _bascenev1
 
 from bascenev1._stats import PlayerRecord, PlayerScoredMessage
 from chat import coin_system as coin
+from chat import master_logger as log
+
+master = log.master_load_db("player")
 
 #DAILY_FILE = 'daily_rewards.json'
 DAILY_FILE = 'ba_root/mods/lobby/daily_rewards.json'
@@ -27,47 +30,65 @@ def save_daily(data):
         json.dump(data, f)
 
 
-def add_cash(clID,acc_name):
+def add_cash(clID, acc_name):
 
-    today = str(date.today())  # Example: 2026-05-18
-    daily_data = load_daily()
-    
+    today = str(date.today())
+
     from bascenev1 import get_foreground_host_session
     import babase
+
     ticket = babase.charstr(babase.SpecialChar.TICKET)
+
     session = get_foreground_host_session()
     session_players = session.sessionplayers
-    
+
     acc = None
     name = None
-    #
+
     for i in session_players:
-        if i.inputdevice.client_id==clID:
+        if i.inputdevice.client_id == clID:
             acc = i.get_account_id()
             name = i.getname()
             break
 
-    # Get last claimed date for this account
-    last_claim = daily_data.get(acc)
+    if acc is None:
+        return
+        
+    master = log.master_load_db("player")
+    log.ensure_player(master, acc, name)
+    master = log.master_load_db("player")
+
+    # Always reload latest database
+    master = log.master_load_db("player")
+
+    # Create/repair player entry if needed
+    log.ensure_player(master, acc, name)
+
+    last_claim = master[acc]["last_claim"]
 
     # Already claimed today
     if last_claim == today:
-        bs.broadcastmessage(f'Welcome to the Server! {acc_name} | {acc} | {str(clID)}', clients=[clID], transient=True)
+        bs.broadcastmessage(
+            f'Welcome to the Server! {acc_name} | {acc} | {clID}',
+            clients=[clID],
+            transient=True
+        )
         return
 
     # Give reward
     cash_amount = random.choice([25, 50, 15, 10])
     coin.addCoins(acc, cash_amount)
 
-    # Save today's claim
-    daily_data[acc] = today
-    save_daily(daily_data)
-    bs.broadcastmessage(f'Welcome to the Server! {acc_name} | {acc} | {str(clID)}\n Daily Login Cash: {ticket}{cash_amount}!', 
-        clients=[clID], transient=True
-    )
+    master = log.master_load_db("player")
+    master[acc]["last_claim"] = today
+    log.master_save_db("player", master)
 
-# for cash on multi death kills
-# added it here since it related to cash and lobby!
+    bs.broadcastmessage(
+        f'Welcome to the Server! {acc_name} | {acc} | {clID}\n'
+        f'Daily Login Cash: {ticket}{cash_amount}!',
+        clients=[clID],
+        transient=True
+    )
 
 def submit_kill_patch(self, showpoints: bool = True) -> None:
     """Submit a kill for this player entry."""
@@ -248,4 +269,3 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
 
 def load_multikill_bonus():
     PlayerRecord.submit_kill = submit_kill_patch
-    print('✅ Multikill bonus loaded!')

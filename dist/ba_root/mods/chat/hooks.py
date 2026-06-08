@@ -8,14 +8,16 @@ import random
 from spaz import member_id as mem
 import datetime
 from typing import Sequence
-from config import powerup_config as pwp
-from config import bomb_config as bmb
-from config import spaz_config as spz
 from chat import coin_system as coin
 from chat import shop, endvote, kick
 from chat import master_logger as log
 from config import stats_master as mystats
-import fire
+
+settings = log.master_load_db("settings")
+powerup = log.master_load_db("pwp")
+bomby = log.master_load_db("bomb")
+spazy = log.master_load_db("spaz")
+master = log.master_load_db("player")
 
 class cheat_options(object):
     def __init__(self):
@@ -218,7 +220,6 @@ class cheat_options(object):
           activity = get_foreground_host_activity()
           activity_players=activity.players
           roster = get_game_roster()
-          settings = log.master_load_db("settings")
           #
           with ba.get_foreground_host_activity().context:
             if m == '/shop' or m == '/buy':
@@ -1799,132 +1800,165 @@ class cheat_options(object):
                 
             elif m == password+'powerupname':
                 if self.checkAdmin(nick,m):
-                    if pwp.text == True:
-                        pwp.text = False
+                    if powerup["text"] == True:
+                        powerup["text"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.text = True
-                    k = pwp.text
+                        powerup["text"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["text"]
+                    log.master_load_db("pwp") #refresh cache
                     ba.broadcastmessage('Powerup name turned ---> '+str(k))    
             elif m == password+'poweruptimer':
                 if self.checkAdmin(nick,m):
-                    if pwp.expire_text == True:
-                        pwp.expire_text = False
+                    if powerup["expire_text"] == True:
+                        powerup["expire_text"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.expire_text = True
-                    k = pwp.expire_text
+                        powerup["expire_text"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["expire_text"]
                     ba.broadcastmessage('Powerup timer turned ---> '+str(k))    
             elif m == password+'powerupshield':
                 if self.checkAdmin(nick,m):
-                    if pwp.shield == True:
-                        pwp.shield = False
+                    if powerup["shield"] == True:
+                        powerup["shield"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.shield = True
-                    k = pwp.shield
+                        powerup["shield"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["shield"]
                     ba.broadcastmessage('Powerup shield turned ---> '+str(k))   
             elif m == password+'poweruplight':
                 if self.checkAdmin(nick,m):
-                    if pwp.light == True:
-                        pwp.light = False
+                    if powerup["light"] == True:
+                        powerup["light"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.light = True
-                    k = pwp.light
+                        powerup["light"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["light"]
                     ba.broadcastmessage('Powerup light turned ---> '+str(k))   
             elif m == password+'powerupflash':
                 if self.checkAdmin(nick,m):
-                    if pwp.flash == True:
-                        pwp.flash = False
+                    if powerup["flash"] == True:
+                        powerup["flash"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.flash = True
-                    k = pwp.flash
+                        powerup["flash"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["flash"]
                     ba.broadcastmessage('Powerup flash turned ---> '+str(k))   
             elif m == password+'powerupbox':
                 if self.checkAdmin(nick,m):
-                    if pwp.accept_powerup == True:
-                        pwp.accept_powerup = False
+                    if powerup["accept_powerup"] == True:
+                        powerup["accept_powerup"] = False
+                        log.master_save_db("pwp", powerup)
                     else:
-                        pwp.accept_powerup = True
-                    k = pwp.accept_powerup
+                        powerup["accept_powerup"] = True
+                        log.master_save_db("pwp", powerup)
+                    k = powerup["accept_powerup"]
                     ba.broadcastmessage('Powerup box turned ---> '+str(k)) 
             elif m == password+'bombname':
                 if self.checkAdmin(nick,m):
-                    if bmb.bomb_name == True:
-                        bmb.bomb_name = False
+                    if bomby["bomb_name"] == True:
+                        bomby["bomb_name"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.bomb_name = True
-                    k = bmb.bomb_name
+                        bomby["bomb_name"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["bomb_name"]
                     ba.broadcastmessage('Bomb name turned ---> '+str(k)) 
             elif m == password+'bombshield':
                 if self.checkAdmin(nick,m):
-                    if bmb.shield == True:
-                        bmb.shield = False
+                    if bomby["shield"] == True:
+                        bomby["shield"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.shield = True
-                    k = bmb.shield
+                        bomby["shield"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["shield"]
                     ba.broadcastmessage('Bomb shield turned ---> '+str(k)) 
             elif m == password+'bomblight':
                 if self.checkAdmin(nick,m):
-                    if bmb.light == True:
-                        bmb.light = False
+                    if bomby["light"] == True:
+                        bomby["light"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.light = True
-                    k = bmb.light
+                        bomby["light"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["light"]
                     ba.broadcastmessage('Bomb light turned ---> '+str(k)) 
             elif m == password+'bombmodel':
                 if self.checkAdmin(nick,m):
-                    if bmb.bomb_model == True:
-                        bmb.bomb_model = False
+                    if bomby["bomb_model"] == True:
+                        bomby["bomb_model"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.bomb_model = True
-                    k = bmb.bomb_model
+                        bomby["bomb_model"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["bomb_model"]
                     ba.broadcastmessage('Bomb model turned ---> '+str(k)) 
             elif m == password+'bombspike':
                 if self.checkAdmin(nick,m):
-                    if bmb.spike_model == True:
-                        bmb.spike_model = False
+                    if bomby["spike_model"] == True:
+                        bomby["spike_model"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.spike_model = True
-                    k = bmb.spike_model
+                        bomby["spike_model"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["spike_model"]
                     ba.broadcastmessage('Bomb spike turned ---> '+str(k)) 
             elif m == password+'bombtimer':
                 if self.checkAdmin(nick,m):
-                    if bmb.bomb_expire == True:
-                        bmb.bomb_expire = False
+                    if bomby["bomb_expire"] == True:
+                        bomby["bomb_expire"] = False
+                        log.master_save_db("bomb", bomby)
                     else:
-                        bmb.bomb_expire = True
-                    k = bmb.bomb_expire
+                        bomby["bomb_expire"] = True
+                        log.master_save_db("bomb", bomby)
+                    k = bomby["bomb_expire"]
                     ba.broadcastmessage('Bomb timer turned ---> '+str(k))
 
             elif m == password+'spazglove':
                 if self.checkAdmin(nick,m):
-                    if spz.gloves == True:
-                        spz.gloves = False
+                    if spazy["gloves"] == True:
+                        spazy["gloves"] = False
+                        log.master_save_db("spaz", spazy)
                     else:
-                        spz.gloves = True
-                    k = spz.gloves
+                        spazy["gloves"] = True
+                        log.master_save_db("spaz", spazy)
+                    k = spazy["gloves"]
                     ba.broadcastmessage('Spaz gloves turned ---> '+str(k))
             elif m == password+'spazshield':
                 if self.checkAdmin(nick,m):
-                    if spz.shield == True:
-                        spz.shield = False
+                    if spazy["shield"] == True:
+                        spazy["shield"] = False
+                        log.master_save_db("spaz", spazy)
                     else:
-                        spz.shield = True
-                    k = spz.shield
+                        spazy["shield"] = True
+                        log.master_save_db("spaz", spazy)
+                    k = spazy["shield"]
                     ba.broadcastmessage('Spaz shield turned ---> '+str(k))
             elif m == password+'spazcolor':
                 if self.checkAdmin(nick,m):
-                    if spz.spaz_color == True:
-                        spz.spaz_color = False
+                    if spazy["spaz_color"] == True:
+                        spazy["spaz_color"] = False
+                        log.master_save_db("spaz", spazy)
                     else:
-                        spz.spaz_color = True
-                    k = spz.spaz_color
+                        spazy["spaz_color"] = True
+                        log.master_save_db("spaz", spazy)
+                    k = spazy["spaz_color"]
                     ba.broadcastmessage('Spaz color turned ---> '+str(k))
             elif m == password+'spazchar':
                 if self.checkAdmin(nick,m):
-                    if spz.spaz_char == True:
-                        spz.spaz_char = False
+                    if spazy["spaz_char"] == True:
+                        spazy["spaz_char"] = False
+                        log.master_save_db("spaz", spazy)
                     else:
-                        spz.spaz_char = True
-                    k = spz.spaz_char
+                        spazy["spaz_char"] = True
+                        log.master_save_db("spaz", spazy)
+                    k = spazy["spaz_char"]
                     ba.broadcastmessage('Spaz char turned ---> '+str(k))
             
             elif m == password + 'char':
@@ -1951,6 +1985,7 @@ class cheat_options(object):
                     return
 
                 # make sure all attrs exist
+                spz = spazy
                 for c in chars:
                     if not hasattr(spz, c):
                         setattr(spz, c, False)

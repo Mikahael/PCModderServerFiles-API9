@@ -8,7 +8,11 @@ from datetime import datetime
 PLAYER_DB = 'ba_root/mods/config/master_log.json'
 
 DATABASES = {
-    "settings": "ba_root/mods/fire.json"
+    "settings": "ba_root/mods/fire.json",
+    "pwp": "ba_root/mods/config/pwp.json",
+    "spaz": "ba_root/mods/config/spaz.json",
+    "bomb": "ba_root/mods/config/bomb.json",
+    "player": 'ba_root/mods/config/master_log.json'
 }
 
 def master_load_db(name):
@@ -46,6 +50,30 @@ def save_db(data):
     with open(PLAYER_DB, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+def ensure_player(db, acc, name="Unknown"):
+    if acc not in db:
+        db[acc] = {}
+
+    defaults = {
+        "name": name,
+        "names": [name],
+        "first_seen": get_time(),
+        "last_join": "",
+        "last_leave": "",
+        "last_claim": "",
+        "total_playtime": 0,
+        "joins": 0,
+        "bank": 0,
+    }
+
+    for key, value in defaults.items():
+        if key not in db[acc]:
+            if key == "names":
+                db[acc][key] = [name]
+            else:
+                db[acc][key] = value
+
+    return db
 
 def player_join(acc: str, name: str) -> None:
 
@@ -53,18 +81,8 @@ def player_join(acc: str, name: str) -> None:
         return
 
     db = load_db()
-
-    if acc not in db:
-        db[acc] = {
-            "name": name,
-            "names": [name],
-            "first_seen": get_time(),
-            "last_join": "",
-            "last_leave": "",
-            "total_playtime": 0,
-            "joins": 0,
-        }
-
+    ensure_player(db, acc, name)
+    
     db[acc]["name"] = name
 
     if name not in db[acc]["names"]:
@@ -114,18 +132,25 @@ def player_leave(acc: str) -> None:
         f"(session={session_time}s)"
     )
     
-def player_profiles(player): # save entire player names
+def player_profiles(player):
     db = load_db()
-    profiles = player.inputdevice.get_player_profiles()
 
     acc = player.get_account_id()
+    name = player.getname()
+
+    ensure_player(db, acc, name)
+
+    profiles = player.inputdevice.get_player_profiles()
 
     known = set(db[acc]["names"])
 
-    for name in profiles:
-        if name != "__account__" and name not in known:
-            db[acc]["names"].append(name)
-            known.add(name)
+    for profile_name in profiles:
+        if (
+            profile_name != "__account__"
+            and profile_name not in known
+        ):
+            db[acc]["names"].append(profile_name)
+            known.add(profile_name)
 
     save_db(db)
     

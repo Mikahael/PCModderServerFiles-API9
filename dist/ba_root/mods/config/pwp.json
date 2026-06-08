@@ -1,0 +1,10 @@
+{
+    "light": false,
+    "shield": false,
+    "text": true,
+    "expire_text": true,
+    "grav": false,
+    "explo": false,
+    "flash": false,
+    "accept_powerup": true
+}

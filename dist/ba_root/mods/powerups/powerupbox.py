@@ -19,12 +19,14 @@ from bascenev1 import _powerup
 from bascenev1._gameactivity import GameActivity
 import babase
 import _babase
-from config import powerup_config as pwp
+from chat import master_logger as log
 
 if TYPE_CHECKING:
     from typing import Any, Sequence
 
 DEFAULT_POWERUP_INTERVAL = 8.0
+
+powerup = log.master_load_db("pwp")
 
 
 class _TouchedMessage: # updated to latest api 9
@@ -403,7 +405,7 @@ class NewPowerupBox(bs.Actor):
         # global configs  --> port to mighty fire.py soon
         
         # text on powerup
-        if pwp.text:
+        if log.master_load_db("pwp")["text"]:
             text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.7, 0), 'operation': 'add'})        
             self.node.connectattr('position', text, 'input2')
             self.spazText = bs.newnode('text',
@@ -419,26 +421,26 @@ class NewPowerupBox(bs.Actor):
                              })
             text.connectattr('output', self.spazText, 'position')
             bs.animate(self.spazText, 'scale', {0:0, 0.2:0, 0.6:0.014, 0.8:0.010})
-            if pwp.light:
+            if log.master_load_db("pwp")["light"]:
                 bs.animate_array(node=self.spazText, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
        
         
         
         # shield on powerup
-        if pwp.shield:
+        if powerup["shield"]:
             self.shield = bs.newnode('shield',
                                  owner=self.node,
                                  attrs={
                                      'color': ((0+random.random()*5.0),(0+random.random()*5.0),(0+random.random()*5.0)),
                                      'radius': 1.2})
             self.node.connectattr('position', self.shield, 'position')
-            if pwp.light:
+            if powerup["light"]:
                 bs.animate_array(node=self.shield, attr='color', size=3, keys={0.2: (2, 0, 2),0.4: (2, 2, 0),0.6: (0, 2, 2),0.8: (2, 0, 2),1.0: (1, 1, 0),1.2: (0, 1, 1),1.4: (1, 0, 1)}, loop=True)
 
 
         # pwp expiration text
-        if pwp.expire_text:
-            if pwp.text:
+        if powerup["expire_text"]:
+            if powerup["text"]:
                 # if pwp text on, go a bit higher
                 text = bs.newnode('math', owner=self.node, attrs={'input1': (0, 1.15, 0), 'operation': 'add'})  
             else:
@@ -476,11 +478,11 @@ class NewPowerupBox(bs.Actor):
             bs.timer(1.0, _update_powerup_timer, repeat=True)
         
         # pwp gravity - raises pwp by a bit, for fun i guess
-        if pwp.grav:
+        if powerup["grav"]:
             self.node.gravity_scale = 0
             
         # pwp explosive start
-        if pwp.explo:        
+        if powerup["explo"]:   
             velocity=(0, 0, 0)
             explosion = bs.newnode("explosion", attrs={
                 'position': self.node.position,
@@ -489,7 +491,7 @@ class NewPowerupBox(bs.Actor):
                 'radius': (1.3)})
 
         # extra pwp flash animation --> improved compared to 1.4
-        if pwp.flash:        
+        if powerup["flash"]:
             m = bs.newnode('math', owner=self.node, attrs={'input1': (0, 0.0, 0), 'operation': 'add'})
             self.node.connectattr('position', m, 'input2')
             self.flash = bs.newnode("flash",
@@ -507,7 +509,7 @@ class NewPowerupBox(bs.Actor):
             bs.timer(7, flash_timer)
 
         # Animate in.
-        if pwp.flash: # make the box invisible only when flash enabled
+        if powerup["flash"]:# make the box invisible only when flash enabled
             curve = bs.animate(self.node, 'mesh_scale', {0: 0, 0.14: 0, 0.2: 0})
         else:
             curve = bs.animate(self.node, 'mesh_scale', {0: 0, 0.14: 1.6, 0.2: 1})
@@ -554,7 +556,7 @@ class NewPowerupBox(bs.Actor):
             self.handlemessage(bs.DieMessage())
 
         elif isinstance(msg, _TouchedMessage):
-            if pwp.accept_powerup:
+            if powerup["accept_powerup"]:
                 if not self._powersgiven:
                     node = bs.getcollision().opposingnode
                     node.handlemessage(
@@ -566,7 +568,7 @@ class NewPowerupBox(bs.Actor):
                 if msg.immediate:
                     self.node.delete()
                 else:
-                    if pwp.flash: # dont even show a bit for flash on death
+                    if powerup["flash"]:# dont even show a bit for flash on death
                         bs.animate(self.node, 'mesh_scale', {0: 0, 0.1: 0})
                     else:
                         bs.animate(self.node, 'mesh_scale', {0: 0, 0.1: 0})
