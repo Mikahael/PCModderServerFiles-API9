@@ -12,11 +12,9 @@ from chat import coin_system as coin
 from chat import shop, endvote, kick
 from chat import master_logger as log
 from config import stats_master as mystats
+from config import config_cache
 
 settings = log.master_load_db("settings")
-powerup = log.master_load_db("pwp")
-bomby = log.master_load_db("bomb")
-spazy = log.master_load_db("spaz")
 master = log.master_load_db("player")
 
 class cheat_options(object):
@@ -77,7 +75,8 @@ class cheat_options(object):
             '/ffa',
             '/ban',
             '/white',
-            '/owner'
+            '/owner',
+            '/char'
         ]
             
     def parse_icons(self, tag: str) -> str:
@@ -124,7 +123,7 @@ class cheat_options(object):
                     ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
                 else:
                     if score < 5000 and rank == 1:
-                        ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
+                        ba.broadcastmessage('Need 5000 score and Rank 1', clients=[client_id], transient=True)
                     else:
                         ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
                 return False
@@ -168,41 +167,80 @@ class cheat_options(object):
                     ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
                 return False
             
-    def checkShopUser(self,client_id,command):#for shop
+    def checkShopUser(self, client_id, command):  # for shop
         session = get_foreground_host_session()
-        session_players=session.sessionplayers
-        
+        session_players = session.sessionplayers
+
         acc = None
-        
+
         for i in session_players:
-            if i.inputdevice.client_id==client_id:
+            if i.inputdevice.client_id == client_id:
                 acc = i.get_account_id()
-     
-        #print(command)
-        
-        stats = mystats.rank_sys.data.get(acc)
-        
-        rank = stats.get("rank", 0) # pull safely
+                break
+
+        if acc is None:
+            ba.broadcastmessage(
+                'Join game to use chat commands!',
+                clients=[client_id],
+                transient=True
+            )
+            return False
+
+        # Owners/admins bypass shop restrictions
+        if acc in mem.owner or acc in mem.admin:
+            self.coin_command = False
+            return True
+
+        stats = mystats.rank_sys.data.get(acc, {})
+
+        rank = stats.get("rank", 0)
         score = stats.get("score", 0)
-        
-        cost = self.command_cash(command) #price of each cmd
+
+        cost = self.command_cash(command)
         user_cash = coin.getCoins(acc)
+
         ticket = babase.charstr(babase.SpecialChar.TICKET)
-        if acc not in mem.owner or acc not in mem.admin:
-            if user_cash > cost:
-                if score < 5000 and rank == 1: #what to do if guy with rank 1 has admin but less than 5000 score!
-                    ba.broadcastmessage(f'You need 5000 score and Rank 1 for admin!\nPurchasing Command instead: {command}', clients=[client_id], transient=True)
-                else:
-                    ba.broadcastmessage(f'Purchased Command: {command}', clients=[client_id], transient=True)
+
+        # Rank 1 admin requirement first
+        if rank == 1 and score < 5000:
+
+            if user_cash >= cost:
+                ba.broadcastmessage(
+                    f'You need 5000 score for Rank 1 admin!\n'
+                    f'Purchasing command instead: {command}',
+                    clients=[client_id],
+                    transient=True
+                )
+
                 coin.deductCoins(acc, cost)
                 return True
-            else:
-                if acc is not None:
-                    ba.broadcastmessage(f'Insufficient Funds! Need {ticket}{cost - user_cash} more!', clients=[client_id], transient=True)
-                else:
-                    ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
-        else:
-            self.coin_command = False
+
+            ba.broadcastmessage(
+                f'You need 5000 score for Rank 1 admin!\n'
+                f'Also need {ticket}{cost - user_cash} more.',
+                clients=[client_id],
+                transient=True
+            )
+            return False
+
+        # Then check others
+        if user_cash < cost:
+            ba.broadcastmessage(
+                f'Insufficient Funds! Need {ticket}{cost - user_cash} more!',
+                clients=[client_id],
+                transient=True
+            )
+            return False
+
+        coin.deductCoins(acc, cost)
+
+        ba.broadcastmessage(
+            f'Purchased Command: {command}',
+            clients=[client_id],
+            transient=True
+        )
+
+        return True
             
     def _now():
         return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -1799,170 +1837,157 @@ class cheat_options(object):
                 ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'powerupname':
-                if self.checkAdmin(nick,m):
-                    if powerup["text"] == True:
-                        powerup["text"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["text"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["text"]
-                    log.master_load_db("pwp") #refresh cache
-                    ba.broadcastmessage('Powerup name turned ---> '+str(k))    
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["text"] = not config_cache.powerup["text"]
+                    ba.broadcastmessage(
+                        'Powerup name turned ---> ' +
+                        str(config_cache.powerup["text"])
+                    )
+                    config_cache.save_powerup()
+
             elif m == password+'poweruptimer':
-                if self.checkAdmin(nick,m):
-                    if powerup["expire_text"] == True:
-                        powerup["expire_text"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["expire_text"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["expire_text"]
-                    ba.broadcastmessage('Powerup timer turned ---> '+str(k))    
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["expire_text"] = not config_cache.powerup["expire_text"]
+                    ba.broadcastmessage(
+                        'Powerup expire text turned ---> ' +
+                        str(config_cache.powerup["expire_text"])
+                    )
+                    config_cache.save_powerup()
+
             elif m == password+'powerupshield':
-                if self.checkAdmin(nick,m):
-                    if powerup["shield"] == True:
-                        powerup["shield"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["shield"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["shield"]
-                    ba.broadcastmessage('Powerup shield turned ---> '+str(k))   
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["shield"] = not config_cache.powerup["shield"]
+                    ba.broadcastmessage(
+                        'Powerup shield turned ---> ' +
+                        str(config_cache.powerup["shield"])
+                    )
+                    config_cache.save_powerup()
+
             elif m == password+'poweruplight':
-                if self.checkAdmin(nick,m):
-                    if powerup["light"] == True:
-                        powerup["light"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["light"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["light"]
-                    ba.broadcastmessage('Powerup light turned ---> '+str(k))   
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["light"] = not config_cache.powerup["light"]
+                    ba.broadcastmessage(
+                        'Powerup light turned ---> ' +
+                        str(config_cache.powerup["light"])
+                    )
+                    config_cache.save_powerup()
+
             elif m == password+'powerupflash':
-                if self.checkAdmin(nick,m):
-                    if powerup["flash"] == True:
-                        powerup["flash"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["flash"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["flash"]
-                    ba.broadcastmessage('Powerup flash turned ---> '+str(k))   
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["flash"] = not config_cache.powerup["flash"]
+                    ba.broadcastmessage(
+                        'Powerup flash turned ---> ' +
+                        str(config_cache.powerup["flash"])
+                    )
+                    config_cache.save_powerup()
+
             elif m == password+'powerupbox':
-                if self.checkAdmin(nick,m):
-                    if powerup["accept_powerup"] == True:
-                        powerup["accept_powerup"] = False
-                        log.master_save_db("pwp", powerup)
-                    else:
-                        powerup["accept_powerup"] = True
-                        log.master_save_db("pwp", powerup)
-                    k = powerup["accept_powerup"]
-                    ba.broadcastmessage('Powerup box turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.powerup["accept_powerup"] = not config_cache.powerup["accept_powerup"]
+                    ba.broadcastmessage(
+                        'Powerup box turned ---> ' +
+                        str(config_cache.powerup["accept_powerup"])
+                    )
+                    config_cache.save_powerup()
+            #
+            # begin bomb configurations
+            #
             elif m == password+'bombname':
-                if self.checkAdmin(nick,m):
-                    if bomby["bomb_name"] == True:
-                        bomby["bomb_name"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["bomb_name"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["bomb_name"]
-                    ba.broadcastmessage('Bomb name turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["bomb_name"] = not config_cache.bomby["bomb_name"]
+                    ba.broadcastmessage(
+                        'Bomb name turned ---> ' +
+                        str(config_cache.bomby["bomb_name"])
+                    )
+                    config_cache.save_bomb()
+
             elif m == password+'bombshield':
-                if self.checkAdmin(nick,m):
-                    if bomby["shield"] == True:
-                        bomby["shield"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["shield"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["shield"]
-                    ba.broadcastmessage('Bomb shield turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["shield"] = not config_cache.bomby["shield"]
+                    ba.broadcastmessage(
+                        'Bomb shield turned ---> ' +
+                        str(config_cache.bomby["shield"])
+                    )
+                    config_cache.save_bomb()
+
             elif m == password+'bomblight':
-                if self.checkAdmin(nick,m):
-                    if bomby["light"] == True:
-                        bomby["light"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["light"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["light"]
-                    ba.broadcastmessage('Bomb light turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["light"] = not config_cache.bomby["light"]
+                    ba.broadcastmessage(
+                        'Bomb light turned ---> ' +
+                        str(config_cache.bomby["light"])
+                    )
+                    config_cache.save_bomb()
+
             elif m == password+'bombmodel':
-                if self.checkAdmin(nick,m):
-                    if bomby["bomb_model"] == True:
-                        bomby["bomb_model"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["bomb_model"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["bomb_model"]
-                    ba.broadcastmessage('Bomb model turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["bomb_model"] = not config_cache.bomby["bomb_model"]
+                    ba.broadcastmessage(
+                        'Bomb model turned ---> ' +
+                        str(config_cache.bomby["bomb_model"])
+                    )
+                    config_cache.save_bomb()
+
             elif m == password+'bombspike':
-                if self.checkAdmin(nick,m):
-                    if bomby["spike_model"] == True:
-                        bomby["spike_model"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["spike_model"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["spike_model"]
-                    ba.broadcastmessage('Bomb spike turned ---> '+str(k)) 
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["spike_model"] = not config_cache.bomby["spike_model"]
+                    ba.broadcastmessage(
+                        'Bomb spike turned ---> ' +
+                        str(config_cache.bomby["spike_model"])
+                    )
+                    config_cache.save_bomb()
+
             elif m == password+'bombtimer':
-                if self.checkAdmin(nick,m):
-                    if bomby["bomb_expire"] == True:
-                        bomby["bomb_expire"] = False
-                        log.master_save_db("bomb", bomby)
-                    else:
-                        bomby["bomb_expire"] = True
-                        log.master_save_db("bomb", bomby)
-                    k = bomby["bomb_expire"]
-                    ba.broadcastmessage('Bomb timer turned ---> '+str(k))
+                if self.checkAdmin(nick, m):
+                    config_cache.bomby["bomb_expire"] = not config_cache.bomby["bomb_expire"]
+                    ba.broadcastmessage(
+                        'Bomb timer turned ---> ' +
+                        str(config_cache.bomby["bomb_expire"])
+                    )
+                    config_cache.save_bomb()
+                    
+            #
+            # start spaz configurations
+            #
 
             elif m == password+'spazglove':
-                if self.checkAdmin(nick,m):
-                    if spazy["gloves"] == True:
-                        spazy["gloves"] = False
-                        log.master_save_db("spaz", spazy)
-                    else:
-                        spazy["gloves"] = True
-                        log.master_save_db("spaz", spazy)
-                    k = spazy["gloves"]
-                    ba.broadcastmessage('Spaz gloves turned ---> '+str(k))
+                if self.checkAdmin(nick, m):
+                    config_cache.spazy["gloves"] = not config_cache.spazy["gloves"]
+                    ba.broadcastmessage(
+                        'Spaz gloves turned ---> ' +
+                        str(config_cache.spazy["gloves"])
+                    )
+                    config_cache.save_spaz()
+
             elif m == password+'spazshield':
-                if self.checkAdmin(nick,m):
-                    if spazy["shield"] == True:
-                        spazy["shield"] = False
-                        log.master_save_db("spaz", spazy)
-                    else:
-                        spazy["shield"] = True
-                        log.master_save_db("spaz", spazy)
-                    k = spazy["shield"]
-                    ba.broadcastmessage('Spaz shield turned ---> '+str(k))
+                if self.checkAdmin(nick, m):
+                    config_cache.spazy["shield"] = not config_cache.spazy["shield"]
+                    ba.broadcastmessage(
+                        'Spaz shield turned ---> ' +
+                        str(config_cache.spazy["shield"])
+                    )
+                    config_cache.save_spaz()
+
             elif m == password+'spazcolor':
-                if self.checkAdmin(nick,m):
-                    if spazy["spaz_color"] == True:
-                        spazy["spaz_color"] = False
-                        log.master_save_db("spaz", spazy)
-                    else:
-                        spazy["spaz_color"] = True
-                        log.master_save_db("spaz", spazy)
-                    k = spazy["spaz_color"]
-                    ba.broadcastmessage('Spaz color turned ---> '+str(k))
+                if self.checkAdmin(nick, m):
+                    config_cache.spazy["spaz_color"] = not config_cache.spazy["spaz_color"]
+                    ba.broadcastmessage(
+                        'Spaz color turned ---> ' +
+                        str(config_cache.spazy["spaz_color"])
+                    )
+                    config_cache.save_spaz()
+
             elif m == password+'spazchar':
-                if self.checkAdmin(nick,m):
-                    if spazy["spaz_char"] == True:
-                        spazy["spaz_char"] = False
-                        log.master_save_db("spaz", spazy)
-                    else:
-                        spazy["spaz_char"] = True
-                        log.master_save_db("spaz", spazy)
-                    k = spazy["spaz_char"]
-                    ba.broadcastmessage('Spaz char turned ---> '+str(k))
+                if self.checkAdmin(nick, m):
+                    config_cache.spazy["spaz_char"] = not config_cache.spazy["spaz_char"]
+                    ba.broadcastmessage(
+                        'Spaz char turned ---> ' +
+                        str(config_cache.spazy["spaz_char"])
+                    )
+                    config_cache.save_spaz()
             
             elif m == password + 'char':
-                if not self.checkAdmin(nick,m):
+                if not self.checkAdmin(nick, m):
                     return
 
                 if not a:
@@ -1973,7 +1998,16 @@ class cheat_options(object):
                     )
                     return
 
-                chars = ['ninja', 'frosty', 'wizard', 'ali', 'pengu', 'pixie', 'santa']# dont use robot.. buggy
+                chars = [
+                    'ninja',
+                    'frosty',
+                    'wizard',
+                    'ali',
+                    'pengu',
+                    'pixie',
+                    'santa'
+                ]
+
                 char = a[0].lower()
 
                 if char not in chars:
@@ -1984,33 +2018,34 @@ class cheat_options(object):
                     )
                     return
 
-                # make sure all attrs exist
-                spz = spazy
+                # ensure keys exist
                 for c in chars:
-                    if not hasattr(spz, c):
-                        setattr(spz, c, False)
+                    config_cache.spazy.setdefault(c, False)
 
-                # toggle logic
-                currently_on = getattr(spz, char)
+                currently_on = config_cache.spazy[char]
 
                 if currently_on:
-                    # turn OFF current char
-                    setattr(spz, char, False)
+                    config_cache.spazy[char] = False
+
                     ba.broadcastmessage(
                         f'Spaz {char} turned ---> False',
                         transient=True
                     )
-                else:
-                    # turn OFF all others
-                    for c in chars:
-                        setattr(spz, c, False)
 
-                    # turn ON selected
-                    setattr(spz, char, True)
+                else:
+                    # turn off all chars
+                    for c in chars:
+                        config_cache.spazy[c] = False
+
+                    # turn on selected char
+                    config_cache.spazy[char] = True
+
                     ba.broadcastmessage(
                         f'Spaz {char} turned ---> True',
                         transient=True
                     )
+
+                config_cache.save_spaz()
 
 
 

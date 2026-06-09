@@ -76,4 +76,4 @@ def on_player_request_patch(self, player):
 
 def remove_cooldown():
     Session.on_player_request = on_player_request_patch
-    print('✅ Owner cooldown removed!')
+    #print('✅ Owner cooldown removed!')

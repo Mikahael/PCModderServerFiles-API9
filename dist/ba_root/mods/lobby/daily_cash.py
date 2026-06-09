@@ -14,8 +14,7 @@ from chat import master_logger as log
 
 master = log.master_load_db("player")
 
-#DAILY_FILE = 'daily_rewards.json'
-DAILY_FILE = 'ba_root/mods/lobby/daily_rewards.json'
+#DAILY_FILE = relocated to master_log.json
 
 
 def load_daily():
