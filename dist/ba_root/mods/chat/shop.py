@@ -9,8 +9,11 @@ from spaz import decorator
 from chat import coin_system as coin
 from datetime import datetime, timedelta
 from babase import SpecialChar
+from chat import master_logger as log
+
+settings = log.master_load_db("settings")
 #
-#
+# moved all prices to fire.json for dynamic central pricing!
 #
 
 def main_shop_function(msg, client_id):
@@ -45,79 +48,97 @@ def main_shop_function(msg, client_id):
         return tag
   
     effects = {
-            "spark": 300,
-            "sparkground": 350,
-            "sweat": 300,
-            "sweatground": 350,
-            "distortion": 300,
-            "rainbow": 300,
-            "ice": 300,
-            "iceground": 350,
-            "slime": 300,
-            "metal": 200,
-            "splinter": 200,
-            "fairydust": 300,
-            "star": 350,
-            "newrainbow": 350,
-            "footprint": 125,
-            "fire": 400,
-            "firespark": 450
-            }
+            "spark": settings["effects"]["spark"],
+            "sparkground": settings["effects"]["sparkground"],
+            "sweat": settings["effects"]["sweat"],
+            "sweatground": settings["effects"]["sweatground"],
+            "distortion": settings["effects"]["distortion"],
+            "rainbow": settings["effects"]["rainbow"],
+            "ice": settings["effects"]["ice"],
+            "iceground": settings["effects"]["iceground"],
+            "slime": settings["effects"]["slime"],
+            "metal": settings["effects"]["metal"],
+            "splinter": settings["effects"]["splinter"],
+            "fairydust": settings["effects"]["fairydust"],
+            "star": settings["effects"]["star"],
+            "newrainbow": settings["effects"]["newrainbow"],
+            "footprint": settings["effects"]["footprint"],
+            "fire": settings["effects"]["fire"],
+            "firespark": settings["effects"]["firespark"]
+    }
     
     tags = ('tag1','tag2','tag3','tag4','tag5','tag6')
-    tags_description = (f'tag1 - Standard Color Tag - 25', 
-             'tag2 - Red and Yellow Tag - 45', 
-             'tag3 - Smooth Color Wave - 40',
-             'tag4 - Blink Letter Wave - 50',
-             'tag5 - Rainbow Tag - 60')
+    tags_description = (
+             f'tag1 - Standard Color Tag - {settings["tags"]["tag1"]}', 
+             f'tag2 - Red and Yellow Tag - {settings["tags"]["tag2"]}', 
+             f'tag3 - Smooth Color Wave - {settings["tags"]["tag3"]}',
+             f'tag4 - Blink Letter Wave - {settings["tags"]["tag4"]}',
+             f'tag5 - Rainbow Tag - {settings["tags"]["tag5"]}'
+    )
     
     avail_commands = {
-            '/spaz': 50, '/spaz all': 100, '/inv': 40, '/inv all': 80,
-            '/freeze': 600, '/freeze all': 1000, '/sleep': 400, '/sleep all': 800,
-            '/thaw': 500, '/thaw all': 700, '/kill': 800, '/kill all': 1500,
-            '/end': 250, '/curse': 550, '/curse all': 1000,
-            '/tint': 190, '/sm': 100,
-            '/heal': 150, '/heal all': 170,
-            '/shield': 150, '/shield all': 150, '/punch': 150, '/punch all': 150,
-            '/gm': 900
-        }
+        "/spaz": settings["cmds"]["/spaz"],
+        "/spaz all": settings["cmds"]["/spaz all"],
+        "/inv": settings["cmds"]["/inv"],
+        "/inv all": settings["cmds"]["/inv all"],
+        "/freeze": settings["cmds"]["/freeze"],
+        "/freeze all": settings["cmds"]["/freeze all"],
+        "/sleep": settings["cmds"]["/sleep"],
+        "/sleep all": settings["cmds"]["/sleep all"],
+        "/thaw": settings["cmds"]["/thaw"],
+        "/thaw all": settings["cmds"]["/thaw all"],
+        "/kill": settings["cmds"]["/kill"],
+        "/kill all": settings["cmds"]["/kill all"],
+        "/end": settings["cmds"]["/end"],
+        "/curse": settings["cmds"]["/curse"],
+        "/curse all": settings["cmds"]["/curse all"],
+        "/tint": settings["cmds"]["/tint"],
+        "/sm": settings["cmds"]["/sm"],
+        "/heal": settings["cmds"]["/heal"],
+        "/heal all": settings["cmds"]["/heal all"],
+        "/shield": settings["cmds"]["/shield"],
+        "/shield all": settings["cmds"]["/shield all"],
+        "/punch": settings["cmds"]["/punch"],
+        "/punch all": settings["cmds"]["/punch all"],
+        "/gm": settings["cmds"]["/gm"]
+    }
         
     #chatmessage(avail_commands)
     
     def effects_cash(effect_name):
         cash = {
-            "spark": 300,
-            "sparkground": 350,
-            "sweat": 300,
-            "sweatground": 350,
-            "distortion": 300,
-            "rainbow": 300,
-            "ice": 300,
-            "iceground": 350,
-            "slime": 300,
-            "metal": 200,
-            "splinter": 200,
-            "fairydust": 300,
-            "star": 350,
-            "newrainbow": 350,
-            "footprint": 125,
-            "fire": 400,
-            "firespark": 450
-            }
+            "spark": settings["effects"]["spark"],
+            "sparkground": settings["effects"]["sparkground"],
+            "sweat": settings["effects"]["sweat"],
+            "sweatground": settings["effects"]["sweatground"],
+            "distortion": settings["effects"]["distortion"],
+            "rainbow": settings["effects"]["rainbow"],
+            "ice": settings["effects"]["ice"],
+            "iceground": settings["effects"]["iceground"],
+            "slime": settings["effects"]["slime"],
+            "metal": settings["effects"]["metal"],
+            "splinter": settings["effects"]["splinter"],
+            "fairydust": settings["effects"]["fairydust"],
+            "star": settings["effects"]["star"],
+            "newrainbow": settings["effects"]["newrainbow"],
+            "footprint": settings["effects"]["footprint"],
+            "fire": settings["effects"]["fire"],
+            "firespark": settings["effects"]["firespark"]
+        }
         if isinstance(effect_name, str):
             return cash.get(effect_name)
             
         elif isinstance(effect_name, (list, tuple)):
             return {e: cash.get(e) for e in effect_name}
             
-    def tags_cash(tag_name): # special thx to ashx for cool tags!
+    def tags_cash(tag_name): # configure tag price in fire.json
         cash = {
-            'tag1': 25, #Standard Color Tag - 25
-            'tag2':45, #Red & Yellow Wave - 45
-            'tag3': 40, #Smooth Color Wave - 40
-            'tag4':50, #Blink Letter Wave - 50
-            'tag5': 60, #Rainbow Tag - 60
-            }
+            'tag1': settings["tags"]["tag1"], #Standard Color Tag - 25
+            'tag2':settings["tags"]["tag2"], #Red & Yellow Wave - 45
+            'tag3': settings["tags"]["tag3"], #Smooth Color Wave - 40
+            'tag4':settings["tags"]["tag4"], #Blink Letter Wave - 50
+            'tag5': settings["tags"]["tag5"], #Rainbow Tag - 60
+        }
         if isinstance(tag_name, str):
             return cash.get(tag_name)
             

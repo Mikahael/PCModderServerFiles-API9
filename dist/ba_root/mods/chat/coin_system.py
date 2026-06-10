@@ -171,7 +171,7 @@ def askQuestion():
             attrs={
                 'text': f"[{question}]",
                 'scale': 0.0,
-                'position': (-300, -80),
+                'position': (-250, -80),
                 'maxwidth': 700,
                 'flatness': 0.0,
                 'shadow': 0.5,

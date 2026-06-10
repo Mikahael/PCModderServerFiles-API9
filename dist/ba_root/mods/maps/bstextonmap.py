@@ -37,7 +37,7 @@ def _map_custom_init(self, *args, **kwargs):
                         attrs={
                                 'text': msg,
                                 'scale': 0.0,
-                                'position': (-500, -80),
+                                'position': (-250, -80),
                                 'maxwidth': 700,
                                 'flatness': 0.0,
                                 'shadow': 0.5,
@@ -78,45 +78,46 @@ def _map_custom_init(self, *args, **kwargs):
     )
    
 
+    message_index = 0
     def soby():
-                # Pick a random message
-                messages = [
-                        u'\ue048Welcome to the server by PCModder\ue048',
-                        u'\ue00cServer version is 1.7.59\ue00c',
-                        u'\ue00cA day without laughter is a day wasted\ue00c',
-                        u'\ue043Her smile, the promise of heaven itself\ue043',
-                        u'\ue043Aspire to inspire before you expire\ue043',
-                        u'\ue048Go out with memories, not dreams\ue048'
-                ]
-                msg = random.choice(messages)
+        nonlocal message_index
 
-                # Create text node
-                node = bs.newnode(
-                        'text',
-                        attrs={
-                                'text': msg,
-                                'scale': 0.0,
-                                'position': (0, 100),
-                                'maxwidth': 700,
-                                'flatness': 0.0,
-                                'shadow': 0.5,
-                                'h_align': 'center',
-                                'v_align': 'center',
-                                'v_attach': 'bottom',
-                                'color': (1, 1, 1),
-                                'opacity': 1.0})
+        messages = settings["map_text"]
+        msg = messages[message_index]
 
-                # Bounce-in animation
-                bs.animate( node,'scale',{
-                         0.0: 0.0,
-                         0.25: 0.7,
-                         0.45: 1.35,
-                         0.6: 1.6,})
-                # Fade out
-                bs.animate(node,'opacity',{7.0: 1.0, 9.5: 0.0,})
-                bs.timer(10.0, node.delete)
+        message_index = (message_index + 1) % len(messages)
 
-        # Show message every 15 seconds
+        # Create text node
+        node = bs.newnode(
+                'text',
+                attrs={
+                        'text': msg,
+                        'scale': 0.0,
+                        'position': (0, 100),
+                        'maxwidth': 700,
+                        'flatness': 0.0,
+                        'shadow': 0.5,
+                        'h_align': 'center',
+                        'v_align': 'center',
+                        'v_attach': 'bottom',
+                        'color': (1, 1, 1),
+                        'opacity': 1.0})
+
+        # Bounce-in animation
+        bs.animate(node, 'scale', {
+                 0.0: 0.0,
+                 0.25: 0.7,
+                 0.45: 1.35,
+                 0.6: 1.6})
+
+        # Fade out
+        bs.animate(node, 'opacity', {
+                 7.0: 1.0,
+                 9.5: 0.0})
+
+        bs.timer(10.0, node.delete)
+
+    # Show message every 15 seconds
     bs.timer(15, soby, repeat=True)
 
     # for the time module!    
@@ -149,11 +150,12 @@ def _map_custom_init(self, *args, **kwargs):
         next_game = bs.get_foreground_host_session().get_next_game_description().evaluate() 
     else:
         next_game = 'NA'
-    letext = f"NextGame: {next_game} +_+ PC||MODDER"
+    bomb = u"\ue00c"
+    letext = f"NextGame: {next_game} {bomb} PC||MODDER"
     self.text = bs.newnode('text',
                                attrs={
                                    'text': letext,
-                                   'scale': 1,
+                                   'scale': 0.8,
                                    'position': (-45,6),
                                    'maxwidth': 500,
                                    'flatness': 0.0,
@@ -161,6 +163,47 @@ def _map_custom_init(self, *args, **kwargs):
                                    'h_align': 'right',
                                    'h_attach': 'right',
                                    'v_attach': 'bottom'})
+    #
+    # start tips text
+    #
+    tips = settings["tips_list"]  # pull from fire.json
+    tip_index = 0
+
+    def show_tip():
+        nonlocal tip_index
+
+        current_tip = tips[tip_index]
+        tip_index = (tip_index + 1) % len(tips)
+
+        tipstext = bs.newnode('text',
+                              attrs={
+                                  'text': f"Tips {bomb} {current_tip}",
+                                  'scale': 0.75,
+                                  'position': (-250, -30),
+                                  'maxwidth': 500,
+                                  'flatness': 0.0,
+                                  'shadow': 0.5,
+                                  'h_align': 'center',
+                                  'h_attach': 'center',
+                                  'v_attach': 'top'})
+
+        bs.animate(tipstext, 'scale', {
+                             0.0: 0.0,
+                             0.15: 0.25,
+                             0.25: 0.4,
+                             0.35: 0.6,
+                             0.45: 0.75,
+                             0.6: 0.75})
+
+        bs.animate(tipstext, 'opacity', {
+                             0.0: 1.0,
+                             6.0: 1.0,
+                             8.0: 0.0})
+
+        bs.timer(8.0, tipstext.delete)
+
+    show_tip()
+    bs.timer(12.0, bs.CallPartial(show_tip), repeat=True)
         
     if settings["floater"]:
         if settings["pc_floater"]:
