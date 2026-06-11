@@ -2,7 +2,7 @@
 #
 # 'pb-IF4-UWkFXA=='
 #
-admin = ['pb-==', 'pb-IF4-==' ]
+admin = ['pb-==', 'pb-IF4-==']
 owner = ['pb-IF4rU20MHQ==', 'pb-IF4KUBQFJA==','pb-IF4-UWkFXA==']
 muted = ['pb-==']
 banned = []

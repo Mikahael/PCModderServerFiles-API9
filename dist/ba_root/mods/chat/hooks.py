@@ -393,7 +393,6 @@ class cheat_options(object):
                     for i in session_players:
                         if i.inputdevice.client_id==clID:
                             acc = i.get_account_id()
-                            login = mem.times_joined.count(acc)
                             name = i.getname()
                     if int(a[0]) == clID:
                         try:
@@ -405,14 +404,23 @@ class cheat_options(object):
                             me_stats = f"Rank: {rank} | Score: {score} | Kills: {kills} | Deaths {deaths}"
                             ticket = babase.charstr(babase.SpecialChar.TICKET)
                             coins = coin.getCoins(acc)
-                            #ba.broadcastmessage(name+' ---> '+acc+' ---> '+str(session_players.index(i))+' --->  client_id ---> '+str(clID))
-                            ba.broadcastmessage(f'Name: {acc} | {str(session_players.index(i))} | CLID: {str(clID)} | Cash: {ticket}{coins} \n {me_stats}', clients=[client_id], transient=True)
-                            if acc in mem.admin:
-                                ba.broadcastmessage('Roles: Admin / Times Joined: '+str(login), clients=[client_id], transient=True)
-                            elif acc in mem.owner:
-                                ba.broadcastmessage('Roles: Owner / Times Joined: '+str(login), clients=[client_id], transient=True)
+                            playtime = master[acc]["total_playtime"]
+                            # display playtime right!
+                            joins = master[acc]["joins"]
+                            if joins >= 60:
+                                minutes = joins // 60
+                                seconds = joins % 60
+                                login = f"{minutes}m {seconds}s"
                             else:
-                                ba.broadcastmessage('Roles: None / Times Joined: '+str(login), clients=[client_id], transient=True)
+                                login = f"{joins}s"
+                            first = master[acc]["first_seen"]
+                            ba.broadcastmessage(
+                                f"Name: {acc} | {session_players.index(i)} | CLID: {clID} | Cash: {ticket}{coins}\n"
+                                f"{me_stats}\n"
+                                f"Playtime: {login} | Times Joined: {joins} times | First joined: {first}",
+                                clients=[client_id],
+                                transient=True
+                            )
                         except Exception:
                             ba.broadcastmessage('Player not Found!', clients=[client_id], transient=True)
                     else:
@@ -1823,7 +1831,7 @@ class cheat_options(object):
                 ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'powerupconfig':
-                ba.broadcastmessage('powerupname, poweruptimer, poweruplight, powerupshield, powerupflash, powerupbox', clients=[client_id], transient=True)
+                ba.broadcastmessage('powerupname, poweruptimer, poweruplight, powerupshield, powerupflash, powerupbox, powerupvanilla', clients=[client_id], transient=True)
                 ba.broadcastmessage('All rights to PCMODDER!', clients=[client_id], transient=True)
                 
             elif m == password+'spazconfig':
@@ -1890,6 +1898,15 @@ class cheat_options(object):
                         str(config_cache.powerup["accept_powerup"])
                     )
                     config_cache.save_powerup()
+                    
+            elif m == password+'powerupvanilla':
+                if self.checkAdmin(nick, m):
+                    config_cache.settings["vanilla_powerups"] = not config_cache.settings["vanilla_powerups"]
+                    ba.broadcastmessage(
+                        'Vanilla powerups turned ---> ' +
+                        str(config_cache.settings["vanilla_powerups"])
+                    )
+                    config_cache.save_settings()
             #
             # begin bomb configurations
             #

@@ -587,52 +587,11 @@ class NewPowerupBox(bs.Actor):
 
 def new_get_default_powerup_distribution():
     """Standard set of powerups."""
-    return (
-        ('triple_bombs', 3),
-        ('ice_bombs', 2),
-        ('punch', 2),
-        ('impact_bombs', 2),
-        ('land_mines', 2),
-        ('sticky_bombs', 2),
-        ('shield', 2),
-        ('health', 1),
-        ('curse', 1),
-        #
-        #new pwp
-        #
-        ('slow', 2),
-        ('champ', 2),
-        ('speed', 2),
-        ('spunch',2),
-        ('radius', 2),
-        ('multi_bomb',2),
-        ('xtraLife',2),
-        ('lowLife',2),
-        ('martyrdom',2),
-        ('tnt',2),
-        ('blackhole',2),
-        ('flyer',2),
-        ('beachball',2), # turned to BotMod!
-        #
-        # new bombs
-        #
-        ('ice_impact',2),
-        ('sticky_ice',2),
-        ('curse_mine',2),
-        ('ice_mine',2),
-        ('curse_impact',2),
-        ('tele_impact',2),
-        ('shock_bomb',2),
-        ('glue_bomb',2),
-        ('weed_bomb',2),
-        ('blast_bomb',2),
-        ('boom_bomb',2),
-        ('cursy_bomb',2),
-        ('revenge_bomb',2),
-        ('headache',2), #turned to random bombs
-        ('glowy',2),
-        ('rchar',0),
-    )
+    
+    if cache.settings["vanilla_powerups"]:
+        return cache.powerup["vanilla_dist"]
+    else:
+        return cache.powerup["modded_dist"]
 
 def enable_pwps():
     powerupbox.PowerupBox = NewPowerupBox

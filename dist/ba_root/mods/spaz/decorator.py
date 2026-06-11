@@ -130,7 +130,7 @@ def all_decorate(self, player):
         
     
     if acc in antibetray.nooblist:
-        prefix_tag(self, prefix='NOOB', animation=False, pos=(0, 1.45, 0))
+        prefix_tag(self, prefix='NOOB', animation=False, pos=(0, 1.4, 0))
     
     
     if acc in mid.customers:
@@ -163,7 +163,7 @@ def all_decorate(self, player):
     if acc in mid.admin:
         if not user_tags and acc not in mid.name:
             if acc not in antibetray.nooblist:
-                prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.45, 0))
+                prefix_tag(self, prefix='ADMIN', animation=True, pos=(0, 1.4, 0))
         #glow_effect(self)
         #enabled_effects.append("spark")
     
@@ -242,12 +242,23 @@ def all_decorate(self, player):
         display = icon + '#' + str(rank) + icon
 
     if rank > 0:
-        prefix_tag(
-            self,
-            prefix=display,
-            animation=False,
-            pos=(0, 2, 0)
-        )
+        if acc in mid.name or acc in mid.owner or acc in mid.admin or user_tags:
+            prefix_tag(
+                self,
+                prefix=display,
+                animation=False,
+                pos=(0, 1.75, 0)
+            )
+        else:
+            if acc not in antibetray.nooblist:
+                # for those with no tags or roles, come down!
+                # dont even show rank for nooobs
+                prefix_tag(
+                    self,
+                    prefix=display,
+                    animation=False,
+                    pos=(0, 1.4, 0)
+                )
     
     
 def prefix_tag(self, pos=(1,1,1), scales=0.01, prefix='admin', animation=True):
@@ -359,7 +370,7 @@ def animated_prefix_tag(self, prefix, col, anim_id):
             'math',
             owner=self.node,
             attrs={
-                'input1': (curr_x, 1.5, 0),
+                'input1': (curr_x, 1.2, 0), #1.5
                 'operation': 'add'
             }
         )

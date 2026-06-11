@@ -9,6 +9,7 @@ from chat import master_logger as log
 powerup = log.master_load_db("pwp")
 bomby = log.master_load_db("bomb")
 spazy = log.master_load_db("spaz")
+settings = log.master_load_db("settings") # fire.json
 
 def save_powerup():
     log.master_save_db("pwp", powerup)
@@ -18,3 +19,6 @@ def save_bomb():
     
 def save_spaz():
     log.master_save_db("spaz", spazy)
+    
+def save_settings():
+    log.master_save_db("settings", settings)
