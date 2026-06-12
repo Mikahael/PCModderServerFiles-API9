@@ -414,10 +414,77 @@ class cheat_options(object):
                             else:
                                 login = f"{joins}s"
                             first = master[acc]["first_seen"]
+
+                            item_effects = "No effects purchased!"
+                            tag_effects = "No tags purchased!"
+
+                            if acc in mem.customers:
+                                from datetime import datetime
+
+                                effects = mem.customers[acc].get("effects", {})
+                                tags = mem.customers[acc].get("tags", {})
+
+                                if effects:
+                                    item_effects = ""
+
+                                    for effect, expiry in effects.items():
+                                        expiry_time = datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
+                                        remaining = expiry_time - datetime.now()
+
+                                        if remaining.total_seconds() <= 0:
+                                            item_effects += f"{effect.title()} - Expired\n"
+                                            continue
+
+                                        days = remaining.days
+                                        hours, rem = divmod(remaining.seconds, 3600)
+                                        minutes, seconds = divmod(rem, 60)
+
+                                        if days > 0:
+                                            item_effects += (
+                                                f"{effect.title()} - "
+                                                f"{days}d {hours}h {minutes}m left\n"
+                                            )
+                                        else:
+                                            item_effects += (
+                                                f"{effect.title()} - "
+                                                f"{hours}h {minutes}m {seconds}s left\n"
+                                            )
+
+                                if tags:
+                                    tag_effects = ""
+
+                                    for tag_id, tag_data in tags.items():
+                                        tag_name = tag_data.get("name", "Unknown")
+                                        expiry = tag_data.get("expiry")
+
+                                        expiry_time = datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
+                                        remaining = expiry_time - datetime.now()
+
+                                        if remaining.total_seconds() <= 0:
+                                            tag_effects += f"{tag_name} - Expired\n"
+                                            continue
+
+                                        days = remaining.days
+                                        hours, rem = divmod(remaining.seconds, 3600)
+                                        minutes, seconds = divmod(rem, 60)
+
+                                        if days > 0:
+                                            tag_effects += (
+                                                f"{tag_name} - "
+                                                f"{days}d {hours}h {minutes}m left\n"
+                                            )
+                                        else:
+                                            tag_effects += (
+                                                f"{tag_name} - "
+                                                f"{hours}h {minutes}m {seconds}s left\n"
+                                            )
+
                             ba.broadcastmessage(
                                 f"Name: {acc} | {session_players.index(i)} | CLID: {clID} | Cash: {ticket}{coins}\n"
                                 f"{me_stats}\n"
-                                f"Playtime: {login} | Times Joined: {joins} times | First joined: {first}",
+                                f"Playtime: {login} | Times Joined: {joins} times | First joined: {first}\n"
+                                f"Purchased Tags: {tag_effects}\n"
+                                f"Purchased Effects: {item_effects}",
                                 clients=[client_id],
                                 transient=True
                             )

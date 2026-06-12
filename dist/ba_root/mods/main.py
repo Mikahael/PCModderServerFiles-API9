@@ -51,7 +51,7 @@ def clean_expiry_customers():
     def check_expiration():
         coin.clean_expired_effects()
         coin.clean_expired_tags()
-        print('✅ Checking Expiration!')
+        #print('✅ Checking Expiration!')
     check_expiration()
     if expiry_timer is None:
         expiry_timer = bs.AppTimer(3600, check_expiration, repeat=True)
@@ -66,5 +66,5 @@ def update_new_begin(self):
     #print('nooblist cleared!')
     
 def start_begin():
-    print('✅ Endvote cleared!')
+    #print('✅ Endvote cleared!')
     bs._activity.Activity.on_begin = update_new_begin

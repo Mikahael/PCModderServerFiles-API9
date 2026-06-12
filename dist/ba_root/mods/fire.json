@@ -1,6 +1,6 @@
 {
     "chat_filter": true,
-    "snow": true,
+    "snow": false,
     "night": true,
     "floater": true,
     "pc_floater": true,
@@ -28,7 +28,11 @@
         "Server Files Owner: PCModder",
         "Chat filter and anti-betray turned on",
         "use /config to see config options",
-        "server sees everyone and logs everything"
+		"admin requires rank 1 and score above 5000",
+		"contact us on discord for improvements",
+		"/removeeffect | /removetags removes items",
+        "server sees everyone and logs everything",
+		"use /white to enable whitelist"
     ],
     "map_text": [
         "Welcome to the server by PCModder",
