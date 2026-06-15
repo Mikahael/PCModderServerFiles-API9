@@ -102,6 +102,10 @@ def new_on_begin(self) -> None:
             settings["night"] = False
 
     nightymode()
+    
+    # load coinsystem from settings rather than main.py
+    from chat import coin_system as coin
+    coin.enable_coinsys()
 
     try:
         self._bots = SpazBotSet() # thx to lawgic, ported to 1.8 by PCModder!

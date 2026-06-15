@@ -302,6 +302,5 @@ def enable_coinsys():
             askQuestion,
             repeat=True
         )
-        print("✅ Coin system loaded")
     else:
-        print("CoinSys turned off!")
+        pass

@@ -321,7 +321,7 @@ class cheat_options(object):
             elif m == '/vote':
                 if not a:
                     ba.broadcastmessage(
-                        'Usage: /vote 1 or /vote 0',
+                        'Usage: /vote 1 or /vote 0 | use /endvote to start endvote',
                         clients=[client_id],
                         transient=True
                         )

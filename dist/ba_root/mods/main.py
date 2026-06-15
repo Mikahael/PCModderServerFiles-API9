@@ -5,7 +5,7 @@ from babase import apptimer
 from powerups import powerupbox
 from bomb import newbomb
 from spaz import admin, newspaz
-from maps import bstextonmap
+from maps import bstextonmap, playlist
 from lobby import bslobby, botspawn, antibetray, cooldown, daily_cash
 from config import stats_master as mystats
 from chat import coin_system as coin
@@ -32,12 +32,13 @@ def run_mods():
     bstextonmap.enable_textonmap()
     bslobby.enable_lobby()
     mystats.enable_stats()
-    coin.enable_coinsys()
+    #coin.enable_coinsys() # load coin system from session mods instead!
     botspawn.new_ga_on_begin()
     antibetray.load_anti_betray()
     cooldown.remove_cooldown()
     daily_cash.load_multikill_bonus()
     kick.new_kick()
+    playlist.new_playlist()
     clean_expiry_customers()
     start_begin()
     print('✅ Mods loaded and running!')
