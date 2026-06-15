@@ -3,8 +3,4 @@
 !!! - must do asap
 
 
-edit default teams and ffa playlist in _playlist.py!!
-
-edit endvote.py to add use /endvote in no votes in current session!
-
-edit question text to appear only in games, not outside game session!!!
+fix master_logger bug - uk which one it is!
