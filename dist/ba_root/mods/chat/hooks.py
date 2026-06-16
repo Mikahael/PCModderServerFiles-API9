@@ -98,76 +98,53 @@ class cheat_options(object):
 
         return tag
         
-    def checkAdmin(self,client_id,command):
+    def checkAdmin(self, client_id, command):
         session = get_foreground_host_session()
-        session_players=session.sessionplayers
-        
-        
+        session_players = session.sessionplayers
+
         acc = None
-        
+
         for i in session_players:
-            if i.inputdevice.client_id==client_id:
+            if i.inputdevice.client_id == client_id:
                 acc = i.get_account_id()
-                
-        stats = mystats.rank_sys.data.get(acc)
-        
-        rank = stats.get("rank", 0) # pull safely
+
+        stats = mystats.rank_sys.data.get(acc, {})
+
+        rank = stats.get("rank", 0)
         score = stats.get("score", 0)
-                
-            
+
         if acc in mem.admin or acc in mem.owner:
-            ba.broadcastmessage('Command Accepted Sir!', clients=[client_id], transient=True)
+            ba.broadcastmessage(
+                'Command Accepted Sir!',
+                clients=[client_id],
+                transient=True
+            )
             return True
-        else:
-            if command in self.admin_commands(command): 
-                if score > 5000 and rank == 1:
-                    ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
-                else:
-                    if score < 5000 and rank == 1:
-                        ba.broadcastmessage('Need 5000 score and Rank 1', clients=[client_id], transient=True)
-                    else:
-                        ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
-                return False
 
-        # Perk-admin restrictions.
-        if score > 5000 and rank == 1:
-            # Block protected admin commands.
-            if command in self.admin_commands(command):
-                ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
-                return False
+        return False
 
-            ba.broadcastmessage('Command accepted Rank 1!', clients=[client_id], transient=True)
-            return True
-        
-    def checkOwner(self,client_id,command):
+    def checkOwner(self, client_id, command):
         session = get_foreground_host_session()
-        session_players=session.sessionplayers
-        
+        session_players = session.sessionplayers
+
         acc = None
-        
+
         for i in session_players:
-            if i.inputdevice.client_id==client_id:
+            if i.inputdevice.client_id == client_id:
                 acc = i.get_account_id()
-                
-        stats = mystats.rank_sys.data.get(acc)
-        
-        rank = stats.get("rank", 0) # pull safely
-        score = stats.get("score", 0)
-                
-        if acc is None:
-            ba.broadcastmessage('Join game to use chat commands!', clients=[client_id], transient=True)
-            
+
+        stats = mystats.rank_sys.data.get(acc, {})
+
         if acc in mem.owner:
-            ba.broadcastmessage('Command Accepted Owner Sir!', clients=[client_id], transient=True)
+            ba.broadcastmessage(
+                'Command Accepted Owner Sir!',
+                clients=[client_id],
+                transient=True
+            )
             return True
-        else:
-            if command in self.admin_commands(command): 
-                if score > 5000 and rank == 1:
-                    ba.broadcastmessage('Admin by Perk only!', clients=[client_id], transient=True)
-                else:
-                    ba.broadcastmessage('Command Declined Sir!', clients=[client_id], transient=True)
-                return False
-            
+
+        return False
+
     def checkShopUser(self, client_id, command):  # for shop
         session = get_foreground_host_session()
         session_players = session.sessionplayers
@@ -321,7 +298,7 @@ class cheat_options(object):
             elif m == '/vote':
                 if not a:
                     ba.broadcastmessage(
-                        'Usage: /vote 1 or /vote 0 | use /endvote to start endvote',
+                        'Usage: /vote 1 or /vote 0',
                         clients=[client_id],
                         transient=True
                         )
@@ -419,7 +396,6 @@ class cheat_options(object):
                             tag_effects = "No tags purchased!"
 
                             if acc in mem.customers:
-                                from datetime import datetime
 
                                 effects = mem.customers[acc].get("effects", {})
                                 tags = mem.customers[acc].get("tags", {})
@@ -428,9 +404,8 @@ class cheat_options(object):
                                     item_effects = ""
 
                                     for effect, expiry in effects.items():
-                                        expiry_time = datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
-                                        remaining = expiry_time - datetime.now()
-
+                                        expiry_time = datetime.datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
+                                        remaining = expiry_time - datetime.datetime.now()
                                         if remaining.total_seconds() <= 0:
                                             item_effects += f"{effect.title()} - Expired\n"
                                             continue
@@ -457,9 +432,8 @@ class cheat_options(object):
                                         tag_name = tag_data.get("name", "Unknown")
                                         expiry = tag_data.get("expiry")
 
-                                        expiry_time = datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
-                                        remaining = expiry_time - datetime.now()
-
+                                        expiry_time = datetime.datetime.strptime(expiry, "%d-%m-%Y %H:%M:%S")
+                                        remaining = expiry_time - datetime.datetime.now()
                                         if remaining.total_seconds() <= 0:
                                             tag_effects += f"{tag_name} - Expired\n"
                                             continue
