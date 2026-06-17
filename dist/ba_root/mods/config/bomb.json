@@ -1,8 +1,8 @@
 {
-    "bomb_name": true,
+    "bomb_name": false,
     "shield": false,
     "light": false,
     "bomb_model": false,
     "spike_model": false,
-    "bomb_expire": true
+    "bomb_expire": false
 }

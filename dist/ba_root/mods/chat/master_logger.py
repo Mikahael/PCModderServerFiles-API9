@@ -138,19 +138,21 @@ def player_profiles(player):
     acc = player.get_account_id()
     name = player.getname()
 
+    
     ensure_player(db, acc, name)
 
     profiles = player.inputdevice.get_player_profiles()
 
     known = set(db[acc]["names"])
 
-    for profile_name in profiles:
-        if (
-            profile_name != "__account__"
-            and profile_name not in known
-        ):
-            db[acc]["names"].append(profile_name)
-            known.add(profile_name)
+    if db[acc]: # only add if acc is already db else wait till its there and add!
+        for profile_name in profiles:
+            if (
+                profile_name != "__account__"
+                and profile_name not in known
+                ):
+                db[acc]["names"].append(profile_name)
+                known.add(profile_name)
 
     save_db(db)
     

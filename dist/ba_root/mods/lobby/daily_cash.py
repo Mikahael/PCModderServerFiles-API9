@@ -62,32 +62,33 @@ def add_cash(clID, acc_name):
 
     # Create/repair player entry if needed
     log.ensure_player(master, acc, name)
+    
+    if master[acc]: # add only if acc exits in master db
+        last_claim = master[acc]["last_claim"]
 
-    last_claim = master[acc]["last_claim"]
+        # Already claimed today
+        if last_claim == today:
+            bs.broadcastmessage(
+                f'Welcome to the Server! {acc_name} | {acc} | {clID}',
+                clients=[clID],
+                transient=True
+            )
+            return
 
-    # Already claimed today
-    if last_claim == today:
+        # Give reward
+        cash_amount = random.choice([25, 50, 15, 10])
+        coin.addCoins(acc, cash_amount)
+
+        master = log.master_load_db("player")
+        master[acc]["last_claim"] = today
+        log.master_save_db("player", master)
+
         bs.broadcastmessage(
-            f'Welcome to the Server! {acc_name} | {acc} | {clID}',
+            f'Welcome to the Server! {acc_name} | {acc} | {clID}\n'
+            f'Daily Login Cash: {ticket}{cash_amount}!',
             clients=[clID],
             transient=True
         )
-        return
-
-    # Give reward
-    cash_amount = random.choice([25, 50, 15, 10])
-    coin.addCoins(acc, cash_amount)
-
-    master = log.master_load_db("player")
-    master[acc]["last_claim"] = today
-    log.master_save_db("player", master)
-
-    bs.broadcastmessage(
-        f'Welcome to the Server! {acc_name} | {acc} | {clID}\n'
-        f'Daily Login Cash: {ticket}{cash_amount}!',
-        clients=[clID],
-        transient=True
-    )
 
 def submit_kill_patch(self, showpoints: bool = True) -> None:
     """Submit a kill for this player entry."""
