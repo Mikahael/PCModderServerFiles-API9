@@ -30,7 +30,7 @@ configurations -
 
 installation - 
 
-1. download server files from github - git clone https:daserverlink
+1. download server files from github - git clone https://github.com/Mikahael/PCModderServerFiles-API9.git
 2. cd folder_name
 3. install python3.13-dev via whatever method u want
 4. chmod 777 bombsquad_server dist/bombsquad_headless
