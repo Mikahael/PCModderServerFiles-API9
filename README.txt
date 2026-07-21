@@ -32,8 +32,8 @@ installation -
 
 1. download server files from github - git clone https:daserverlink
 2. cd folder_name
-3. install python3.13 via whatever method u want
-4. chmod 777 bombsquad_server dist/bs_headless
+3. install python3.13-dev via whatever method u want
+4. chmod 777 bombsquad_server dist/bombsquad_headless
 5. pkill -f tmux
 6. tmux
 7. ./bombsquad_server
