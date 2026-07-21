@@ -2,6 +2,7 @@ server files by pcmodder - something simple and different from existings systems
 runs on 1.7.63
 may be buggy, rushed near the end, easy to fix errors..
 do pull requests if yall wanna improve
+final pcmodder project - enjoy!
 
 features - 
 1. powerup system ---> 1.4 to 1.7
