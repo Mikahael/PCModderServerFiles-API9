@@ -39,6 +39,7 @@ installation -
 7. ./bombsquad_server
 
 thanks - 
+
 to whom so ever it may concern, all rights reserved to pcmodder, as the license states
 thanks to vortex, paradise, anashd(tunisialoveratd)
 all thanks to god
