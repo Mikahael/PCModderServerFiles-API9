@@ -28,6 +28,8 @@ configurations -
 3. to add owner or admin/mod, go to spaz folder and edit member_id.py
 4. dont edit config_cache.py and stats_master.py in config folder - else big errors
 5. for datetime mod, change timezone of server to ur location ---> sudo timedatectl set-timezone Asia/Kolkata
+6. for full powerups list - use /vanilla to turn vanilla powerups dist off or change value in fire.json of vanilla
+7. you can also change powerups for each dist in fire.json
 
 installation - 
 
