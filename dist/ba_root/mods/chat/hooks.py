@@ -817,8 +817,9 @@ class cheat_options(object):
 
                 mem.admin = updated_admins
 
-            elif m == password + 'owner': # only owner can add owner list
-                #
+            elif m == password + 'owner':  # only owner can add owner list
+                import datetime as _dt
+
                 if not self.checkOwner(nick, m):
                     return
 
@@ -833,7 +834,6 @@ class cheat_options(object):
                 try:
                     clID = int(a[0])
                     action = a[1].lower()
-
                 except ValueError:
                     ba.broadcastmessage(
                         'Invalid client ID.',
@@ -843,11 +843,21 @@ class cheat_options(object):
                     return
 
                 target_player = None
+                admin_user = None
+                admin_name = 'Unknown'
 
+                # Resolve target player and executing admin in a single pass
                 for i in session_players:
-                    if i.inputdevice.client_id == clID:
+                    try:
+                        p_client_id = i.inputdevice.client_id
+                    except Exception:
+                        continue
+
+                    if p_client_id == clID:
                         target_player = i
-                        break
+                    if p_client_id == nick:
+                        admin_user = i.get_account_id()
+                        admin_name = i.getname()
 
                 if target_player is None:
                     ba.broadcastmessage(
@@ -859,32 +869,24 @@ class cheat_options(object):
 
                 newowner = target_player.get_account_id()
                 real = target_player.getname()
-                role = m
 
-                #actor = nick
-                for i in session_players:
-                    if i.inputdevice.client_id == nick:
-                        admin_user = i.get_account_id()
-                        admin_name = i.getname()
-                        
-                if admin_user in mem.admin:
+                # Determine admin role safely
+                if admin_user and admin_user in getattr(mem, 'admin', []):
                     admin_role = 'ADMIN'
-                elif admin_user in mem.owner:
+                elif admin_user and admin_user in getattr(mem, 'owner', []):
                     admin_role = 'OWNER'
                 else:
                     admin_role = 'UNKNOWN'
 
                 updated_owners = list(mem.owner)
-
                 log_path = 'ba_root/mods/logs/rolelog.log'
-                time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                time_str = _dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 # ---------------- ADD ----------------
                 if action == 'add':
-
                     if newowner in updated_owners:
                         ba.broadcastmessage(
-                            real + ' is already an owner!',
+                            f'{real} is already an owner!',
                             clients=[client_id],
                             transient=True
                         )
@@ -894,25 +896,22 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] "
-                            f"[OWNER ADDED] | "
-                            f"Name: {real} | "
-                            f"PBID: {newowner} | "
+                            f"[{time_str}] [OWNER ADDED] | "
+                            f"Name: {real} | PBID: {newowner} | "
                             f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
 
                     ba.broadcastmessage(
-                        real + ' added as owner.',
+                        f'{real} added as owner.',
                         clients=[client_id],
                         transient=True
                     )
 
                 # ---------------- REMOVE ----------------
                 elif action == 'remove':
-
                     if newowner not in updated_owners:
                         ba.broadcastmessage(
-                            real + ' is not an owner!',
+                            f'{real} is not an owner!',
                             clients=[client_id],
                             transient=True
                         )
@@ -922,14 +921,13 @@ class cheat_options(object):
 
                     with open(log_path, 'a') as fi:
                         fi.write(
-                            f"[{time}] "
-                            f"[OWNER REMOVED] | "
-                            f"Name: {real} | "
-                            f"PBID: {newowner} | "
+                            f"[{time_str}] [OWNER REMOVED] | "
+                            f"Name: {real} | PBID: {newowner} | "
                             f"[BY {admin_role}]: {admin_user} or {admin_name}\n"
                         )
+
                     ba.broadcastmessage(
-                        real + ' removed from owners.',
+                        f'{real} removed from owners.',
                         clients=[client_id],
                         transient=True
                     )
@@ -943,20 +941,23 @@ class cheat_options(object):
                     return
 
                 # -------- WRITE BACK OWNER LIST --------
-                with open('ba_root/mods/spaz/member_id.py') as file:
-                    s = [row for row in file]
+                try:
+                    with open('ba_root/mods/spaz/member_id.py', 'r') as file:
+                        s = file.readlines()
 
-                s[5] = 'owner = ' + str(updated_owners) + '\n'
-
-                with open('ba_root/mods/spaz/member_id.py', 'w') as f:
-                    for line in s:
-                        f.write(line)
+                    if len(s) > 5:
+                        s[5] = f'owner = {repr(updated_owners)}\n'
+                        with open('ba_root/mods/spaz/member_id.py', 'w') as f:
+                            f.writelines(s)
+                except Exception as e:
+                    print(f"Error saving member_id.py: {e}")
 
                 mem.owner = updated_owners
 
-                # Reload whitelist/ban cache.
-                log.active_players.clear()
-
+                # Reload whitelist/ban cache
+                if hasattr(log, 'active_players'):
+                    log.active_players.clear()
+                    
             elif m == password + 'white':
                 #
                 if not self.checkAdmin(nick, m):
