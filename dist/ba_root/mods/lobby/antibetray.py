@@ -15,7 +15,7 @@ def player_was_killed_patch(
     killed=False,
     killer=None,
 ):
-    name = player.getname()
+    name = player.getname(True, False)
     prec = self._player_records[name]
     prec.streak = 0
 
@@ -102,7 +102,7 @@ def player_was_killed_patch(
 
                     _bascenev1.broadcastmessage(
                         f'Warning, Please dont betray! | '
-                        f'{killer.getname()}! '
+                        f'{killer.getname(True, False)}! '
                         f'({killer.betray_count}/3)',
                         color=(1, 1, 1),
                         clients=[clID],
@@ -112,7 +112,7 @@ def player_was_killed_patch(
                     if killer.betray_count >= 3:
 
                         _bascenev1.broadcastmessage(
-                            f'{killer.getname()} was kicked '
+                            f'{killer.getname(True, False)} was kicked '
                             f'for betrayal! Play fair!',
                             color=(1, 1, 1),
                         )
@@ -139,7 +139,7 @@ def player_was_killed_patch(
                             babase.Lstr(
                                 resource='nameBetrayedText',
                                 subs=[
-                                    ('${NAME}', killer.getname()),
+                                    ('${NAME}', killer.getname(True, False)),
                                     ('${VICTIM}', name),
                                 ],
                             ),
@@ -155,7 +155,7 @@ def player_was_killed_patch(
                             babase.Lstr(
                                 resource='nameKilledText',
                                 subs=[
-                                    ('${NAME}', killer.getname()),
+                                    ('${NAME}', killer.getname(True, False)),
                                     ('${VICTIM}', name),
                                 ],
                             ),

@@ -112,7 +112,7 @@ def new__init__(
         )
 
         animate_array(self.icon, 'scale', 2, {0: (0, 0), 0.1: (45, 45)})
-        
+
         from bascenev1 import get_foreground_host_session
         import bascenev1 as bs
         session = get_foreground_host_session()
@@ -120,7 +120,7 @@ def new__init__(
         acc_name = self._sessionplayer.inputdevice.get_v1_account_name(True)
         #
         clID = self._sessionplayer.inputdevice.client_id
-        
+
         #
         acc = None
         name = None
@@ -128,16 +128,16 @@ def new__init__(
         for i in session_players:
             if i.inputdevice.client_id==clID:
                 acc = i.get_v1_account_id()
-                name = i.getname()
+                name = i.getname(True, False)
                 break
 
-            
+
         from lobby import daily_cash as daily
-                
+
         if acc is None:
             bs.broadcastmessage("Player details not found! Rejoin!", clients=[clID], transient=True)
             return
-                
+
         if acc in afk.AFK_REMOVED:
             data = afk.AFK_REMOVED.pop(acc)
             bs.broadcastmessage(f"You were removed for being AFK ({int(data['duration'])}s!)", clients=[clID], transient=True)
@@ -229,7 +229,7 @@ def new_reload_profiles(self) -> None:
         else:
             self._profileindex = 0
             self._profilename = self._profilenames[self._profileindex]
-            
+
 def get_players():
     from bascenev1 import get_foreground_host_session
     import bascenev1 as bs
@@ -239,7 +239,7 @@ def get_players():
     if session:
         for p in session.sessionplayers:
             try:
-                name = p.getname()
+                name = p.getname(True, False)
                 acc = p.get_v1_account_id()
                 client_id = p.inputdevice.client_id
                 account_name = p.inputdevice.get_v1_account_name(True)
@@ -247,7 +247,7 @@ def get_players():
                 print(f"{account_name} ---> {acc} ---> {client_id}")
             except Exception:
                 pass
-            
+
 def enable_lobby():
     Chooser.__init__ = new__init__
     Chooser.reload_profiles = new_reload_profiles

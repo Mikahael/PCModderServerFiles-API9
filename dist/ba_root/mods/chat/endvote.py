@@ -1,3 +1,4 @@
+import babase
 # endvote.py
 
 import bascenev1 as bs
@@ -34,7 +35,7 @@ def reset_vote_state():
 
 
 def update_endvote_text():
-    
+
     settings = log.master_load_db("settings")
     node = bstextonmap.endvote_node
 
@@ -266,7 +267,7 @@ def handle_vote(client_id: int, vote: int):
 
     try:
         account_id = player.sessionplayer.get_v1_account_id()
-        player_name = player.getname()
+        player_name = player.getname(True, False)
 
     except Exception:
 

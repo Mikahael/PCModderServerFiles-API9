@@ -23,11 +23,11 @@ def main_shop_function(msg, client_id):
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             acc = i.get_v1_account_id()
-            name = i.getname()
+            name = i.getname(True, False)
     chatmessage = bs.broadcastmessage
-    
+
     user_cash = coin.getCoins(acc)
-    
+
 
     def parse_icons(tag: str) -> str:
         if '\\' not in tag:
@@ -46,7 +46,7 @@ def main_shop_function(msg, client_id):
             tag = tag.replace(k, v)
 
         return tag
-  
+
     effects = {
             "spark": settings["effects"]["spark"],
             "sparkground": settings["effects"]["sparkground"],
@@ -66,16 +66,16 @@ def main_shop_function(msg, client_id):
             "fire": settings["effects"]["fire"],
             "firespark": settings["effects"]["firespark"]
     }
-    
+
     tags = ('tag1','tag2','tag3','tag4','tag5','tag6')
     tags_description = (
-             f'tag1 - Standard Color Tag - {settings["tags"]["tag1"]}', 
-             f'tag2 - Red and Yellow Tag - {settings["tags"]["tag2"]}', 
+             f'tag1 - Standard Color Tag - {settings["tags"]["tag1"]}',
+             f'tag2 - Red and Yellow Tag - {settings["tags"]["tag2"]}',
              f'tag3 - Smooth Color Wave - {settings["tags"]["tag3"]}',
              f'tag4 - Blink Letter Wave - {settings["tags"]["tag4"]}',
              f'tag5 - Rainbow Tag - {settings["tags"]["tag5"]}'
     )
-    
+
     avail_commands = {
         "/spaz": settings["cmds"]["/spaz"],
         "/spaz all": settings["cmds"]["/spaz all"],
@@ -102,9 +102,9 @@ def main_shop_function(msg, client_id):
         "/punch all": settings["cmds"]["/punch all"],
         "/gm": settings["cmds"]["/gm"]
     }
-        
+
     #chatmessage(avail_commands)
-    
+
     def effects_cash(effect_name):
         cash = {
             "spark": settings["effects"]["spark"],
@@ -127,10 +127,10 @@ def main_shop_function(msg, client_id):
         }
         if isinstance(effect_name, str):
             return cash.get(effect_name)
-            
+
         elif isinstance(effect_name, (list, tuple)):
             return {e: cash.get(e) for e in effect_name}
-            
+
     def tags_cash(tag_name): # configure tag price in fire.json
         cash = {
             'tag1': settings["tags"]["tag1"], #Standard Color Tag - 25
@@ -141,11 +141,11 @@ def main_shop_function(msg, client_id):
         }
         if isinstance(tag_name, str):
             return cash.get(tag_name)
-            
+
         elif isinstance(tag_name, (list, tuple)):
             return {e: cash.get(e) for e in tag_name}
-            
-    
+
+
     def save_to_py():
         file_path = 'ba_root/mods/spaz/member_id.py'
 
@@ -176,7 +176,7 @@ def main_shop_function(msg, client_id):
 
         with open(file_path, "w") as f:
             f.write(new_content)
-    
+
     def add_effect(acc_id, effect):
         customers = mid.customers
         customers.setdefault(acc_id, {"tags": {}, "effects": {}})
@@ -186,11 +186,11 @@ def main_shop_function(msg, client_id):
             effects[effect] = expiry_time.strftime('%d-%m-%Y %H:%M:%S')
             return True
         return False
-        
+
     def add_tag(acc_id, tag, tag_name):
         customers = mid.customers
         customers.setdefault(acc_id, {"tags": {}, "effects": {}})
-    
+
         tags = customers[acc_id]["tags"]
 
         if tag not in tags:
@@ -203,14 +203,14 @@ def main_shop_function(msg, client_id):
 
             return True
         return False
-        
+
     def remove_effect(acc_id, effect):
         customers = mid.customers
         if acc_id in customers and effect in customers[acc_id]["effects"]:
             customers[acc_id]["effects"].remove(effect)
             return True
         return False
-        
+
     a = msg.split(' ')[1:] # arguments
     m = msg.split(' ')[0]
     customers = mid.customers
@@ -279,11 +279,11 @@ def main_shop_function(msg, client_id):
         # tag purchase
         elif item in tags:
             user_tags = customers.get(acc, {}).get("tags", {})
-            
+
             if user_tags: # only allow client to have one tag at a time or clashing will occur between tags
                 chatmessage('You already have a Tag!', clients=[client_id], transient=True)
                 return
-                
+
             if acc in mid.name:
                 chatmessage('You already have Custom tag!', clients=[client_id], transient=True)
                 return

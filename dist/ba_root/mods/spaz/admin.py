@@ -21,7 +21,7 @@ class SpazPlayer(PlayerSpaz):
                  highlight: Sequence[float] = (0.5, 0.5, 0.5),
                  character: str = 'Spaz',
                  powerups_expire: bool = True,):
-        
+
         super().__init__(player=player,
                          color=color,
                          highlight=highlight,
@@ -32,32 +32,32 @@ class SpazPlayer(PlayerSpaz):
         from bascenev1 import get_foreground_host_session
         session = get_foreground_host_session()
         session_players=session.sessionplayers
-        
+
         player_id = self.source_player.node.playerID #thanx to friedfighter
-        
-        
+
+
         player1 = self.source_player
         player = self._player._sessionplayer
-        
+
         acc = player.get_v1_account_id()
         clid = player1.node.playerID #havent run this in afk or decorator yet!
-        
+
         roster = bs.get_game_roster()
-        
+
         k = player.inputdevice.get_player_profiles()
-        k2 = player1.getname()
-        
+        k2 = player1.getname(True, False)
+
         profiles = player.inputdevice.get_player_profiles()
-        
+
         #client = player.inputdevice.client_id #for clientid using player instead of player1
         #print(client)
-        
+
         roster = bs.get_game_roster()
         for i in roster:
             name = i['display_string']
             client_id = i['client_id']
             acc = i['account_id']
-       
+
         #print(name,client_id,acc)
 
 
@@ -73,10 +73,10 @@ class SpazPlayer(PlayerSpaz):
         afk.afk_main(self, player) #entirely for afk related stuffs
         decorator.all_decorate(self, player) #entire tag/effect related area
         log.player_profiles(player) # for master log of playas
-        
+
         # port basic stuff to decorater
         # port these stuff later!
-        
+
     def _effect_tick(self): # as for this, even i forgot how it works lol but it works
 
         if (
@@ -148,7 +148,7 @@ class SpazPlayer(PlayerSpaz):
             effect["name"] == name
             for effect in self.active_effects
         )
-        
+
     def add_node(self, node):
         self.active_nodes.append(node)
 

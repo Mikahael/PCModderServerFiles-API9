@@ -29,8 +29,8 @@ def master_save_db(name, data):
 
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
-        
-        
+
+
 active_players = {}
 
 
@@ -82,7 +82,7 @@ def player_join(acc: str, name: str) -> None:
 
     db = load_db()
     ensure_player(db, acc, name)
-    
+
     db[acc]["name"] = name
 
     if name not in db[acc]["names"]:
@@ -131,14 +131,14 @@ def player_leave(acc: str) -> None:
         f"[LEAVE] {acc} "
         f"(session={session_time}s)"
     )
-    
+
 def player_profiles(player):
     db = load_db()
 
     acc = player.get_v1_account_id()
-    name = player.getname()
+    name = player.getname(True, False)
 
-    
+
     ensure_player(db, acc, name)
 
     profiles = player.inputdevice.get_player_profiles()
@@ -155,12 +155,12 @@ def player_profiles(player):
                 known.add(profile_name)
 
     save_db(db)
-    
+
 def chat_commands(msg, client_id):# for logging chat commands only
     #
     from bascenev1 import get_foreground_host_session
     import bascenev1 as bs
-    
+
     session = get_foreground_host_session()
     session_players=session.sessionplayers
     account_id = None
@@ -168,23 +168,23 @@ def chat_commands(msg, client_id):# for logging chat commands only
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            name = i.getname()
+            name = i.getname(True, False)
             break
-    
-    
+
+
     cmdlog = 'ba_root/mods/logs/cmdlog.log'
     timestamp = datetime.now().strftime("%b %d %Y %H:%M:%S")
-    
+
     with open(cmdlog, "a", encoding="utf-8") as f:
         f.write(
             f"[{timestamp}] [{account_id}] [{name}] : {msg}\n"
         )
-        
+
 def filter_chat(msg, cid):
     #
     from bascenev1 import get_foreground_host_session
     import bascenev1 as bs
-    
+
     session = get_foreground_host_session()
     session_players=session.sessionplayers
     account_id = None
@@ -192,22 +192,22 @@ def filter_chat(msg, cid):
     for i in session_players:
         if i.inputdevice.client_id==cid:
             account_id = i.get_v1_account_id()
-            name = i.getname()
+            name = i.getname(True, False)
             break
-            
+
     filterlog = 'ba_root/mods/logs/filterlog.log'
     timestamp = datetime.now().strftime("%b %d %Y %H:%M:%S")
-    
+
     with open(filterlog, "a", encoding="utf-8") as f:
         f.write(
             f"[{timestamp}] [{account_id}] [{name}] : {msg}\n"
         )
-        
+
 def chat_log(msg, client_id):
     #
     from bascenev1 import get_foreground_host_session
     import bascenev1 as bs
-    
+
     session = get_foreground_host_session()
     session_players=session.sessionplayers
     account_id = None
@@ -215,15 +215,15 @@ def chat_log(msg, client_id):
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            name = i.getname()
+            name = i.getname(True, False)
             break
-            
+
     chatlog = 'ba_root/mods/logs/chatlog.log'
     timestamp = datetime.now().strftime("%b %d %Y %H:%M:%S")
-    
+
     with open(chatlog, "a", encoding="utf-8") as f:
         f.write(
             f"[{timestamp}] [{account_id}] [{name}] : {msg}\n"
         )
-        
+
 # TODO : add logging to show who added what roles to playa!

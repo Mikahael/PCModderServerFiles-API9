@@ -30,7 +30,7 @@ warn_dict = {}
 
 def is_owner(account_id):
     return account_id in mem.owner
-    
+
 def is_muted(account_id):
     if account_id not in muted_accounts:
         return False
@@ -55,7 +55,7 @@ def get_player_from_cid(client_id):
     for i in session.sessionplayers:
         try:
             if i.inputdevice and i.inputdevice.client_id == client_id:
-                name = i.getname()
+                name = i.getname(True, False)
                 account_id = i.get_v1_account_id()
                 return i, name, account_id
         except Exception:
@@ -131,5 +131,3 @@ def check_message(cid, message):
             return False  # 🚨 block bad message
 
     return True  # allow clean messages
-
-

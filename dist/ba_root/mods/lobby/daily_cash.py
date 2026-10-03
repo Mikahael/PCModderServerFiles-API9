@@ -47,12 +47,12 @@ def add_cash(clID, acc_name):
     for i in session_players:
         if i.inputdevice.client_id == clID:
             acc = i.get_v1_account_id()
-            name = i.getname()
+            name = i.getname(True, False)
             break
 
     if acc is None:
         return
-        
+
     master = log.master_load_db("player")
     log.ensure_player(master, acc, name)
     master = log.master_load_db("player")
@@ -62,7 +62,7 @@ def add_cash(clID, acc_name):
 
     # Create/repair player entry if needed
     log.ensure_player(master, acc, name)
-    
+
     if master[acc]: # add only if acc exits in master db
         last_claim = master[acc]["last_claim"]
 
@@ -131,7 +131,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound2
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname()
+        player_name = self.getname(True, False)
         # give some cash for kill
         coin.addCoins(account_id, 25)
         #
@@ -151,7 +151,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound3
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname()
+        player_name = self.getname(True, False)
         #
         coin.addCoins(account_id, 50)
         #
@@ -171,7 +171,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound4
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname()
+        player_name = self.getname(True, False)
         # big cash bonus
         coin.addCoins(account_id, 75)
         #

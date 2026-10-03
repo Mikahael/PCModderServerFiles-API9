@@ -59,7 +59,7 @@ def save_to_py():
 
     with open(file_path, "w") as f:
         f.write(new_content)
-        
+
 def clean_expired_effects():
     customers = mid.customers
     updated = False
@@ -83,7 +83,7 @@ def clean_expired_effects():
     if updated:
         bs.broadcastmessage('Item has been Expired!')
         save_to_py()
-        
+
 def clean_expired_tags():
     customers = mid.customers
     updated = False
@@ -104,7 +104,7 @@ def clean_expired_tags():
             updated = True
 
         for tag, val in list(tags.items()):
-            
+
             # 🔹 handle OLD format (string)
             if isinstance(val, str):
                 expiry_str = val
@@ -139,7 +139,7 @@ def clean_expired_tags():
 
 def askQuestion():
     global correctAnswer, answeredBy
-    
+
     questionsList = settings["questionsList"]
 
     keys = list(questionsList.keys())
@@ -160,7 +160,7 @@ def askQuestion():
 
     activity = bs.get_foreground_host_activity()
     with activity.context:
-        
+
         # Delete old question node
         if bstextonmap.question_answer:
             bstextonmap.question_answer.delete()
@@ -219,13 +219,13 @@ def checkAnswer(msg: str, client_id: int):
             clients=[client_id], transient=True
         )
         return
-            
+
     session = get_foreground_host_session()
     session_players=session.sessionplayers
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            answeredBy = i.getname()
+            answeredBy = i.getname(True, False)
 
             chatmessage(f"{answeredBy}: {msg}")
 
@@ -234,7 +234,7 @@ def checkAnswer(msg: str, client_id: int):
                 bs.broadcastmessage(
                     f"Congratulations {answeredBy}! You won {ticket}25",
                     clients=[client_id], transient=True)
-                
+
                 addCoins(account_id, 25)
                 #
                 if bstextonmap.question_answer: # say who won instead of deleting node
@@ -293,9 +293,9 @@ coin_timer = None
 
 def enable_coinsys():
     global coin_timer
-    
+
     questionDelay = settings["questionDelay"]
-    
+
     if settings["enableCoinSystem"]:
         coin_timer = babase.apptimer(
             questionDelay,
