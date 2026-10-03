@@ -18,7 +18,7 @@ from chat import master_logger as log
 STATS_FILE = 'ba_root/mods/config/player_data.json'
 
 def all_decorate(self, player):
-    acc = player.get_account_id()
+    acc = player.get_v1_account_id()
     enabled_effects = [] # needed
     
     

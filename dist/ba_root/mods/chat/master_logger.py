@@ -135,7 +135,7 @@ def player_leave(acc: str) -> None:
 def player_profiles(player):
     db = load_db()
 
-    acc = player.get_account_id()
+    acc = player.get_v1_account_id()
     name = player.getname()
 
     
@@ -167,7 +167,7 @@ def chat_commands(msg, client_id):# for logging chat commands only
     name = None
     for i in session_players:
         if i.inputdevice.client_id==client_id:
-            account_id = i.get_account_id()
+            account_id = i.get_v1_account_id()
             name = i.getname()
             break
     
@@ -191,7 +191,7 @@ def filter_chat(msg, cid):
     name = None
     for i in session_players:
         if i.inputdevice.client_id==cid:
-            account_id = i.get_account_id()
+            account_id = i.get_v1_account_id()
             name = i.getname()
             break
             
@@ -214,7 +214,7 @@ def chat_log(msg, client_id):
     name = None
     for i in session_players:
         if i.inputdevice.client_id==client_id:
-            account_id = i.get_account_id()
+            account_id = i.get_v1_account_id()
             name = i.getname()
             break
             

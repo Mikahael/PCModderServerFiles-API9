@@ -224,7 +224,7 @@ def checkAnswer(msg: str, client_id: int):
     session_players=session.sessionplayers
     for i in session_players:
         if i.inputdevice.client_id==client_id:
-            account_id = i.get_account_id()
+            account_id = i.get_v1_account_id()
             answeredBy = i.getname()
 
             chatmessage(f"{answeredBy}: {msg}")
@@ -297,7 +297,7 @@ def enable_coinsys():
     questionDelay = settings["questionDelay"]
     
     if settings["enableCoinSystem"]:
-        coin_timer = bs.AppTimer(
+        coin_timer = babase.apptimer(
             questionDelay,
             askQuestion,
             repeat=True

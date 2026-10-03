@@ -37,7 +37,7 @@ def player_was_killed_patch(
                 if player.suicide_count == 3:
                     try:
                         account_id = (
-                            player.sessionplayer.get_account_id()
+                            player.sessionplayer.get_v1_account_id()
                         )
 
                         if account_id not in nooblist:

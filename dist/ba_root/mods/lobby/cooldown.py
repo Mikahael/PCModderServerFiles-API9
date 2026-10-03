@@ -31,7 +31,7 @@ def on_player_request_patch(self, player):
 
     from spaz import member_id as mid
 
-    identifier = player.get_account_id()
+    identifier = player.get_v1_account_id()
 
     if identifier:
         leave_time = self._players_on_wait.get(identifier)

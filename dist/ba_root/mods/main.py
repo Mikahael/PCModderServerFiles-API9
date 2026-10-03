@@ -55,7 +55,7 @@ def clean_expiry_customers():
         #print('✅ Checking Expiration!')
     check_expiration()
     if expiry_timer is None:
-        expiry_timer = bs.AppTimer(3600, check_expiration, repeat=True)
+        expiry_timer = babase.apptimer(3600, check_expiration, repeat=True)
         
         
 old_begin = bs._activity.Activity.on_begin

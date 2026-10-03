@@ -22,7 +22,7 @@ def main_shop_function(msg, client_id):
     session_players=session.sessionplayers
     for i in session_players:
         if i.inputdevice.client_id==client_id:
-            acc = i.get_account_id()
+            acc = i.get_v1_account_id()
             name = i.getname()
     chatmessage = bs.broadcastmessage
     

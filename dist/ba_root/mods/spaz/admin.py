@@ -39,7 +39,7 @@ class SpazPlayer(PlayerSpaz):
         player1 = self.source_player
         player = self._player._sessionplayer
         
-        acc = player.get_account_id()
+        acc = player.get_v1_account_id()
         clid = player1.node.playerID #havent run this in afk or decorator yet!
         
         roster = bs.get_game_roster()

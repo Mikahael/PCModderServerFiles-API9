@@ -46,7 +46,7 @@ def add_cash(clID, acc_name):
 
     for i in session_players:
         if i.inputdevice.client_id == clID:
-            acc = i.get_account_id()
+            acc = i.get_v1_account_id()
             name = i.getname()
             break
 
@@ -108,7 +108,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         scale = 1.0
         sound = None
         # give some like 5 cash per kill!
-        account_id = self.player.get_account_id()
+        account_id = self.player.get_v1_account_id()
         coin.addCoins(account_id, 5)
 
     elif self._multi_kill_count == 2:
@@ -119,7 +119,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         delay = 0.0
         sound = stats.orchestrahitsound1
         # give some like 5 cash per kill!
-        account_id = self.player.get_account_id()
+        account_id = self.player.get_v1_account_id()
         coin.addCoins(account_id, 5)
 
     elif self._multi_kill_count == 3:
@@ -130,7 +130,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         delay = 0.3
         sound = stats.orchestrahitsound2
 
-        account_id = self.player.get_account_id()
+        account_id = self.player.get_v1_account_id()
         player_name = self.getname()
         # give some cash for kill
         coin.addCoins(account_id, 25)
@@ -150,7 +150,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         delay = 0.6
         sound = stats.orchestrahitsound3
 
-        account_id = self.player.get_account_id()
+        account_id = self.player.get_v1_account_id()
         player_name = self.getname()
         #
         coin.addCoins(account_id, 50)
@@ -170,7 +170,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         delay = 0.9
         sound = stats.orchestrahitsound4
 
-        account_id = self.player.get_account_id()
+        account_id = self.player.get_v1_account_id()
         player_name = self.getname()
         # big cash bonus
         coin.addCoins(account_id, 75)
