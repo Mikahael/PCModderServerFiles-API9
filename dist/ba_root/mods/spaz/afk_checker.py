@@ -15,7 +15,7 @@ import babase
 AFK_REMOVED = {}
 
 def afk_main(self, player):
-    p = player.get_account_id()
+    p = player.get_v1_account_id()
     timeout = 60
     self.last_change_time = bs.time()
     self._warned = set()
@@ -37,7 +37,7 @@ def afk_main(self, player):
                     ).autoretain()
 
             if inactive >= to:
-                acc = player.get_account_id()
+                acc = player.get_v1_account_id()
 
                 AFK_REMOVED[acc] = {
                     "time": t,

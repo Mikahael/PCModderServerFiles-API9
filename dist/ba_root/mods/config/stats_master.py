@@ -111,7 +111,7 @@ def collect_stats(activity):
                 if team_info:
                     team = team_info[0]
                     for player in team.players:
-                        aid = player.get_account_id()
+                        aid = player.get_v1_account_id()
                         if aid:
                             winners.add(aid)
                     break  # only first team = winner
@@ -119,7 +119,7 @@ def collect_stats(activity):
         # Loop through players
         for record in stats.get_records().values():
             player = record.player
-            account_id = player.get_account_id()
+            account_id = player.get_v1_account_id()
 
             if not account_id:
                 continue
@@ -150,7 +150,7 @@ def enable_stats():
             spaz = old_spawn(self, player, *args, **kwargs)
 
             try:
-                aid = player.sessionplayer.get_account_id()
+                aid = player.sessionplayer.get_v1_account_id()
                 if aid:
                     rank_sys.ensure_player(aid)
             except Exception as e:

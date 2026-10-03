@@ -107,7 +107,7 @@ class cheat_options(object):
         
         for i in session_players:
             if i.inputdevice.client_id==client_id:
-                acc = i.get_account_id()
+                acc = i.get_v1_account_id()
                 
         stats = mystats.rank_sys.data.get(acc)
         
@@ -147,7 +147,7 @@ class cheat_options(object):
         
         for i in session_players:
             if i.inputdevice.client_id==client_id:
-                acc = i.get_account_id()
+                acc = i.get_v1_account_id()
                 
         stats = mystats.rank_sys.data.get(acc)
         
@@ -176,7 +176,7 @@ class cheat_options(object):
 
         for i in session_players:
             if i.inputdevice.client_id == client_id:
-                acc = i.get_account_id()
+                acc = i.get_v1_account_id()
                 break
 
         if acc is None:
@@ -375,7 +375,7 @@ class cheat_options(object):
                         )
                         return
 
-                    acc = target_player.get_account_id()
+                    acc = target_player.get_v1_account_id()
                     name = target_player.getname()
                     #add coin to acc here!
                     coin.addCoins(acc, cash_amount)
@@ -392,7 +392,7 @@ class cheat_options(object):
                     clID = int(a[0])
                     for i in session_players:
                         if i.inputdevice.client_id==clID:
-                            acc = i.get_account_id()
+                            acc = i.get_v1_account_id()
                             name = i.getname()
                     if int(a[0]) == clID:
                         try:
@@ -623,7 +623,7 @@ class cheat_options(object):
 
                                 for i in session_players:
                                     if i.inputdevice.client_id == clID:
-                                        acc = i.get_account_id()
+                                        acc = i.get_v1_account_id()
                                         target_name = i.getname()
                                         break
 
@@ -647,7 +647,7 @@ class cheat_options(object):
 
                                     for i in session_players:
                                         if i.inputdevice.client_id == client_id:
-                                            admin_user = i.get_account_id()
+                                            admin_user = i.get_v1_account_id()
                                             admin_name = i.getname()
                                             break
 
@@ -728,13 +728,13 @@ class cheat_options(object):
                     )
                     return
 
-                newadmin = target_player.get_account_id()
+                newadmin = target_player.get_v1_account_id()
                 real = target_player.getname()
                 role = m
                 #actor = nick
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
-                        admin_user = i.get_account_id()
+                        admin_user = i.get_v1_account_id()
                         admin_name = i.getname()
                         
                 if admin_user in mem.admin:
@@ -856,7 +856,7 @@ class cheat_options(object):
                     if p_client_id == clID:
                         target_player = i
                     if p_client_id == nick:
-                        admin_user = i.get_account_id()
+                        admin_user = i.get_v1_account_id()
                         admin_name = i.getname()
 
                 if target_player is None:
@@ -867,7 +867,7 @@ class cheat_options(object):
                     )
                     return
 
-                newowner = target_player.get_account_id()
+                newowner = target_player.get_v1_account_id()
                 real = target_player.getname()
 
                 # Determine admin role safely
@@ -1030,7 +1030,7 @@ class cheat_options(object):
                     )
                     return
 
-                whitelist_id = target_player.get_account_id()
+                whitelist_id = target_player.get_v1_account_id()
                 real = target_player.getname()
 
                 updated_whitelist = list(mem.whitelist)
@@ -1135,13 +1135,13 @@ class cheat_options(object):
                     )
                     return
 
-                banned_id = target_player.get_account_id()
+                banned_id = target_player.get_v1_account_id()
                 real = target_player.getname()
                 role = m
 
                 for i in session_players:
                     if i.inputdevice.client_id == client_id:
-                        admin_user = i.get_account_id()
+                        admin_user = i.get_v1_account_id()
                         admin_name = i.getname()
 
                 if admin_user in mem.admin:
@@ -1259,11 +1259,11 @@ class cheat_options(object):
                     )
                     return
 
-                pbid = target_player.get_account_id()
+                pbid = target_player.get_v1_account_id()
                 real_name = target_player.getname()
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
-                        actor = i.get_account_id()
+                        actor = i.get_v1_account_id()
                         
                 log_path = 'ba_root/mods/logs/rolelog.log'
                 time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -1339,7 +1339,7 @@ class cheat_options(object):
                             )
                             return
 
-                        pbid = sender.get_account_id()
+                        pbid = sender.get_v1_account_id()
 
                         if pbid not in mem.customers:
                             ba.broadcastmessage(
@@ -1417,7 +1417,7 @@ class cheat_options(object):
                             )
                             return
 
-                        pbid = sender.get_account_id()
+                        pbid = sender.get_v1_account_id()
 
                         if pbid not in mem.customers:
                             ba.broadcastmessage(

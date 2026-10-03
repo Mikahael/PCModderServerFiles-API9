@@ -164,7 +164,7 @@ def end_vote(starter_client_id: int):
     )
 
     # Repeating watchdog timer.
-    vote_checker = bs.AppTimer(
+    vote_checker = babase.apptimer(
         1.0,
         vote_tick,
         repeat=True
@@ -265,8 +265,8 @@ def handle_vote(client_id: int, vote: int):
         return
 
     try:
-        account_id = player.sessionplayer.get_account_id()
-        player_name = player.getname(full=True)
+        account_id = player.sessionplayer.get_v1_account_id()
+        player_name = player.getname()
 
     except Exception:
 
