@@ -128,7 +128,7 @@ def new__init__(
         for i in session_players:
             if i.inputdevice.client_id==clID:
                 acc = i.get_v1_account_id()
-                name = i.getname(True, False)
+                name = i.getname(full=True, icon=False)
                 break
 
 
@@ -239,7 +239,7 @@ def get_players():
     if session:
         for p in session.sessionplayers:
             try:
-                name = p.getname(True, False)
+                name = p.getname(full=True, icon=False)
                 acc = p.get_v1_account_id()
                 client_id = p.inputdevice.client_id
                 account_name = p.inputdevice.get_v1_account_name(True)

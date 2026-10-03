@@ -136,7 +136,7 @@ def player_profiles(player):
     db = load_db()
 
     acc = player.get_v1_account_id()
-    name = player.getname(True, False)
+    name = player.getname(full=True, icon=False)
 
 
     ensure_player(db, acc, name)
@@ -168,7 +168,7 @@ def chat_commands(msg, client_id):# for logging chat commands only
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            name = i.getname(True, False)
+            name = i.getname(full=True, icon=False)
             break
 
 
@@ -192,7 +192,7 @@ def filter_chat(msg, cid):
     for i in session_players:
         if i.inputdevice.client_id==cid:
             account_id = i.get_v1_account_id()
-            name = i.getname(True, False)
+            name = i.getname(full=True, icon=False)
             break
 
     filterlog = 'ba_root/mods/logs/filterlog.log'
@@ -215,7 +215,7 @@ def chat_log(msg, client_id):
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            name = i.getname(True, False)
+            name = i.getname(full=True, icon=False)
             break
 
     chatlog = 'ba_root/mods/logs/chatlog.log'

@@ -225,7 +225,7 @@ def checkAnswer(msg: str, client_id: int):
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             account_id = i.get_v1_account_id()
-            answeredBy = i.getname(True, False)
+            answeredBy = i.getname(full=True, icon=False)
 
             chatmessage(f"{answeredBy}: {msg}")
 

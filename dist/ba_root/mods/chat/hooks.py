@@ -376,7 +376,7 @@ class cheat_options(object):
                         return
 
                     acc = target_player.get_v1_account_id()
-                    name = target_player.getname(True, False)
+                    name = target_player.getname(full=True, icon=False)
                     #add coin to acc here!
                     coin.addCoins(acc, cash_amount)
                     ticket = babase.charstr(babase.SpecialChar.TICKET)
@@ -393,7 +393,7 @@ class cheat_options(object):
                     for i in session_players:
                         if i.inputdevice.client_id==clID:
                             acc = i.get_v1_account_id()
-                            name = i.getname(True, False)
+                            name = i.getname(full=True, icon=False)
                     if int(a[0]) == clID:
                         try:
                             stats = mystats.rank_sys.data.get(acc)
@@ -495,7 +495,7 @@ class cheat_options(object):
             elif m == password+'list2':
                 ba.broadcastmessage('======= List ======')
                 for i in session_players:
-                    ba.broadcastmessage(i.getname(True, False)+' - | -  '+str(session_players.index(i))+'\n', clients=[client_id], transient=True)
+                    ba.broadcastmessage(i.getname(full=True, icon=False)+' - | -  '+str(session_players.index(i))+'\n', clients=[client_id], transient=True)
                 if not roster == []:
                     for i in roster:
                         ba.broadcastmessage('======For /kick only======', clients=[client_id], transient=True)
@@ -624,7 +624,7 @@ class cheat_options(object):
                                 for i in session_players:
                                     if i.inputdevice.client_id == clID:
                                         acc = i.get_v1_account_id()
-                                        target_name = i.getname(True, False)
+                                        target_name = i.getname(full=True, icon=False)
                                         break
 
                                 if acc is None:
@@ -648,7 +648,7 @@ class cheat_options(object):
                                     for i in session_players:
                                         if i.inputdevice.client_id == client_id:
                                             admin_user = i.get_v1_account_id()
-                                            admin_name = i.getname(True, False)
+                                            admin_name = i.getname(full=True, icon=False)
                                             break
 
                                     if admin_user in mem.admin:
@@ -729,13 +729,13 @@ class cheat_options(object):
                     return
 
                 newadmin = target_player.get_v1_account_id()
-                real = target_player.getname(True, False)
+                real = target_player.getname(full=True, icon=False)
                 role = m
                 #actor = nick
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
                         admin_user = i.get_v1_account_id()
-                        admin_name = i.getname(True, False)
+                        admin_name = i.getname(full=True, icon=False)
                         
                 if admin_user in mem.admin:
                     admin_role = 'ADMIN'
@@ -857,7 +857,7 @@ class cheat_options(object):
                         target_player = i
                     if p_client_id == nick:
                         admin_user = i.get_v1_account_id()
-                        admin_name = i.getname(True, False)
+                        admin_name = i.getname(full=True, icon=False)
 
                 if target_player is None:
                     ba.broadcastmessage(
@@ -868,7 +868,7 @@ class cheat_options(object):
                     return
 
                 newowner = target_player.get_v1_account_id()
-                real = target_player.getname(True, False)
+                real = target_player.getname(full=True, icon=False)
 
                 # Determine admin role safely
                 if admin_user and admin_user in getattr(mem, 'admin', []):
@@ -1031,7 +1031,7 @@ class cheat_options(object):
                     return
 
                 whitelist_id = target_player.get_v1_account_id()
-                real = target_player.getname(True, False)
+                real = target_player.getname(full=True, icon=False)
 
                 updated_whitelist = list(mem.whitelist)
                 
@@ -1136,13 +1136,13 @@ class cheat_options(object):
                     return
 
                 banned_id = target_player.get_v1_account_id()
-                real = target_player.getname(True, False)
+                real = target_player.getname(full=True, icon=False)
                 role = m
 
                 for i in session_players:
                     if i.inputdevice.client_id == client_id:
                         admin_user = i.get_v1_account_id()
-                        admin_name = i.getname(True, False)
+                        admin_name = i.getname(full=True, icon=False)
 
                 if admin_user in mem.admin:
                     admin_role = 'ADMIN'
@@ -1260,7 +1260,7 @@ class cheat_options(object):
                     return
 
                 pbid = target_player.get_v1_account_id()
-                real_name = target_player.getname(True, False)
+                real_name = target_player.getname(full=True, icon=False)
                 for i in session_players:
                     if i.inputdevice.client_id==nick:
                         actor = i.get_v1_account_id()

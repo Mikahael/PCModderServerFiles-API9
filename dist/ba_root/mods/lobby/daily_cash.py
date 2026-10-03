@@ -47,7 +47,7 @@ def add_cash(clID, acc_name):
     for i in session_players:
         if i.inputdevice.client_id == clID:
             acc = i.get_v1_account_id()
-            name = i.getname(True, False)
+            name = i.getname(full=True, icon=False)
             break
 
     if acc is None:
@@ -131,7 +131,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound2
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname(True, False)
+        player_name = self.getname(full=True, icon=False)
         # give some cash for kill
         coin.addCoins(account_id, 25)
         #
@@ -151,7 +151,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound3
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname(True, False)
+        player_name = self.getname(full=True, icon=False)
         #
         coin.addCoins(account_id, 50)
         #
@@ -171,7 +171,7 @@ def submit_kill_patch(self, showpoints: bool = True) -> None:
         sound = stats.orchestrahitsound4
 
         account_id = self.player.get_v1_account_id()
-        player_name = self.getname(True, False)
+        player_name = self.getname(full=True, icon=False)
         # big cash bonus
         coin.addCoins(account_id, 75)
         #

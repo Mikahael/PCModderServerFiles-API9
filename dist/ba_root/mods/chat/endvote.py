@@ -267,7 +267,7 @@ def handle_vote(client_id: int, vote: int):
 
     try:
         account_id = player.sessionplayer.get_v1_account_id()
-        player_name = player.getname(True, False)
+        player_name = player.getname(full=True, icon=False)
 
     except Exception:
 

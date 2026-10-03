@@ -44,7 +44,7 @@ def afk_main(self, player):
                     "duration": inactive
                 }
                 bs.broadcastmessage(
-                    f"Removing {player.getname(True, False)} for being AFK for more than {to} seconds"
+                    f"Removing {player.getname(full=True, icon=False)} for being AFK for more than {to} seconds"
                 )
                 player.remove_from_game()
 

@@ -23,7 +23,7 @@ def main_shop_function(msg, client_id):
     for i in session_players:
         if i.inputdevice.client_id==client_id:
             acc = i.get_v1_account_id()
-            name = i.getname(True, False)
+            name = i.getname(full=True, icon=False)
     chatmessage = bs.broadcastmessage
 
     user_cash = coin.getCoins(acc)

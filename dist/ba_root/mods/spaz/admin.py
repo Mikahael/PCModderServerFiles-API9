@@ -45,7 +45,7 @@ class SpazPlayer(PlayerSpaz):
         roster = bs.get_game_roster()
 
         k = player.inputdevice.get_player_profiles()
-        k2 = player1.getname(True, False)
+        k2 = player1.getname(full=True, icon=False)
 
         profiles = player.inputdevice.get_player_profiles()
 
