@@ -69,5 +69,5 @@ def on_player_request_patch(self, player: bascenev1.SessionPlayer) -> bool:
     return True
 
 
-def remove_cooldown():
+def enable_lobby():
     Session.on_player_request = on_player_request_patch
